@@ -1,5 +1,8 @@
+import 'package:employe_manage/welcom_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+
 
 class OtpPage extends StatelessWidget {
   @override
@@ -93,6 +96,8 @@ class OtpPage extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
+
+
                     // Handle OTP resend
                   },
                   style: ElevatedButton.styleFrom(
@@ -127,6 +132,7 @@ class OtpPage extends StatelessWidget {
           ),
           child: TextButton(
             onPressed: () {
+              Get.to(() => welcomepage(title: 'welcome'));
               // Handle OTP submission
             },
             child: Row(

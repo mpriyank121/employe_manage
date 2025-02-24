@@ -34,6 +34,7 @@ dependencies:
   fluttertoast: ^8.2.4
   sqflite: ^2.3.0
   path_provider: ^2.1.2
+  get: ^4.6.6
 
 
 
@@ -62,20 +63,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/Bookchor.svg
-    - assets/bc 3.svg
-    - assets/Arrow_Circle_Right.svg
-    - assets/Periwinkle.svg
-    - assets/Arrow_Circle_Right.svg
-    - assets/bc 3.svg
-    - assets/Bookchor.svg
-    - assets/category-1-svgrepo-com 1.svg
-    - assets/fluent_drink-coffee-20-regular.svg
-    - assets/Periwinkle.svg
-    - assets/settings-02.svg
-    - assets/solar_home-2-linear.svg
-    - assets/Star2.svg
-    - assets/Vector.svg
+    - assets/images/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

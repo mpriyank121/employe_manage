@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'holiday_list.dart';
 import 'otp_page.dart';
+import 'welcom_page.dart';
+import 'settings.dart';
+import 'assets_cat.dart';
+import 'documents.dart';
+import 'Categories.dart';
+import 'style.dart';
 
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp()
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,11 +22,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return GetMaterialApp(
+      getPages: [
+        GetPage(name: '/', page: () => MyHomePage(title: 'home',),),
+        GetPage(name: '/settings', page: () => settingpage(title: 'settings',),),
+        GetPage(name: '/otp', page: ()=> OtpPage()),
+        GetPage(name: '/welcome', page: () => welcomepage(title: 'welcome',),),
+        GetPage(name: '/assets', page: ()=> assetspage(title:'assets')),
+        GetPage(name: '/document', page: () => documentpage(title: 'document',),),
+        GetPage(name: '/holiday', page: () => holidaypage(title: 'holiday',),),
+        GetPage(name: '/category', page: () => categorypage(title: 'category',),),
 
-      home:  MyHomePage(title: '',
-          )
+
+
+      ],
+
+home: MyHomePage(title: 'home',),
     );
   }
 }
@@ -42,10 +62,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-
+@override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; // Get screen width
     double screenHeight = MediaQuery.of(context).size.height; // Get screen height
+
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -54,43 +75,35 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      appBar: AppBar(
+        title:
+        Center(child:
 
+        Text('Welcome', style: fontStyles.headingStyle,
+        ),),
+        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
+          child: SvgPicture.asset('assets/images/bc 3.svg',
+            height: screenHeight * 0.02, // 10% of screen height
+            width: screenWidth * 0.02,),
+        ),
+        actions: [IconButton(onPressed: () {},
+
+            icon: Icon(Icons.notifications))
+        ],
+      ),
       body:
-      Container(
-        child:
       Padding(
-        padding: EdgeInsets.all(screenWidth * 0.5), // 5% of screen width as padding
+        padding: EdgeInsets.all(screenWidth * 0.05), // 5% of screen width as padding
         child: Align(
           alignment: Alignment.topLeft, // Align everything to top-left
           child : Stack(
             children: [
-              Positioned.fill(child:
-              Container(child:SvgPicture.asset(
-                'assets/Periwinkle.svg',
-              ),)
-              ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
             Row(children: [
-              Padding(padding: EdgeInsets.only(top: screenHeight * 0.05),
-              child:
-              SvgPicture.asset(
-                'assets/Bookchor.svg',
-                height: screenHeight * 0.05,  // 10% of screen height
-                width: screenWidth * 0.05,   // 20% of screen width
-              ),
-              ),
-              Row(children: [
-                Padding(padding: EdgeInsets.only(top: screenHeight * 0.05),
-                child:
-                SvgPicture.asset(
-                'assets/bc 3.svg',
-                height: screenHeight * 0.05,  // 10% of screen height
-                width: screenWidth * 0.05,   // 20% of screen width
-              )),],),],),
-              SizedBox(height: screenHeight * 0.01), // Space below image
+              ],),
               Text(
                 'HR Management App',
                 style: TextStyle(
@@ -157,10 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   ),
                   child: TextButton(onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => OtpPage()),
-                    );
+                    Get.to(() => OtpPage());
+
+
+
                   },
                     child:
                       Row(
@@ -187,9 +200,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
       ),
-      )
+      );
 
-         );
+
   }
 }
 

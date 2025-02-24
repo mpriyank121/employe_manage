@@ -1,6 +1,11 @@
+import 'package:employe_manage/Categories.dart';
+import 'package:employe_manage/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'otp_page.dart';
+import 'style.dart';
+import 'package:get/get.dart';
+
+
 
 void main(){
   runApp(const MyApp());
@@ -16,13 +21,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
 
-        home:  MyHomePage(title: '',
+        home:  welcomepage(title: '',
         )
     );
   }
 }
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class welcomepage extends StatefulWidget {
+  const welcomepage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -36,18 +41,11 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<welcomepage> createState() => _MyHomePageState();
 }
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<welcomepage> {
 
   Widget build(BuildContext context) {
-    const TextStyle commonTextStyle = TextStyle(
-      color: Color(0xFF666666),
-      fontSize: 12,
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.w400,
-      height: 1,
-    );
     double _value =30;
     double screenWidth = MediaQuery.of(context).size.width; // Get screen width
     double screenHeight = MediaQuery.of(context).size.height; // Get screen height
@@ -59,16 +57,15 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+
       appBar: AppBar(
         title:
             Center(child:
 
-        Text('Welcome',style: TextStyle(color: Colors.black,
-          fontSize: 18,
-          fontFamily: 'Roboto',
-          fontWeight: FontWeight.w500,),),),
+        Text('Welcome',style: fontStyles.headingStyle,
+        ),),
         leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-        child: SvgPicture.asset('assets/bc 3.svg',
+        child: SvgPicture.asset('assets/images/bc 3.svg',
           height: screenHeight * 0.02,  // 10% of screen height
           width: screenWidth * 0.02,),
         ),
@@ -104,13 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: screenHeight * 0.5,
                     child:
                     Center( child:Text('10 - Jan - 2024',
-                      style: TextStyle(
-                        color: Color(0xFF4D4D4D),
-                        fontSize: 18,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w500,
+                      style: fontStyles.headingStyle,
 
-                      ),
+
                     ))
                 ),
 
@@ -190,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               width: screenWidth * 0.9,
               height: screenHeight * 0.1,
-              margin: const EdgeInsets.only(top:19),
+              margin: const EdgeInsets.only(top:20.8),
               padding: const EdgeInsets.all(30),
               decoration: ShapeDecoration(
                 color: Colors.white,
@@ -211,12 +204,12 @@ child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [Text('Worked Days',
         textAlign: TextAlign.center,
-        style: commonTextStyle,
+        style: fontStyles.commonTextStyle,
       ),
         Text('52 Days',
             textAlign: TextAlign.center,
 
-            style: commonTextStyle),
+            style: fontStyles.commonTextStyle),
 
       ],
     ),
@@ -231,11 +224,11 @@ child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [Text('Worked Days',
         textAlign: TextAlign.center,
-        style: commonTextStyle,
+        style: fontStyles.commonTextStyle,
       ),
         Text('52 Days',
             textAlign: TextAlign.center,
-            style: commonTextStyle),
+            style: fontStyles.commonTextStyle),
       ],
     ),
     ),
@@ -248,12 +241,12 @@ child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [Text('Worked Days',
         textAlign: TextAlign.center,
-        style: commonTextStyle,
+        style: fontStyles.commonTextStyle,
       ),
         Text('52 Days',
             textAlign: TextAlign.center,
 
-            style: commonTextStyle),
+            style: fontStyles.commonTextStyle),
 
       ],
     ),
@@ -282,10 +275,21 @@ margin: const EdgeInsets.only(top: 10),
 
           children: [
             Padding(padding: EdgeInsets.only(left: 20), // Adjust left padding
-            child: Text('Categories'),
+            child: Text('Categories',
+              style: fontStyles.headingStyle
+            ),
             ),
             Padding(padding: EdgeInsets.only(right: 20),
-            child: Text('See All'),
+            child: Text('See All',
+              style: TextStyle(
+                color: Color(0xFFF25922),
+                fontSize: 14,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.60,
+                letterSpacing: 0.20,
+              ),
+            ),
             )
             
           ],
@@ -305,7 +309,16 @@ margin: const EdgeInsets.only(top: 10),
                 children: [CircleAvatar(
                   radius: 24, // Size of the CircleAvatar
                   backgroundColor: Color(0xFFF9B79F),// Background color
-                  child: Icon(Icons.person, color: Colors.white, size: 24), // Icon inside Avatar
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/images/bc 3.svg", // Your SVG icon
+                      width: 30,
+                      height: 30,
+                    ),
+                    onPressed: () {
+                      print("SVG Icon pressed");
+                    },
+                  ), // Icon inside Avatar
                 ),
 
                 ],
@@ -317,8 +330,17 @@ margin: const EdgeInsets.only(top: 10),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [CircleAvatar(
                   radius: 24, // Size of the CircleAvatar
-                  backgroundColor: Colors.blue, // Background color
-                  child: Icon(Icons.person, color: Colors.white, size: 24), // Icon inside Avatar
+                  backgroundColor: Color(0xFFFFEFBF), // Background color
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/images/bc 3.svg", // Your SVG icon
+                      width: 30,
+                      height: 30,
+                    ),
+                    onPressed: () {
+                      print("SVG Icon pressed");
+                    },
+                  ), // Icon inside Avatar
                 ),
                 ],
               ),
@@ -328,8 +350,17 @@ margin: const EdgeInsets.only(top: 10),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [CircleAvatar(
                   radius: 24, // Size of the CircleAvatar
-                  backgroundColor: Colors.blue, // Background color
-                  child: Icon(Icons.person, color: Colors.white, size: 24), // Icon inside Avatar
+                  backgroundColor: Color(0xFFFCCFCF), // Background color
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/images/bc 3.svg", // Your SVG icon
+                      width: 30,
+                      height: 30,
+                    ),
+                    onPressed: () {
+                      print("SVG Icon pressed");
+                    },
+                  ), // Icon inside Avatar
                 ),
 
                 ],
@@ -340,11 +371,20 @@ margin: const EdgeInsets.only(top: 10),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [CircleAvatar(
                   radius: 24, // Size of the CircleAvatar
-                  backgroundColor: Colors.blue, // Background color
-                  child: Icon(Icons.person, color: Colors.white, size: 24), // Icon inside Avatar
-                ),
+                  backgroundColor: Color(0xFF90D9F8), // Background color
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      "assets/images/bc 3.svg", // Your SVG icon
+                      width: 30,
+                      height: 30,
+                    ),
+                    onPressed: () {
+                      print("SVG Icon pressed");
+                    },
+                  ), // Icon inside Avatar
 
-                ],
+
+                ),],
               ),
 
               )
@@ -362,10 +402,23 @@ margin: const EdgeInsets.only(top: 10),
 
             children: [
               Padding(padding: EdgeInsets.only(left: 20), // Adjust left padding
-                child: Text('Leave Application'),
+                child: Text('Leave Application',
+                  style: fontStyles.normalText,
+
+                ),
               ),
               Padding(padding: EdgeInsets.only(right: 20),
-                child: Text('See All'),
+                child: Text('See All',
+                  style: TextStyle(
+                    color: Color(0xFFF25922),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.60,
+                    letterSpacing: 0.20,
+                  ),
+
+                ),
               )
 
             ],
@@ -380,13 +433,35 @@ margin: const EdgeInsets.only(top: 10),
 
             children: [
               Padding(padding: EdgeInsets.only(left: 20), // Adjust left padding
-                child: Text('Approved'),
+                child: Text('Approved',
+                  style: TextStyle(
+                    color: Color(0xFF949494),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.60,
+                  ),),
               ),
               Padding(padding: EdgeInsets.only(left: 20),
-              child: Text('Pending'),
+              child: Text('Pending',
+                style: TextStyle(
+                  color: Color(0xFF949494),
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  height: 1.60,
+                ),),
               ),
               Padding(padding: EdgeInsets.only(right: 20),
-                child: Text('Declined'),
+                child: Text('Declined',
+
+                  style: TextStyle(
+                    color: Color(0xFF949494),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.60,
+                  ),),
               )
 
             ],
@@ -396,17 +471,26 @@ margin: const EdgeInsets.only(top: 10),
        Container(
          child:
          ListTile(
-           title: Text('Sick Leave Request'),
+           title: Text('Sick Leave Request',
+           style: fontStyles.normalText,),
            subtitle: Text('12-14 Jan'),
-           trailing: TextButton(onPressed: (){}, child: Text('Approved')),
+           trailing: TextButton(onPressed: (){}, child: Text('Approved',
+           )),
 
          ),
        ),
         Container(
+
           child: ListTile(
+
             title: Text('Casual Leave Request'),
             subtitle: Text('12-14 Jan'),
-            trailing: TextButton(onPressed: (){}, child: Text('Approved')),
+            trailing: TextButton(onPressed: (){}, child: Container(
+
+
+                child: Text('Approved')
+
+            )),
 
           ),
         ),
@@ -426,24 +510,37 @@ Container(
       shape: RoundedRectangleBorder(
         side: BorderSide(width: 1, color: Color(0xFF3CAB88)),
         borderRadius: BorderRadius.circular(81),
+        
       ),
     ),
-    child:
-    Slider(
-  value: _value,
-  min: 0,
-  max: 100,
-  activeColor: Colors.green, // Color of filled part
-  inactiveColor: Colors.grey, // Color of unfilled part
-  thumbColor: Colors.red, // Color of the slider knob
-  onChanged: (newValue) {
-    setState(() {
 
-    });
-  },
-)),
+  child: Row(
+    children: [
+      Container(
+    width: 39,
+    height: 39,
+    decoration: ShapeDecoration(
+      color: Color(0xFF3CAB88),
+      shape: OvalBorder(),
+      ),
+        child: Icon(Icons.arrow_forward,color: Colors.white,),
+      ),
+      Container(
+        padding: EdgeInsets.only(left: 70),
+        child:Text('Slide to Check In',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+          ),
+        ) ,)
+
+    ],
+  )
+    ),
         Container(
-          margin: const EdgeInsets.only(top: 50),
+          margin: const EdgeInsets.only(top: 30),
 
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween, // Pushes items to edges
@@ -451,11 +548,14 @@ Container(
             children: [
               Padding(padding: EdgeInsets.only(left: 20),
                   child: // Adjust left padding
-                  TextButton(onPressed: (){}, child:
+                  TextButton(onPressed: (){
+
+
+                  }, child:
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/solar_home-2-linear.svg', // Ensure the image is inside the assets folder
+                        'assets/images/solar_home-2-linear.svg', // Ensure the image is inside the assets folder
                         width: 24, // Set width
                         height: 24, // Set height
                       ),
@@ -466,26 +566,33 @@ Container(
               ),
               Padding(padding: EdgeInsets.only(left: 20),
                   child: // Adjust left padding
-                  TextButton(onPressed: (){}, child:
+                  TextButton(onPressed: (){
+                    Get.to(() => categorypage(title: 'category'));
+                  }, child:
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/category-1-svgrepo-com 1.svg', // Ensure the image is inside the assets folder
+                        'assets/images/category-1-svgrepo-com 1.svg', // Ensure the image is inside the assets folder
                         width: 24, // Set width
                         height: 24, // Set height
                       ),
-                      Text('Categories'),
+                      Text('Categories',
+
+                      ),
                     ],
                   ),
                     )
               ),
               Padding(padding: EdgeInsets.only(left: 20),
                   child: // Adjust left padding
-                  TextButton(onPressed: (){}, child:
+                  TextButton(onPressed: (){
+                    Get.to(() => settingpage(title: 'settings'));
+
+                  }, child:
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/settings-02.svg', // Ensure the image is inside the assets folder
+                        'assets/images/settings-02.svg', // Ensure the image is inside the assets folder
                         width: 24, // Set width
                         height: 24, // Set height
                       ),
