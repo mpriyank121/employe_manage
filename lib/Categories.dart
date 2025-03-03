@@ -1,5 +1,6 @@
 import 'package:employe_manage/assets_cat.dart';
 import 'package:employe_manage/holiday_list.dart';
+import 'package:employe_manage/leave_detail.dart';
 import 'package:employe_manage/settings.dart';
 import 'package:flutter/material.dart';
 import 'documents.dart';
@@ -137,12 +138,17 @@ class _MyHomePageState extends State<categorypage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ContainerCard(
+                  GestureDetector(
+                    onTap: (){
+                      Get.to(()=> leavepage(title: 'leave',));
+                    },
+                    child:ContainerCard(
                     child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
                       Text('Leave')
                     ],) ,
 
-                  ),
+                  ), ),
+                  
                   GestureDetector(
                     onTap:(){
                       Get.to(() => documentpage(title: 'document'));

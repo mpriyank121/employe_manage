@@ -9,6 +9,8 @@ import 'assets_cat.dart';
 import 'documents.dart';
 import 'Categories.dart';
 import 'style.dart';
+import 'leave_detail.dart';
+import 'config_file.dart';
 
 
 void main() {
@@ -32,11 +34,12 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/document', page: () => documentpage(title: 'document',),),
         GetPage(name: '/holiday', page: () => holidaypage(title: 'holiday',),),
         GetPage(name: '/category', page: () => categorypage(title: 'category',),),
+        GetPage(name: "/leave_detail", page: ()=> leavepage(title: 'leave')),
 
 
 
       ],
-
+debugShowCheckedModeBanner: false,
 home: MyHomePage(title: 'home',),
     );
   }
@@ -76,20 +79,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title:
-        Center(child:
-
-        Text('Welcome', style: fontStyles.headingStyle,
-        ),),
         leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
           child: SvgPicture.asset('assets/images/bc 3.svg',
             height: screenHeight * 0.02, // 10% of screen height
             width: screenWidth * 0.02,),
         ),
-        actions: [IconButton(onPressed: () {},
 
-            icon: Icon(Icons.notifications))
-        ],
       ),
       body:
       Padding(
@@ -111,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontSize: 14,
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
-                  height: 1.50,
+                  height: screenHeight*0.002,
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),

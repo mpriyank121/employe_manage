@@ -45,6 +45,27 @@ class holidaypage extends StatefulWidget {
   State<holidaypage> createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<holidaypage> {
+  final List<Map<String, dynamic>> items = [
+    {
+      "title": "New Year",
+      "subtitle": "Monday",
+      "icon": "assets/images/ion_document-text-outline.svg",
+      // Custom icon for Word files
+    },
+    {
+      "title": "Makar Sakranti",
+      "subtitle": "14 Jan",
+      "icon": "assets/images/ion_document-text-outline.svg",
+      // Custom icon for PDF files
+    },
+    {
+      "title": "Diwali",
+      "subtitle": "10 November",
+      "icon": "assets/images/ion_document-text-outline.svg",
+      // Custom icon for Excel files
+    }
+
+  ];
   int selectedYear = DateTime
       .now()
       .year; // Get current year
@@ -56,27 +77,7 @@ class _MyHomePageState extends State<holidaypage> {
   }
 @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> items = [
-      {
-        "title": "New Year",
-        "subtitle": "Monday",
-        "icon": "assets/images/ion_document-text-outline.svg",
-        // Custom icon for Word files
-      },
-      {
-        "title": "Makar Sakranti",
-        "subtitle": "14 Jan",
-        "icon": "assets/images/ion_document-text-outline.svg",
-        // Custom icon for PDF files
-      },
-      {
-        "title": "Diwali",
-        "subtitle": "10 November",
-        "icon": "assets/images/ion_document-text-outline.svg",
-        // Custom icon for Excel files
-      }
 
-    ];
       double _value = 30;
       double screenWidth = MediaQuery
           .of(context)

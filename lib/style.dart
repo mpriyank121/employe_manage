@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class fontStyles {
   static const TextStyle headingStyle = TextStyle(
@@ -39,6 +40,8 @@ class fontStyles {
 
 }
 
+
+//ContainerCard
 class ContainerCard extends StatelessWidget {
   final double widthFactor; // Percentage of screen width
   final double heightFactor; // Percentage of screen height
@@ -76,3 +79,61 @@ class ContainerCard extends StatelessWidget {
   }
 }
 
+//Customrow
+class CustomRow extends StatelessWidget {
+  final List<Widget> items;
+
+  const CustomRow({required this.items, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly distributes columns
+
+      children: items.map((item) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        child: item,
+      )).toList(),
+    );
+  }
+}
+//LeaveCard
+class LeaveCard extends StatelessWidget {
+  final double widthFactor; // Percentage of screen width
+  final double heightFactor; // Percentage of screen height
+  final Widget child;
+  final EdgeInsets padding;
+  final EdgeInsets margin;
+  final Color borderColor;
+  final double borderRadius;
+
+  const LeaveCard({
+    Key? key,
+    this.widthFactor = 0.4, // Default: 50% of screen width
+    this.heightFactor = 0.05, // Default: 30% of screen height
+    required this.child,
+    this.padding = const EdgeInsets.all(0),
+    this.margin = const EdgeInsets.all(0),
+    this.borderColor = const Color(0xFFE6E6E6),
+    this.borderRadius = 6,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      alignment: Alignment.center,
+      width: screenWidth * widthFactor, // Responsive width
+      height: screenHeight * heightFactor, // Responsive height
+      padding: EdgeInsets.only(),
+      margin: EdgeInsets.only(top: screenHeight*0.01,),
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: borderColor),
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      child: child,
+    );
+  }
+}
