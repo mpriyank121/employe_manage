@@ -1,11 +1,10 @@
-import 'package:employe_manage/assets_cat.dart';
-import 'package:employe_manage/otp_page.dart';
+import 'package:employe_manage/Modules/App_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import '/Configuration/config_file.dart';
+import '/Configuration/style.dart';
 import 'package:get/get.dart';
-import 'holiday_list.dart';
-import 'config_file.dart';
+import 'otp_page.dart';
 
 
 
@@ -115,20 +114,7 @@ int selectedYear = DateTime
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('Leave Details', style: fontStyles.headingStyle,
-          ),
-          leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-              child: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-
-
-                },)
-          ),
-
-        ),
+        appBar: CustomAppBar(title: 'Leave Details',),
         body:
         Center(child:
         Column(

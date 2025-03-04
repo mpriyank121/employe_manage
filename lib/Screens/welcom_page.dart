@@ -1,10 +1,12 @@
-import 'package:employe_manage/Categories.dart';
-import 'package:employe_manage/settings.dart';
+import 'package:employe_manage/Modules/App_bar.dart';
+import 'package:employe_manage/Screens/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import '/Configuration/config_file.dart';
+import '/Configuration/style.dart';
 import 'package:get/get.dart';
-import 'config_file.dart';
+import 'Categories.dart';
+import 'documents.dart';
 
 
 
@@ -76,21 +78,12 @@ class _MyHomePageState extends State<welcomepage> {
 
     return Scaffold(
 
-      appBar: AppBar(
-        title:
-            Center(child:
+      appBar: CustomAppBar(title: 'Welcome',
+      leading: AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',),
+      actions: [],
+        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
 
-        Text('Welcome',style: fontStyles.headingStyle,
-        ),),
-        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-        child: SvgPicture.asset('assets/images/bc 3.svg',
-          height: screenHeight * 0.02,  // 10% of screen height
-          width: screenWidth * 0.02,),
-        ),
-          actions: [IconButton(onPressed: (){},
-
-          icon: Icon(Icons.notifications))],
-      ),
+    ),
 
       body:
       Column(children: [
@@ -459,13 +452,13 @@ margin: const EdgeInsets.only(top: 10),
             mainAxisAlignment: MainAxisAlignment.spaceBetween, // Pushes items to edges
 
             children: [
-              Padding(padding: EdgeInsets.only(left: 20), // Adjust left padding
+              Padding(padding: EdgeInsets.only(left: 10), // Adjust left padding
                 child: customanime(initialtext: 'Approved')
               ),
-              Padding(padding: EdgeInsets.only(left: 20),
+              Padding(padding: EdgeInsets.only(left: 10),
               child: customanime(initialtext: "Pending")
               ),
-              Padding(padding: EdgeInsets.only(right: 20),
+              Padding(padding: EdgeInsets.only(right: 10),
                 child: customanime(initialtext: 'Declined')
               )
 

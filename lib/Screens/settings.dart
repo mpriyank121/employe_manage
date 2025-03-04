@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import '/Modules/App_bar.dart';
+import '/Configuration/config_file.dart';
+import '/Configuration/style.dart';
 import 'package:get/get.dart';
 
 
@@ -60,17 +62,9 @@ class _MyHomePageState extends State<settingpage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Settings', style: fontStyles.headingStyle,
-        ),
-        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-            child: IconButton(
-              icon: SvgPicture.asset("assets/images/bc 3.svg"),
-              onPressed : (){
-                Get.back();
-              },)
-        ),
+      appBar: CustomAppBar(title: 'Settings',
+        leading: AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',),
+        actions: [],
 
       ),
       body: Column(

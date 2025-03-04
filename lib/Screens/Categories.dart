@@ -1,13 +1,14 @@
-import 'package:employe_manage/assets_cat.dart';
-import 'package:employe_manage/holiday_list.dart';
-import 'package:employe_manage/leave_detail.dart';
-import 'package:employe_manage/settings.dart';
+import 'package:employe_manage/Modules/App_bar.dart';
+import 'package:employe_manage/Screens/assets_cat.dart';
+import 'package:employe_manage/Screens/holiday_list.dart';
+import 'package:employe_manage/Screens/leave_detail.dart';
+import 'package:employe_manage/Screens/settings.dart';
 import 'package:flutter/material.dart';
-import 'documents.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import '/Configuration/style.dart';
 import 'package:get/get.dart';
-import 'theme_config.dart';
+import 'documents.dart';
+import 'package:employe_manage/Configuration/config_file.dart';
 
 void main(){
   runApp(const MyApp());
@@ -66,21 +67,11 @@ class _MyHomePageState extends State<categorypage> {
     // than having to individually change instances of widgets.
     return Scaffold(
 
-      appBar: AppBar(
-        title:
-        Center(child:
+      appBar: CustomAppBar(title: 'Categories',
+        leading:AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',) ,
+        actions: [],
+        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
 
-        Text('Categories', style: fontStyles.headingStyle,
-        ),),
-        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-          child: SvgPicture.asset('assets/images/bc 3.svg',
-            height: screenHeight * 0.02, // 10% of screen height
-            width: screenWidth * 0.02,),
-        ),
-        actions: [IconButton(onPressed: () {},
-
-            icon: Icon(Icons.notifications))
-        ],
       ),
       body: Stack(
         children: [
@@ -110,7 +101,7 @@ class _MyHomePageState extends State<categorypage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [GestureDetector(
                   onTap:() {
-                    Get.to(() => assetspage(title: 'assets'));
+                    Get.to(() => Assetspage(title: 'assets'));
 
                   },
                   child:ContainerCard(

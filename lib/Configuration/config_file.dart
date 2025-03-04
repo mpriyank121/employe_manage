@@ -1,5 +1,7 @@
+import 'package:employe_manage/Screens/welcom_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class CustomButton extends StatefulWidget {
   final double widthFactor;
@@ -152,20 +154,23 @@ class MainButton extends StatefulWidget {
   final EdgeInsets margin;
   final Color borderColor;
   final double borderRadius;
+  final VoidCallback? onPressed; // Add callback function
+
 
   const MainButton({
     Key? key,
     required this.initialtext,
-    this.widthFactor = 0.25,
-    this.heightFactor = 0.05,
+    this.widthFactor = 0.9,
+    this.heightFactor = 0.07,
     this.padding = const EdgeInsets.symmetric(),
     this.margin = const EdgeInsets.symmetric(),
     this.borderColor = const Color(0xFFE6E6E6),
     this.borderRadius = 15.0,
+    this.onPressed,
   }) : super(key: key);
 
   @override
-  _customanime createState() => _customanime();
+  _MainButton createState() => _MainButton();
 }
 
 class _MainButton extends State<MainButton> {
@@ -175,6 +180,9 @@ class _MainButton extends State<MainButton> {
     setState(() {
       isClicked = !isClicked;
     });
+    if (widget.onPressed != null) {
+      widget.onPressed!(); // Call the callback function
+    }
   }
 
   @override
@@ -192,13 +200,14 @@ class _MainButton extends State<MainButton> {
           padding: widget.padding,
           child:  AnimatedContainer(
             duration: Duration(milliseconds: 300), // Smooth transition
-            width: screenWidth*0.3,
-            height: screenHeight*0.03,
+            width: screenWidth*widget.widthFactor,
+            height: screenHeight*widget.heightFactor,
             alignment: Alignment.center,
-            decoration: ShapeDecoration( color: isClicked ? Color(0xFFF25922): Colors.white, // Toggle colors
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8), // Rounded corners
-              ),
+            decoration: BoxDecoration(
+              color: Colors.deepOrange, // Background color
+              borderRadius: BorderRadius.circular(10),
+              // Rounded corners
+
             ),
             child: Text(
               isClicked ? widget.initialtext : widget.initialtext,
@@ -210,4 +219,26 @@ class _MainButton extends State<MainButton> {
     );
   }
 }
+
+//AppBarConfig
+class AppBarConfig {
+  static Widget getIconImage({required String imagePath}) {
+    return SizedBox(
+
+      child:IconButton(onPressed: (){
+        Get.to(() => welcomepage(title: 'welcome'));
+
+      }, icon:  SvgPicture.asset("assets/images/bc 3.svg")),
+    );
+  }
+  static const BoxDecoration bottomBorderDecoration = BoxDecoration(
+    border: Border(
+      bottom: BorderSide(
+        color: Color(0xFFE6E6E6), // Border color
+        width: 1.0, // Border thickness
+      ),
+    ),
+  );
+}
+
 

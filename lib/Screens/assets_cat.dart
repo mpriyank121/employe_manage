@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import 'package:employe_manage/Configuration/style.dart';
 import 'package:get/get.dart';
+import '../Modules/App_bar.dart';
 
 
 void main(){
@@ -17,13 +18,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
 
-        home:  assetspage(title: '',
+        home:  Assetspage(title: '',
         )
     );
   }
 }
-class assetspage extends StatefulWidget {
-  const assetspage({super.key, required this.title});
+class Assetspage extends StatefulWidget {
+  const Assetspage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -38,9 +39,9 @@ class assetspage extends StatefulWidget {
 
 
   @override
-  State<assetspage> createState() => _MyHomePageState();
+  State<Assetspage> createState() => _MyHomePageState();
 }
-class _MyHomePageState extends State<assetspage> {
+class _MyHomePageState extends State<Assetspage> {
 
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> items = [
@@ -85,17 +86,10 @@ class _MyHomePageState extends State<assetspage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Assets', style: fontStyles.headingStyle,
-        ),
-        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-          child: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed : (){},)
-        ),
+      appBar: CustomAppBar(title: 'Assets',
 
       ),
+
       body: Container(
 
         child: ListView.builder(

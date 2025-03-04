@@ -1,8 +1,7 @@
-import 'package:employe_manage/assets_cat.dart';
-import 'package:employe_manage/otp_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
+import '/Modules/App_bar.dart';
+import '/Configuration/style.dart';
 import 'package:get/get.dart';
 
 
@@ -95,20 +94,9 @@ class _MyHomePageState extends State<holidaypage> {
       // fast, so that you can just rebuild anything that needs updating rather
       // than having to individually change instances of widgets.
       return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('Holidays', style: fontStyles.headingStyle,
+          appBar: CustomAppBar(title: 'Holiday List',
+
           ),
-          leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-              child: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-
-
-                },)
-          ),
-
-        ),
         body:
         Center(child:
         Column(

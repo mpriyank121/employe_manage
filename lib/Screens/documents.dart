@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'style.dart';
-import 'package:get/get.dart';
+import '/Modules/App_bar.dart';
+import '/Configuration/style.dart';
 
 
 void main(){
@@ -79,17 +79,7 @@ class _MyHomePageState extends State<documentpage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Documents', style: fontStyles.headingStyle,
-        ),
-        leading: Padding(padding: EdgeInsets.only(top: screenHeight * 0.01),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed : (){
-                Get.back();
-              },)
-        ),
+      appBar: CustomAppBar(title: 'Documents',
 
       ),
       body: Container(
