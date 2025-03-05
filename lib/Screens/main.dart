@@ -1,9 +1,10 @@
-import 'package:employe_manage/Modules/App_bar.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:flutter/material.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
 import 'otp_page.dart';
+import 'package:employe_manage/Screens/documents.dart';
 void main() {
   runApp(const MyApp()
   );
@@ -32,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
+  // used by the build method of the State. Fields in a Widgets subclass are
   // always marked "final".
 
   final String title;

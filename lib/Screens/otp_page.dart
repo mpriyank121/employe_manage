@@ -1,12 +1,10 @@
 import 'package:employe_manage/Screens/welcom_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../Widgets/otp_text_feild.dart';
 import '/Configuration/config_file.dart';
-void main(){
-  runApp(const MyApp());
+import 'package:employe_manage/Configuration/style.dart';
 
-}
 
 
 class OtpPage extends StatelessWidget {
@@ -14,31 +12,7 @@ class OtpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    Widget _otpTextField(BuildContext context) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[300], // Light grey background
-            borderRadius: BorderRadius.circular(8), // Rounded corners
-          ),
-          child: SizedBox(
-            width: 40, // Increased width for better spacing
-            height: 50,
-            child: TextField(
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              maxLength: 1,
-              style: TextStyle(fontSize: 18),
-              decoration: InputDecoration(
-                counterText: '',
-                border: InputBorder.none, // Remove default border
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -59,40 +33,22 @@ class OtpPage extends StatelessWidget {
 
             Text(
               'Enter the verification code sent to',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 22,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                height: 1.45,
-              ),
+              style: fontStyles.headingStyle
             ),
             SizedBox(height: 8),
             Text(
               '9311289522',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 22,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                height: 1.45,
-              ),
+              style: fontStyles.headingStyle,
             ),
             SizedBox(height: 8),
             Text(
               'Enter your number to get started',
-              style: TextStyle(
-                color: Color(0xFF949494),
-                fontSize: 12,
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                height: 1.75,
-              ),
+              style: fontStyles.subTextStyle
             ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(6, (index) => _otpTextField(context)),
+              children: List.generate(6, (index) => OtpTextField()),
             ),
 
             SizedBox(height: 20,),

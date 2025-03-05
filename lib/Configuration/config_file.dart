@@ -1,82 +1,15 @@
+import 'package:employe_manage/Screens/Categories.dart';
 import 'package:employe_manage/Screens/welcom_page.dart';
+import 'package:employe_manage/Screens/documents.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-class CustomButton extends StatefulWidget {
-  final double widthFactor;
-  final double heightFactor;
-  final EdgeInsets padding;
-  final EdgeInsets margin;
-  final Color borderColor;
-  final double borderRadius;
+import '../Screens/settings.dart';
 
-  const CustomButton({
-    Key? key,
-    this.widthFactor = 0.25,
-    this.heightFactor = 0.04,
-    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    this.margin = const EdgeInsets.symmetric(horizontal: 16),
-    this.borderColor = const Color(0xFFE6E6E6),
-    this.borderRadius = 15.0,
-  }) : super(key: key);
 
-  @override
-  _CustomButton createState() => _CustomButton();
-}
 
-class _CustomButton extends State<CustomButton> {
-  bool isApproved = false; // Track state
-
-  void toggleStatus() {
-    setState(() {
-      isApproved = !isApproved;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    return Container(
-      width: screenWidth * widget.widthFactor,
-      height: screenHeight * widget.heightFactor,
-      margin: widget.margin,
-      decoration: BoxDecoration(
-        color: isApproved ? Colors.green : Colors.orange, // Toggle color
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: widget.borderColor, width: 2),
-
-      ),
-      child: InkWell(
-        onTap: toggleStatus,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        splashColor: Colors.white24,
-        child: Padding(
-          padding: widget.padding,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                isApproved ? "Approved" : "Pending",
-                style: TextStyle(fontSize: 12, color: Colors.white),
-              ),
-              SizedBox(width: 8),
-              SvgPicture.asset(
-                isApproved
-                    ? 'assets/icons/check.svg'
-                    : 'assets/icons/pending.svg', // Change icon dynamically
-                height: 16,
-                colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 //Custom anime
 class customanime extends StatefulWidget {
   final String initialtext;
@@ -240,5 +173,146 @@ class AppBarConfig {
     ),
   );
 }
+class OtpTextFieldConfig {
+  final Color backgroundColor;
+  final double width;
+  final double height;
+  final double fontSize;
+  final Color textColor;
+  final Color borderColor;
+
+  const OtpTextFieldConfig({
+    this.backgroundColor = Colors.grey,
+    this.width = 40.0,
+    this.height = 50.0,
+    this.fontSize = 18.0,
+    this.textColor = Colors.black,
+    this.borderColor = Colors.transparent,
+  });
+}
+
+class AppColors {
+  static const primaryColor = Color(0xFF3CAB88);
+  static const secondaryColor = Color(0xFFF25922);
+  static const borderColor = Color(0xFFE6E6E6);
+}
+
+class AppPadding {
+  static double horizontal(BuildContext context) => MediaQuery.of(context).size.width * 0.05;
+  static double vertical(BuildContext context) => MediaQuery.of(context).size.height * 0.02;
+}
+
+class AppSpacing {
+  static const small = SizedBox(height: 10);
+  static const medium = SizedBox(height: 20);
+}
+class NavItem {
+  final String label;
+  final String iconPath;
+  final VoidCallback onTap;
+
+  NavItem({required this.label, required this.iconPath, required this.onTap});
+}
+
+// List of Navigation Items
+List<NavItem> navItems = [
+  NavItem(
+    label: 'Home',
+    iconPath: 'assets/images/solar_home-2-linear.svg',
+    onTap: () {
+      Get.to(() => welcomepage(title: 'Welcome'));
+    },
+  ),
+  NavItem(
+    label: 'Categories',
+    iconPath: 'assets/images/category-1-svgrepo-com 1.svg',
+    onTap: () {
+      Get.to(() => CategoryPage(title: 'category'));
+    },
+  ),
+  NavItem(
+    label: 'Settings',
+    iconPath: 'assets/images/settings-02.svg',
+    onTap: () {
+      Get.to(() => settingpage(title: 'settings'));
+    },
+  ),
+];
+class AppConfig {
+  static const double padding = 16.0;
+  static const double iconSize = 24.0;
+  static const double spacing = 10.0;
+}
+
+class TileConfig {
+  // Document List Data
+  static final List<Map<String, dynamic>> documentItems = [
+    {
+      "title": "Offer Letter.docx",
+      "subtitle": "250 KB - Last update Dec 10, 2023",
+      "icon": "assets/images/ion_document-text-outline.svg",
+    },
+    {
+      "title": "Text.docs",
+      "subtitle": "250 KB - Last update Dec 10, 2023",
+      "icon": "assets/images/ion_document-text-outline.svg",
+    },
+    {
+      "title": "Documents.docs",
+      "subtitle": "250 KB - Last update Dec 10, 2023",
+      "icon": "assets/images/ion_document-text-outline.svg",
+    }
+  ];
+
+  static const TextStyle headingStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
+  static const TextStyle subTextStyle = TextStyle(
+    fontSize: 14,
+    color: Colors.grey,
+  );
+
+  static const EdgeInsets padding = EdgeInsets.all(10);
+}
+
+
+class HolidayListTile {
+  // Sample List Data
+  static final List<Map<String, dynamic>> items = [
+    {
+      "title": "New Year",
+      "subtitle": "1 Jan",
+      "icon": "assets/images/Frame 427319800.svg",
+    },
+    {
+      "title": "Diwali",
+      "subtitle": "20 Nov",
+      "icon": "assets/images/Frame 427319800.svg",
+    },
+    {
+      "title": "Holi",
+      "subtitle": "5 Mar",
+      "icon": "assets/images/Frame 427319800.svg",
+    },
+  ];
+}
+class LeaveListTile{
+  final List<Map<String, dynamic>> items = [
+    {
+      "title": "Sick Leave ",
+      "subtitle": "8 Jan 2024",
+
+    },
+    {
+      "title" : "Casual Leave",
+      "subtitle": "10 Jan 2024",
+
+    }
+  ];
+}
+
 
 

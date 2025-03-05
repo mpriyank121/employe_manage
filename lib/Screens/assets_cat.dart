@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Configuration/style.dart';
 import 'package:get/get.dart';
-import '../Modules/App_bar.dart';
+import '/Widgets/App_bar.dart';
 
 
 void main(){
@@ -32,7 +32,7 @@ class Assetspage extends StatefulWidget {
 
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
+  // used by the build method of the State. Fields in a Widgets subclass are
   // always marked "final".
 
   final String title;

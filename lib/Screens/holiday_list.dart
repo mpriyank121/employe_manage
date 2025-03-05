@@ -1,6 +1,8 @@
+import 'package:employe_manage/Configuration/config_file.dart';
+import 'package:employe_manage/Widgets/holiday_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '/Modules/App_bar.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
 
@@ -34,7 +36,7 @@ class holidaypage extends StatefulWidget {
 
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
+  // used by the build method of the State. Fields in a Widgets subclass are
   // always marked "final".
 
   final String title;
@@ -135,41 +137,12 @@ class _MyHomePageState extends State<holidaypage> {
               width: screenWidth * 0.9,
 
               child:ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-
-                    return
-                      Container(
-                        margin: EdgeInsets.all(10),
-
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFE6E6E6)),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child:ListTile(
-
-
-                            leading: SvgPicture.asset("assets/images/Frame 427319800.svg"),
-                            title: Text(item['title'], style: fontStyles.headingStyle,),
-                            subtitle: Container(
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['subtitle'], style: fontStyles.subTextStyle,),
-                                ],),
-                            )
-                        )
-                        ,);
-
-                  }
-
-              ),) )],
+                itemCount: HolidayListTile.items.length,
+                itemBuilder: (context, index) {
+                  return CustomListTile(item: HolidayListTile.items[index]);
+                },
+              ),
+            ))],
 
 
 

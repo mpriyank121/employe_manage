@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '/Modules/App_bar.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
@@ -33,7 +33,7 @@ class settingpage extends StatefulWidget {
 
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
+  // used by the build method of the State. Fields in a Widgets subclass are
   // always marked "final".
 
   final String title;

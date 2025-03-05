@@ -1,6 +1,8 @@
-import 'package:employe_manage/Modules/App_bar.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../Widgets/custom_button.dart';
+import '../Widgets/holiday_list_tile.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
@@ -37,7 +39,7 @@ class leavepage extends StatefulWidget {
 
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
+  // used by the build method of the State. Fields in a Widgets subclass are
   // always marked "final".
 
   final String title;
@@ -47,43 +49,11 @@ class leavepage extends StatefulWidget {
   State<leavepage> createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<leavepage> {
-  final List<Map<String, dynamic>> items = [
-    {
-      "title": "New Year",
-      "subtitle": "Monday",
-      "icon": "assets/images/ion_document-text-outline.svg",
-      // Custom icon for Word files
-    },
 
-
-    {
-      "title": "Makar Sakranti",
-      "subtitle": "14 Jan",
-      "icon": "assets/images/ion_document-text-outline.svg",
-      // Custom icon for PDF files
-    },
-    {
-      "title": "Makar Sakranti",
-      "subtitle": "14 Jan",
-      "icon": "assets/images/ion_document-text-outline.svg",
-      // Custom icon for PDF files
-    },
-
-
-  ];
   final List<Map<String, dynamic>> items1 = [
-  {
-  "title": "Sick Leave ",
-  "subtitle": "8 Jan 2024",
-
-  },
-  {
-  "title" : "Casual Leave",
-  "subtitle": "10 Jan 2024",
-
-  }
-];
-
+    {"title": "Sick Leave", "subtitle": "8 Jan 2024"},
+    {"title": "Casual Leave", "subtitle": "10 Jan 2024"},
+  ];
 int selectedYear = DateTime
       .now()
       .year; // Get current year
@@ -167,64 +137,30 @@ int selectedYear = DateTime
                   customanime(initialtext: 'Declined',)
 
                 ],),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Expanded(
-                  child: Container(
-                    width: screenWidth*0.9,
-                  height: screenHeight*0.2,
-                  margin: EdgeInsets.all(screenWidth*0.03),
-                  padding: const EdgeInsets.all(20),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: Color(0xFFE6E6E6)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                SizedBox(height: 10,),
+                Expanded(child:Container
+
+                  (
+                  width: screenWidth * 0.9,
+
+                  child:ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: items1.length,
+                    itemBuilder: (context, index) {
+                      final item = items1[index];
+                      return ListTile(
+                        title: Text(item["title"], style: fontStyles.headingStyle),
+                        subtitle: Text(item["subtitle"], style: fontStyles.subTextStyle),
+                        trailing: const CustomButton(),
+                      );
+                    },
                   ),
-
-                  child: ListView.builder(
-                      itemCount: items1.length,
-                      itemBuilder: (context, index) {
-                        final item = items1[index];
-
-                        return
-                          Container(
-
-                            decoration: ShapeDecoration(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(width: 1, color: Color(0xFFE6E6E6)),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child:ExpansionTile(
-
-                                title: Text(item["title"], style: fontStyles.headingStyle,),
-                                trailing:Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [CustomButton()
-
-                                  ],),
-                                subtitle: Container(
-                                  padding: EdgeInsets.all(5),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item["subtitle"], style: fontStyles.subTextStyle,),
-                                    ],),
-                                )
-                            )
-                            ,);
-
-                      }
-
-                  ),
-                                       ),
-
-              ),],),
+                ))
               ],),
-            ) ),
+            )
+
+            ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [Container(
@@ -234,44 +170,17 @@ int selectedYear = DateTime
               )]
               ,),
 
-            Expanded(child:Container
-              (
-              width: screenWidth * 0.9,
-              child:ListView.builder(
-
-                  itemCount: items.length,
+            Expanded(
+              child: Container(
+                width: screenWidth * 0.9,
+                child: ListView.builder(
+                  itemCount: HolidayListTile.items.length,
                   itemBuilder: (context, index) {
-                    final item = items[index];
-                    return
-                      Container(
-                        margin: EdgeInsets.all(10),
-
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFE6E6E6)),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child:ListTile(
-
-                            leading: SvgPicture.asset("assets/images/Frame 427319800.svg"),
-                            title: Text(item['title'], style: fontStyles.headingStyle,),
-                            subtitle: Container(
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['subtitle'], style: fontStyles.subTextStyle,),
-                                ],),
-                            )
-                        )
-                        ,);
-
-                  }
-
-              ),) ),
+                    return CustomListTile(item: HolidayListTile.items[index]);
+                  },
+                ),
+              ),
+            ),
             Positioned(
                 child: Container(
                   margin: EdgeInsets.only(bottom:screenHeight*0.01),

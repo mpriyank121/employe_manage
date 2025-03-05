@@ -1,246 +1,122 @@
-import 'package:employe_manage/Modules/App_bar.dart';
-import 'package:employe_manage/Screens/assets_cat.dart';
-import 'package:employe_manage/Screens/holiday_list.dart';
-import 'package:employe_manage/Screens/leave_detail.dart';
-import 'package:employe_manage/Screens/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '/Configuration/style.dart';
 import 'package:get/get.dart';
-import 'documents.dart';
-import 'package:employe_manage/Configuration/config_file.dart';
+import '../Configuration/config_file.dart';
+import '../widgets/app_bar.dart';
+import '../screens/assets_cat.dart';
+import '../screens/holiday_list.dart';
+import '../screens/leave_detail.dart';
+import '../screens/documents.dart';
+import 'package:employe_manage/Widgets/Container_card.dart';
 
-void main(){
-  runApp(const MyApp());
 
-}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-        title: 'Flutter Demo',
-
-        home:  categorypage(title: '',
-        )
+      title: 'Flutter Demo',
+      home: CategoryPage(title: ''),
     );
   }
 }
-class categorypage extends StatefulWidget {
-  const categorypage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
+class CategoryPage extends StatefulWidget {
   final String title;
+  const CategoryPage({super.key, required this.title});
 
   @override
-  State<categorypage> createState() => _MyHomePageState();
+  State<CategoryPage> createState() => _CategoryPageState();
 }
-class _MyHomePageState extends State<categorypage> {
 
+class _CategoryPageState extends State<CategoryPage> {
+  final List<Map<String, dynamic>> categoryItems = [
+    {'title': 'Attendance', 'icon': 'assets/images/bc 3.svg', 'route': null},
+    {'title': 'Remuneration', 'icon': 'assets/images/remuneration.svg', 'route': null},
+    {'title': 'Assets', 'icon': 'assets/images/assets.svg', 'route': () => Assetspage(title: 'Assets')},
+    {'title': 'Holidays', 'icon': 'assets/images/holidays.svg', 'route': () => holidaypage(title: 'Holidays')},
+    {'title': 'Leave', 'icon': 'assets/images/leave.svg', 'route': () => leavepage(title: 'Leave')},
+    {'title': 'Tasks', 'icon': 'assets/images/tasks.svg', 'route': null},
+    {'title': 'Documents', 'icon': 'assets/images/tasks.svg', 'route': ()=>documentpage(title: 'document',)},
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    double _value = 30;
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width; // Get screen width
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height; // Get screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+    double iconSize = 50.0;
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Categories',
 
-      appBar: CustomAppBar(title: 'Categories',
-        leading:AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',) ,
-        actions: [],
-        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
 
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly distributes columns
-
-            children: [
-              ContainerCard(
-
-                child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                  Text('Attendence')
-                ],) ,
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.all(AppConfig.padding),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // 2 items per row
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
               ),
-              ContainerCard(
-                child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-              Text('Remuneration')
-            ],) ,
+              itemCount: categoryItems.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    if (categoryItems[index]['route'] != null) {
+                      Get.to(categoryItems[index]['route']()); // ✅ Correct way to navigate
 
-              ),
-            ],
-
-          ),
-              SizedBox(height: MediaQuery.of(context).size.height *0.02,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [GestureDetector(
-                  onTap:() {
-                    Get.to(() => Assetspage(title: 'assets'));
-
+                    }
                   },
-                  child:ContainerCard(
-                  child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                    Text('Assets')
-                  ],) ,
-
-                ), ),
-                  GestureDetector(
-                    onTap: (){
-                      Get.to(() => holidaypage(title: 'holiday'));
-                    },
-                    child: ContainerCard(
-
-                    child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                      Text('Holidays')
-                    ],) ,
-
-                  ),)
-
-
-                ],
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height *0.02,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: (){
-                      Get.to(()=> leavepage(title: 'leave',));
-                    },
-                    child:ContainerCard(
-                    child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                      Text('Leave')
-                    ],) ,
-
-                  ), ),
-                  
-                  GestureDetector(
-                    onTap:(){
-                      Get.to(() => documentpage(title: 'document'));
-                    } ,
-                    child:
-                  ContainerCard(
-                    child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                      Text('Document')
-                    ],) ,
-
-                  ),)
-
-                ],
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height *0.02,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ContainerCard(
-                    child:Column(children: [SvgPicture.asset('assets/images/bc 3.svg'),
-                      Text('Tasks')
-                    ],) ,
-
+                  child: ContainerCard(
+                    title: categoryItems[index]['title'],
+                    iconPath: categoryItems[index]['icon'],
+                    iconSize: iconSize,
                   ),
-                ],
-              )
-            ],),
-          Positioned(
-            bottom:  MediaQuery.of(context).size.height * 0.02,
-            left: 0,
-            right: 0,
-            child:
-          Container(
-            margin: const EdgeInsets.only(top: 45),
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Pushes items to edges
-
-              children: [
-                Padding(padding: EdgeInsets.only(left: 20),
-                    child: // Adjust left padding
-                    TextButton(onPressed: (){
-                      Get.back();
-                    }, child:
-                    Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/images/solar_home-2-linear.svg', // Ensure the image is inside the assets folder
-                          width: 24,// Set width
-                          height: 24, // Set height
-                        ),
-                        Text('Home'),
-                      ],
-                    ),
-                    )
-                ),
-                Padding(padding: EdgeInsets.only(left: 20),
-                    child: // Adjust left padding
-                    TextButton(onPressed: (){}, child:
-                    Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/images/category-1-svgrepo-com 1.svg', // Ensure the image is inside the assets folder
-                          width: 24, // Set width
-                          height: 24, // Set height
-                        ),
-                        Text('Categories',
-
-                        ),
-                      ],
-                    ),
-                    )
-                ),
-                Padding(padding: EdgeInsets.only(left: 20),
-                    child: // Adjust left padding
-                    TextButton(onPressed: (){
-                      Get.to(() => settingpage(title: 'setting'));
-
-                    }, child:
-                    Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/images/settings-02.svg', // Ensure the image is inside the assets folder
-                          width: 24, // Set width
-                          height: 24, // Set height
-                        ),
-                        Text('Settings'),
-                      ],
-                    ),
-                    )
-                ),
-              ],
+                );
+              },
             ),
-
           ),
 
-          )
+          // Bottom Navigation Bar
+
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: navItems.map((item) {
+                return TextButton(
+                  onPressed: item.onTap,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        item.iconPath,
+                        width: 24,
+                        height: screenHeight * 0.025,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        item.label,
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(), // 🔹 Convert List<NavItem> → List<Widget>
+            ),
+          ),
         ],
+      ),
 
-
-          ),
     );
   }
 }
+
+// Container Card Widget
+
+
