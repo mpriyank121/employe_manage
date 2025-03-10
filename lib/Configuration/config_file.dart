@@ -78,80 +78,31 @@ class _customanime extends State<customanime> {
   }
 }
 
-//MainButton
-class MainButton extends StatefulWidget {
-  final String initialtext;
-  final double widthFactor;
-  final double heightFactor;
-  final EdgeInsets padding;
-  final EdgeInsets margin;
-  final Color borderColor;
-  final double borderRadius;
-  final VoidCallback? onPressed; // Add callback function
+//PrimaryButton
 
 
-  const MainButton({
-    Key? key,
-    required this.initialtext,
-    this.widthFactor = 0.9,
-    this.heightFactor = 0.07,
-    this.padding = const EdgeInsets.symmetric(),
-    this.margin = const EdgeInsets.symmetric(),
-    this.borderColor = const Color(0xFFE6E6E6),
-    this.borderRadius = 15.0,
-    this.onPressed,
-  }) : super(key: key);
+class PrimaryButtonConfig {
+  // Button Colors
+  static const Color primaryButtonColor = Colors.deepOrange;
+  static const Color borderColor = Color(0xFFE6E6E6);
+  static const Color textColor = Colors.white;
+  static const Color splashColor = Colors.blue;
 
-  @override
-  _MainButton createState() => _MainButton();
+  // Button Sizing Factors (relative to screen size)
+  static const double buttonWidthFactor = 0.9;
+  static const double buttonHeightFactor = 0.07;
+
+  // Border Styling
+  static const double borderRadius = 15.0;
+
+  // Default Padding & Margin
+  static const EdgeInsets defaultPadding = EdgeInsets.symmetric();
+  static const EdgeInsets defaultMargin = EdgeInsets.symmetric();
+
+  // Animation Settings
+  static const Duration animationDuration = Duration(milliseconds: 300);
 }
 
-class _MainButton extends State<MainButton> {
-  bool isClicked = false; // Track state
-
-  void toggleColor() {
-    setState(() {
-      isClicked = !isClicked;
-    });
-    if (widget.onPressed != null) {
-      widget.onPressed!(); // Call the callback function
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    return GestureDetector(
-
-      child: InkWell(
-        onTap: toggleColor,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        splashColor: Colors.blue,
-        child: Padding(
-          padding: widget.padding,
-          child:  AnimatedContainer(
-            duration: Duration(milliseconds: 300), // Smooth transition
-            width: screenWidth*widget.widthFactor,
-            height: screenHeight*widget.heightFactor,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.deepOrange, // Background color
-              borderRadius: BorderRadius.circular(10),
-              // Rounded corners
-
-            ),
-            child: Text(
-              isClicked ? widget.initialtext : widget.initialtext,
-              style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 //AppBarConfig
 class AppBarConfig {
@@ -175,18 +126,18 @@ class AppBarConfig {
 }
 class OtpTextFieldConfig {
   final Color backgroundColor;
-  final double width;
-  final double height;
-  final double fontSize;
+  final double widthFactor;
+  final double heightFactor;
+  final double fontSizeFactor;
   final Color textColor;
   final Color borderColor;
 
   const OtpTextFieldConfig({
     this.backgroundColor = Colors.grey,
-    this.width = 40.0,
-    this.height = 50.0,
-    this.fontSize = 18.0,
-    this.textColor = Colors.black,
+    this.widthFactor = 0.1, // 10% of screen width
+    this.heightFactor = 0.06, // 6% of screen height
+    this.fontSizeFactor = 0.022,
+    this.textColor = Colors.white,
     this.borderColor = Colors.transparent,
   });
 }
@@ -203,9 +154,10 @@ class AppPadding {
 }
 
 class AppSpacing {
-  static const small = SizedBox(height: 10);
-  static const medium = SizedBox(height: 20);
+  static SizedBox small(BuildContext context) => SizedBox(height: MediaQuery.of(context).size.height * 0.01);
+  static SizedBox medium(BuildContext context) => SizedBox(height: MediaQuery.of(context).size.height * 0.02);
 }
+
 class NavItem {
   final String label;
   final String iconPath;
@@ -239,11 +191,10 @@ List<NavItem> navItems = [
   ),
 ];
 class AppConfig {
-  static const double padding = 16.0;
-  static const double iconSize = 24.0;
-  static const double spacing = 10.0;
+  static double padding(BuildContext context) => MediaQuery.of(context).size.width * 0.04;
+  static double iconSize(BuildContext context) => MediaQuery.of(context).size.width * 0.06;
+  static double spacing(BuildContext context) => MediaQuery.of(context).size.width * 0.025;
 }
-
 class TileConfig {
   // Document List Data
   static final List<Map<String, dynamic>> documentItems = [
@@ -263,6 +214,7 @@ class TileConfig {
       "icon": "assets/images/ion_document-text-outline.svg",
     }
   ];
+
 
   static const TextStyle headingStyle = TextStyle(
     fontSize: 16,
@@ -313,6 +265,72 @@ class LeaveListTile{
     }
   ];
 }
+class WelcomeCardConfig {
+  static const Color backgroundColor = Color(0xFF3CAB88);
+  static const Color borderColor = Color(0xFFE6E6E6);
+  static const double borderRadius = 8.0;
+  static const double borderWidth = 1.0;
+  static const TextStyle welcomeTextStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 14,
+    fontFamily: 'Roboto',
+    fontWeight: FontWeight.w400,
+  );
+  static const TextStyle nameTextStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 24,
+    fontFamily: 'Roboto',
+    fontWeight: FontWeight.w500,
+  );
+  static const TextStyle roleTextStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 14,
+    fontFamily: 'Roboto',
+    fontWeight: FontWeight.w500,
+  );
+}
 
+class BottomCardConfig {
+  static const Color backgroundColor = Colors.white;
+  static const double borderRadius = 8.0;
+  static const Color separatorColor = Colors.grey;
+  static const double separatorWidthFactor = 0.003;
+  static const double separatorHeightFactor = 0.08;
 
+  static const TextStyle commonTextStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 14,
+    fontFamily: 'Roboto',
+    fontWeight: FontWeight.w500,
+  );
+}
+class LeaveCardConfig {
 
+  static EdgeInsets globalPadding(BuildContext context) => EdgeInsets.symmetric(
+    horizontal: MediaQuery.of(context).size.width * 0.02, // 2% of screen width
+    vertical: MediaQuery.of(context).size.height * 0.01, // 1% of screen height
+  );
+
+  static EdgeInsets globalMargin(BuildContext context) => EdgeInsets.all(
+    MediaQuery.of(context).size.width * 0.01, // 1% of screen width
+  );
+
+  static const Color defaultBorderColor = Color(0xFF62A898);
+
+  static double defaultBorderRadius(BuildContext context) =>
+      MediaQuery.of(context).size.width * 0.025; // 2.5% of screen width
+
+  static const Color defaultBackgroundColor = Color(0xFFE9F7F5);
+
+  static TextStyle titleStyle(BuildContext context) => TextStyle(
+    fontSize: MediaQuery.of(context).size.width * 0.035, // 3.5% of screen width
+    color: Colors.grey,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle countStyle(BuildContext context) => TextStyle(
+    fontSize: MediaQuery.of(context).size.width * 0.04, // 4% of screen width
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+}

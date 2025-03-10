@@ -1,74 +1,71 @@
+import 'package:employe_manage/Screens/Categories.dart';
+import 'package:employe_manage/Screens/settings.dart';
+import 'package:employe_manage/Screens/welcom_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import '../screens/categories.dart';
-import '../screens/settings.dart';
 
-class NavItem {
-  final String label;
-  final String iconPath;
-  final VoidCallback onTap;
-
-  NavItem({required this.label, required this.iconPath, required this.onTap});
-}
-
-// Navigation Items
-List<NavItem> navItems = [
-  NavItem(
-    label: 'Home',
-    iconPath: 'assets/images/home.svg',
-    onTap: () {},
-  ),
-  NavItem(
-    label: 'Categories',
-    iconPath: 'assets/images/category.svg',
-    onTap: () {
-      Get.to(() => CategoryPage(title: 'Categories'));
-    },
-  ),
-  NavItem(
-    label: 'Settings',
-    iconPath: 'assets/images/settings.svg',
-    onTap: () {
-      Get.to(() => settingpage(title: 'Settings'));
-    },
-  ),
-];
-
-// Navigation Bar Widget
 class BottomNavBar extends StatelessWidget {
   final double iconSize;
   final double screenHeight;
+  final int currentIndex;
+  final Function(int) onItemTapped; // Callback for changing index
 
-  const BottomNavBar({required this.iconSize, required this.screenHeight});
+  const BottomNavBar({
+    required this.iconSize,
+    required this.screenHeight,
+    required this.currentIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> navItems = [
+      {"label": "Home", "iconPath": "assets/images/solar_home-2-linear.svg",
+        "route": const welcomepage(title: "Home"),
+      },
+      {"label": "Categories", "iconPath": "assets/images/category-1-svgrepo-com 1.svg",
+        "route": const CategoryPage(title: "Categories"),
+
+      },
+      {"label": "Settings", "iconPath": "assets/images/settings-02.svg",
+        "route": const settingpage(title: "Settings"),
+      },
+    ];
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: navItems.map((item) {
+        children: List.generate(navItems.length, (index) {
           return TextButton(
-            onPressed: item.onTap,
+            onPressed: () {
+              if (index != currentIndex) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => navItems[index]["route"]),
+                );
+              }
+            },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SvgPicture.asset(
-                  item.iconPath,
+                  navItems[index]["iconPath"],
                   width: iconSize,
                   height: screenHeight * 0.025,
+                  color: currentIndex == index ? Colors.orangeAccent : Colors.grey, // Highlight active item
                 ),
-                SizedBox(height: 4),
                 Text(
-                  item.label,
-                  style: TextStyle(fontSize: 12, color: Colors.black),
+                  navItems[index]["label"],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: currentIndex == index ? Colors.orangeAccent : Colors.grey, // Change color for selected tab
+                  ),
                 ),
               ],
             ),
           );
-        }).toList(),
+        }),
       ),
     );
   }

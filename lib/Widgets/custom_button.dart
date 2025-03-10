@@ -66,7 +66,8 @@ class _CustomButton extends State<CustomButton> {
                 isApproved
                     ? 'assets/icons/check.svg'
                     : 'assets/icons/pending.svg', // Change icon dynamically
-                height: 16,
+                height: MediaQuery.of(context).size.height * 0.02,  // 2% of screen height
+
                 colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
               ),
             ],

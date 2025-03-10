@@ -8,6 +8,7 @@ import 'package:employe_manage/Screens/holiday_list.dart';
 import 'package:employe_manage/Screens/leave_detail.dart';
 import 'package:employe_manage/Screens/Categories.dart';
 import 'package:employe_manage/Screens/documents.dart';
+import 'package:employe_manage/Screens/attendence.dart';
 
 
 final List<GetPage> getPages = [
@@ -19,4 +20,5 @@ final List<GetPage> getPages = [
   GetPage(name: Routes.holiday, page: () => holidaypage(title: 'holiday')),
   GetPage(name: Routes.category, page: () =>CategoryPage(title: 'category')),
   GetPage(name: Routes.leaveDetail, page: () => leavepage(title: 'leave')),
+  GetPage(name: Routes.attendence, page: () => attendencepage(title: 'attendence',))
 ];

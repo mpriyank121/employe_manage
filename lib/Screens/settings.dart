@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import '../Widgets/primary_button.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
@@ -112,35 +113,16 @@ class _MyHomePageState extends State<settingpage> {
                 trailing:SvgPicture.asset('assets/images/chevron-ups.svg'),
               ),
             ),
-            Container(
-              width: screenWidth*0.8,
-              height: screenHeight*0.05,
-              decoration: BoxDecoration(
-                color: Color(0x19CD0909), // Background color
-                borderRadius: BorderRadius.circular(10),
-                // Rounded corners
+            PrimaryButton(
+              initialtext: 'Log Out',
+              widthFactor: 0.7,
+              heightFactor: 0.07,
+              buttonColor: Color(0x19CD0909),
 
-              ),
-              child: TextButton(onPressed: (){},
-                  child:
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
 
-                      SvgPicture.asset(
-                        'assets/images/ant-design_logout-outlined.svg',
-                      ),
-                      SizedBox(width: 5),
-                      // Space between image and text
-                      Text(
-                        "Log Out",
-                        style: TextStyle(color: Color(0xFFCD0909), fontSize: 16),
-                      ),
-                    ],
-                  )
-              ),
-
-            )
+              onPressed: () {
+              },
+            ),
           ],
         )
         ],

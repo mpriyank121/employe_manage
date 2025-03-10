@@ -18,6 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       decoration: AppBarConfig.bottomBorderDecoration,
       child: AppBar(

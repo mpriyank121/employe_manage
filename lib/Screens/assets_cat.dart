@@ -102,9 +102,11 @@ class _MyHomePageState extends State<Assetspage> {
                 radius: 24, // Size of the CircleAvatar
                 backgroundColor: Color(0x193CAB88),// Background color
                 child:SvgPicture.asset(item['icon'],
-                width: 30,
-                height: 30,
-    )
+                  width: screenWidth * (30 / 375), // Assuming 375 is the base width
+
+                  height: screenHeight * (30 / 812), // Assuming 375 is the base width
+
+                )
               ),
               title: Text(item['title'],style: fontStyles.headingStyle,),
               subtitle:Container(

@@ -1,7 +1,9 @@
+import 'package:employe_manage/Screens/attendence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../Configuration/config_file.dart';
+import '../Widgets/NavBar.dart';
 import '../widgets/app_bar.dart';
 import '../screens/assets_cat.dart';
 import '../screens/holiday_list.dart';
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
 }
 
 class CategoryPage extends StatefulWidget {
+
   final String title;
   const CategoryPage({super.key, required this.title});
 
@@ -31,14 +34,21 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  int _selectedIndex = 0;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   final List<Map<String, dynamic>> categoryItems = [
-    {'title': 'Attendance', 'icon': 'assets/images/bc 3.svg', 'route': null},
+    {'title': 'Attendance', 'icon': 'assets/images/wired-flat-45-clock-time 1.jpg', 'route': () => attendencepage(title: 'Attendence')},
     {'title': 'Remuneration', 'icon': 'assets/images/remuneration.svg', 'route': null},
     {'title': 'Assets', 'icon': 'assets/images/assets.svg', 'route': () => Assetspage(title: 'Assets')},
     {'title': 'Holidays', 'icon': 'assets/images/holidays.svg', 'route': () => holidaypage(title: 'Holidays')},
     {'title': 'Leave', 'icon': 'assets/images/leave.svg', 'route': () => leavepage(title: 'Leave')},
     {'title': 'Tasks', 'icon': 'assets/images/tasks.svg', 'route': null},
-    {'title': 'Documents', 'icon': 'assets/images/tasks.svg', 'route': ()=>documentpage(title: 'document',)},
+    {'title': 'Documents', 'icon': 'assets/images/wired-flat-245-edit-document 1.jpg', 'route': ()=>documentpage(title: 'document',)},
   ];
 
   @override
@@ -56,8 +66,11 @@ class _CategoryPageState extends State<CategoryPage> {
         children: [
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.all(AppConfig.padding),
+
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04), // 4% of screen width
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                mainAxisExtent: MediaQuery.of(context).size.height * 0.15, // Controls height of each card
+
                 crossAxisCount: 2, // 2 items per row
                 crossAxisSpacing: 20,
                 mainAxisSpacing: 20,
@@ -72,6 +85,7 @@ class _CategoryPageState extends State<CategoryPage> {
                     }
                   },
                   child: ContainerCard(
+
                     title: categoryItems[index]['title'],
                     iconPath: categoryItems[index]['icon'],
                     iconSize: iconSize,
@@ -83,35 +97,17 @@ class _CategoryPageState extends State<CategoryPage> {
 
           // Bottom Navigation Bar
 
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: navItems.map((item) {
-                return TextButton(
-                  onPressed: item.onTap,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        item.iconPath,
-                        width: 24,
-                        height: screenHeight * 0.025,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        item.label,
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(), // 🔹 Convert List<NavItem> → List<Widget>
-            ),
-          ),
+
+
+
         ],
       ),
+    bottomNavigationBar: BottomNavBar(
+    iconSize: 24,
+    screenHeight: screenHeight,
+    currentIndex: _selectedIndex,
+    onItemTapped: _onItemTapped,
+    ),
 
     );
   }

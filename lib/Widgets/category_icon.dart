@@ -26,7 +26,7 @@ class CategoryIcon extends StatelessWidget {
           child: IconButton(
             icon: SvgPicture.asset(
               assetPath,
-              width: 30,
+              width: MediaQuery.of(context).size.width * 0.08,  // 8% of screen width
               height: screenHeight * 0.1,
             ),
             onPressed: () {
@@ -34,7 +34,6 @@ class CategoryIcon extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: 5), // Space between icon and text
         Text(
           initialText, // Display the category name below the icon
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),

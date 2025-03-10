@@ -3,6 +3,7 @@ import 'package:employe_manage/Widgets/holiday_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import '../Widgets/year_selector.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
 
@@ -67,16 +68,16 @@ class _MyHomePageState extends State<holidaypage> {
     }
 
   ];
-  int selectedYear = DateTime
-      .now()
-      .year; // Get current year
+  int selectedYear = DateTime.now().year;
 
-  void changeYear(int step) {
+  void onYearChanged(int newYear) {
     setState(() {
-      selectedYear += step; // Increase or decrease year
+      selectedYear = newYear;
     });
   }
-@override
+
+
+  @override
   Widget build(BuildContext context) {
 
       double _value = 30;
@@ -87,7 +88,9 @@ class _MyHomePageState extends State<holidaypage> {
       double screenHeight = MediaQuery
           .of(context)
           .size
-          .height; // Get screen height
+          .height;
+
+      // Get screen height
 
       // This method is rerun every time setState is called, for instance as done
       // by the _incrementCounter method above.
@@ -105,29 +108,13 @@ class _MyHomePageState extends State<holidaypage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [Container(
 
-            width: screenWidth * 0.85,
-            height: screenWidth * 0.15,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1, color: Color(0xFFE6E6E6)),
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(onPressed: () => changeYear(-1), icon:SvgPicture.asset('assets/images/chevron-u.svg')),
-                Text("$selectedYear",style: TextStyle(
-                  color: Color(0xFFF25922),
-                  fontSize: 22,
-                  fontFamily: 'Urbanist',
-                  fontWeight: FontWeight.w600,
-                  height: 1.60,
-                  letterSpacing: 0.22,
-                ),),
-
-    IconButton(onPressed: () => changeYear(1), icon:SvgPicture.asset('assets/images/chevron-up.svg'),)
-
+                YearSelector(
+                  initialYear: selectedYear,
+                  onYearChanged: onYearChanged,
+                ),
               ],
             ),
           ),

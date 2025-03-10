@@ -23,8 +23,8 @@ class DocumentListTile extends StatelessWidget {
       trailing: IconButton(
         icon: SvgPicture.asset(
           "assets/images/solar_download-linear.svg",
-          width: 30,
-          height: 30,
+          width: MediaQuery.of(context).size.width * 0.08,  // 8% of screen width
+          height: MediaQuery.of(context).size.height * 0.04,  // 4% of screen height
         ),
         onPressed: () {
           print("Download ${item['title']}");

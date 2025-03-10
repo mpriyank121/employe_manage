@@ -18,7 +18,8 @@ class CustomListTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        leading: SvgPicture.asset(item['icon'], width: 30, height: 30),
+        leading: SvgPicture.asset(item['icon'],width: MediaQuery.of(context).size.width * 0.08,  // 8% of screen width
+          height: MediaQuery.of(context).size.height * 0.04,),
         title: Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Padding(
           padding: const EdgeInsets.all(5),
