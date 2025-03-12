@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Configuration/style.dart';
 import 'package:get/get.dart';
+import '../Widgets/Assets_List.dart';
 import '/Widgets/App_bar.dart';
 
 
@@ -44,30 +45,6 @@ class Assetspage extends StatefulWidget {
 class _MyHomePageState extends State<Assetspage> {
 
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> items = [
-    {
-    "title": "Lenovo Flex 5",
-     "subtitle" : "Specification Details",
-      "sub2" : "i7, 500 GB SSD Drive, 16 GB RAM & Window Pro",
-    "size": "Serial No : 254465256595466",
-    "icon": "assets/images/laptop-3-svgrepo-com 1.svg", // Custom icon for Word files
-    },
-    {
-    "title": "Lenovo Mouse",
-      "subtitle" : "Specification Details",
-      "sub2" : "i7, 500 GB SSD Drive, 16 GB RAM & Window Pro",
-    "size": "Serial No : 254465256595466",
-    "icon": "assets/images/mouse-minimalistic-svgrepo-com 1.svg", // Custom icon for PDF files
-    },
-    {
-    "title": "Lenovo Keyboard",
-    "size": "Serial No : 254465256595466",
-      "subtitle" : "Specification Details",
-      "sub2" : "i7, 500 GB SSD Drive, 16 GB RAM & Window Pro",
-    "icon": "assets/images/keyboard-svgrepo-com 1.svg", // Custom icon for Excel files
-    }
-
-    ];
 
     double _value = 30;
     double screenWidth = MediaQuery

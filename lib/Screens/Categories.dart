@@ -1,9 +1,6 @@
 import 'package:employe_manage/Screens/attendence.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../Configuration/config_file.dart';
-import '../Widgets/NavBar.dart';
 import '../widgets/app_bar.dart';
 import '../screens/assets_cat.dart';
 import '../screens/holiday_list.dart';
@@ -42,7 +39,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   final List<Map<String, dynamic>> categoryItems = [
-    {'title': 'Attendance', 'icon': 'assets/images/wired-flat-45-clock-time 1.jpg', 'route': () => attendencepage(title: 'Attendence')},
+    {'title': 'Attendance', 'icon': 'assets/images/wired_clock.jpg', 'route': () => attendencepage(title: 'Attendence')},
     {'title': 'Remuneration', 'icon': 'assets/images/remuneration.svg', 'route': null},
     {'title': 'Assets', 'icon': 'assets/images/assets.svg', 'route': () => Assetspage(title: 'Assets')},
     {'title': 'Holidays', 'icon': 'assets/images/holidays.svg', 'route': () => holidaypage(title: 'Holidays')},
@@ -102,17 +99,9 @@ class _CategoryPageState extends State<CategoryPage> {
 
         ],
       ),
-    bottomNavigationBar: BottomNavBar(
-    iconSize: 24,
-    screenHeight: screenHeight,
-    currentIndex: _selectedIndex,
-    onItemTapped: _onItemTapped,
-    ),
 
     );
   }
 }
 
 // Container Card Widget
-
-

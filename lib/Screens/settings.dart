@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Widgets/primary_button.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
-import 'package:get/get.dart';
-
 
 void main(){
   runApp(const MyApp());
@@ -46,6 +45,13 @@ class settingpage extends StatefulWidget {
 class _MyHomePageState extends State<settingpage> {
 
   Widget build(BuildContext context) {
+    Future<void> logout() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear(); // ✅ Clears all stored data
+      // Navigate to Login Page
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+
     double _value = 30;
     double screenWidth = MediaQuery
         .of(context)
@@ -56,12 +62,6 @@ class _MyHomePageState extends State<settingpage> {
         .size
         .height; // Get screen height
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: CustomAppBar(title: 'Settings',
         leading: AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',),
@@ -121,6 +121,7 @@ class _MyHomePageState extends State<settingpage> {
 
 
               onPressed: () {
+                logout();
               },
             ),
           ],

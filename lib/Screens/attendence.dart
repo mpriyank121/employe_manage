@@ -52,8 +52,6 @@ class _attendencepageState extends State<attendencepage> {
               children: [
                 // Leave Cards Section (Scrollable Row to prevent overflow)
                 SingleChildScrollView(
-
-
                   scrollDirection: Axis.horizontal,
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),
@@ -85,10 +83,8 @@ class _attendencepageState extends State<attendencepage> {
                     ),
                   ),
                 ),
-
                 // Space after Leave Cards
                 SizedBox(height: screenHeight * 0.012),
-
                 // Calendar Section (Scrollable & Avoid Overflow)
                 SizedBox(
                   height: screenHeight * 0.7, // Set height dynamically

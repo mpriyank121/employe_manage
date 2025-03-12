@@ -66,7 +66,7 @@ class _customanime extends State<customanime> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8), // Rounded corners
               ),
-              ),
+            ),
             child: Text(
               isClicked ? widget.initialtext : widget.initialtext,
               style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
@@ -196,31 +196,15 @@ class AppConfig {
   static double spacing(BuildContext context) => MediaQuery.of(context).size.width * 0.025;
 }
 class TileConfig {
-  // Document List Data
-  static final List<Map<String, dynamic>> documentItems = [
-    {
-      "title": "Offer Letter.docx",
-      "subtitle": "250 KB - Last update Dec 10, 2023",
-      "icon": "assets/images/ion_document-text-outline.svg",
-    },
-    {
-      "title": "Text.docs",
-      "subtitle": "250 KB - Last update Dec 10, 2023",
-      "icon": "assets/images/ion_document-text-outline.svg",
-    },
-    {
-      "title": "Documents.docs",
-      "subtitle": "250 KB - Last update Dec 10, 2023",
-      "icon": "assets/images/ion_document-text-outline.svg",
-    }
-  ];
-
-
   static const TextStyle headingStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Colors.black,
   );
+  static const Color tileBackgroundColor =
+    Color(0x193CAB88);
+
+  static const Color tileBorderColor = Color(0xFF3CAB88);
 
   static const TextStyle subTextStyle = TextStyle(
     fontSize: 14,
@@ -230,41 +214,6 @@ class TileConfig {
   static const EdgeInsets padding = EdgeInsets.all(10);
 }
 
-
-class HolidayListTile {
-  // Sample List Data
-  static final List<Map<String, dynamic>> items = [
-    {
-      "title": "New Year",
-      "subtitle": "1 Jan",
-      "icon": "assets/images/Frame 427319800.svg",
-    },
-    {
-      "title": "Diwali",
-      "subtitle": "20 Nov",
-      "icon": "assets/images/Frame 427319800.svg",
-    },
-    {
-      "title": "Holi",
-      "subtitle": "5 Mar",
-      "icon": "assets/images/Frame 427319800.svg",
-    },
-  ];
-}
-class LeaveListTile{
-  final List<Map<String, dynamic>> items = [
-    {
-      "title": "Sick Leave ",
-      "subtitle": "8 Jan 2024",
-
-    },
-    {
-      "title" : "Casual Leave",
-      "subtitle": "10 Jan 2024",
-
-    }
-  ];
-}
 class WelcomeCardConfig {
   static const Color backgroundColor = Color(0xFF3CAB88);
   static const Color borderColor = Color(0xFFE6E6E6);

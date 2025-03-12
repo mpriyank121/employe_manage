@@ -1,9 +1,9 @@
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../Widgets/CustomListTile.dart';
+import '../Widgets/Custom_Animation.dart';
 import '../Widgets/Leave_card.dart';
-import '../Widgets/custom_anime.dart';
 import '../Widgets/custom_button.dart';
 import '../Widgets/holiday_list_tile.dart';
 import '../Widgets/year_selector.dart';
@@ -15,22 +15,17 @@ import 'otp_page.dart';
 void main() {
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
       home: leavepage(title: ''),
     );
   }
 }
-
 class leavepage extends StatefulWidget {
   const leavepage({super.key, required this.title});
-
   final String title;
 
   @override
@@ -67,10 +62,7 @@ class _leavepageState extends State<leavepage> {
               initialYear: selectedYear,
               onYearChanged: onYearChanged,
             ),
-
-
              SizedBox(height :screenHeight *0.02),
-
             // Leave Cards
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -91,9 +83,9 @@ class _leavepageState extends State<leavepage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children:  [
-                customanime(initialtext: 'Approved'),
-                customanime(initialtext: 'Pending'),
-                customanime(initialtext: 'Declined'),
+                CustomAnimation(initialtext: 'Approved'),
+                CustomAnimation(initialtext: 'Pending'),
+                CustomAnimation(initialtext: 'Declined'),
               ],
             ),
 
@@ -112,22 +104,19 @@ class _leavepageState extends State<leavepage> {
                 },
               ),
             ),
-
             SizedBox(height :screenHeight *0.02),
             // Holiday List
             Container(
               width: screenWidth * 1,
               padding: const EdgeInsets.all(8),
-              child: const Center(child: customanime(initialtext: 'Holiday This Month')),
+              child: const Center(child: CustomAnimation(initialtext: 'Holiday This Month')),
             ),
-
             const SizedBox(height: 16),
-
             Expanded(
               child: ListView.builder(
-                itemCount: HolidayListTile.items.length,
+                itemCount: HolidayList.items.length,
                 itemBuilder: (context, index) {
-                  return CustomListTile(item: HolidayListTile.items[index]);
+                  return CustomListTile(item: HolidayList.items[index]);
                 },
               ),
             ),

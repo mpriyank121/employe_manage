@@ -1,11 +1,11 @@
-import 'package:employe_manage/Screens/welcom_page.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../API/api_service.dart';
+import 'package:get/get.dart';
+import 'package:employe_manage/API/api_service.dart';
+
+import '../Configuration/style.dart';
+import '../Widgets/otp_text_feild.dart';
 import '../Widgets/primary_button.dart';
-import '/Configuration/config_file.dart';
-import 'package:employe_manage/Configuration/style.dart';
 
 class OtpPage extends StatefulWidget {
   @override
@@ -13,67 +13,49 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
-  final TextEditingController _otpController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
-  late String phone;
+  String phoneNumber = '';
 
   @override
   void initState() {
     super.initState();
-    phone = Get.arguments['phone'] ?? ''; // ✅ Get phone number dynamically
-    print("🔹 Received Phone: $phone"); // Debugging
-
+    _loadPhoneNumber();
   }
-  /// ✅ Verify OTP Function
-  void verifyOtp() async {
+
+  /// ✅ Load phone number from SharedPreferences
+  Future<void> _loadPhoneNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userPhone', phone); // Save phone number if needed
+    setState(() {
+      phoneNumber = prefs.getString('phone') ?? '';
+    });
+  }
 
-    Get.snackbar('Success', 'OTP Verified!',
-        snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green);
-    String otp = _otpController.text.trim();
-    print("🔹 Entered OTP: $otp"); // ✅ Debugging
-
-    if (otp.length < 4) {
-      print('OTP is too short');
-      Get.snackbar('Error', 'Enter a valid OTP',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+  /// ✅ Verify OTP and Log in
+  Future<void> verifyOtp(String otp) async {
+    if (otp.isEmpty || otp.length != 4) {
+      Get.snackbar("Error", "Enter a valid 4-digit OTP", snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    // ✅ Encrypt OTP and phone number
-    String encryptedOtp = _apiService.encryptString(otp);
-    String encryptedPhone = _apiService.encryptString(phone);
+    setState(() {
+      _isLoading = true;
+    });
 
-    print("🔹 Encrypted OTP: $encryptedOtp"); // ✅ Debugging
-    print("🔹 Encrypted Phone: $encryptedPhone"); // ✅ Debugging
+    bool verified = await _apiService.verifyOtp(phoneNumber, otp);
 
-    setState(() => _isLoading = true); // ✅ Set loading before API call
+    setState(() {
+      _isLoading = false;
+    });
 
-    try {
-      bool success = await _apiService.verifyOtp(encryptedPhone, encryptedOtp); // ✅ Send encrypted data
+    if (verified) {
+      /// ✅ Store login status in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
 
-      setState(() => _isLoading = false); // ✅ Stop loading after response
-
-      print('Success is $success');
-
-      if (success) {
-        print('✅ OTP is verified');
-        Get.snackbar('Success', 'OTP Verified!',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green);
-        Get.offAll(() => welcomepage(title: 'Welcome',)); // ✅ Navigate to Welcome Page
-      } else {
-        print('❌ OTP is incorrect');
-        Get.snackbar('Error', 'Invalid OTP',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
-      }
-    } catch (e) {
-      setState(() => _isLoading = false); // ✅ Ensure loading stops even if API fails
-      print("❌ API Error: $e");
-      Get.snackbar('Error', 'Something went wrong. Try again.',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+      Get.offAllNamed('/home'); // ✅ Redirect to Home Page
+    } else {
+      Get.snackbar("Error", "Invalid OTP. Try again.", snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -89,7 +71,9 @@ class _OtpPageState extends State<OtpPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Stack(
+      body: phoneNumber.isEmpty
+          ? Center(child: CircularProgressIndicator()) // ✅ Show loading until phone number loads
+          : Stack(
         children: [
           Padding(
             padding: EdgeInsets.only(top: screenHeight * 0.02),
@@ -105,7 +89,7 @@ class _OtpPageState extends State<OtpPage> {
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Text(
-                    phone, // ✅ Dynamically display the phone number
+                    phoneNumber, // ✅ Dynamically display the phone number
                     style: fontStyles.headingStyle,
                     textAlign: TextAlign.center,
                   ),
@@ -118,24 +102,17 @@ class _OtpPageState extends State<OtpPage> {
                   SizedBox(height: screenHeight * 0.03),
 
                   /// ✅ OTP Input Field
-                  SizedBox(
-                    width: screenWidth * 0.8,
-                    child: TextField(
-                      controller: _otpController,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        labelText: 'Enter OTP',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                  OtpTextField(
+                    onOtpComplete: (otp) {
+                      verifyOtp(otp);
+                    },
                   ),
 
                   SizedBox(height: screenHeight * 0.03),
                   PrimaryButton(
                     initialtext: 'Resend Code',
                     onPressed: () {
-                      _apiService.sendOtp(phone); // ✅ Resend OTP function
+                      _apiService.sendOtp(phoneNumber); // ✅ Resend OTP function
                     },
                   ),
                 ],
@@ -150,7 +127,10 @@ class _OtpPageState extends State<OtpPage> {
             right: screenWidth * 0.05,
             child: PrimaryButton(
               initialtext: _isLoading ? 'Verifying...' : 'Verify OTP',
-              onPressed: verifyOtp,
+              onPressed: () {
+                // Make sure we pass the OTP from OtpTextField to verifyOtp function
+                Get.snackbar("Error", "Please enter the OTP", snackPosition: SnackPosition.BOTTOM);
+              },
             ),
           ),
         ],

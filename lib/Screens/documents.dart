@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
-import '../Configuration/config_file.dart';
+import '../Widgets/Document_list.dart';
 import '../widgets/list_tiles.dart';
-import 'Categories.dart';
-
 
 class documentpage extends StatelessWidget {
   const documentpage({Key? key, required String title}) : super(key: key);
@@ -13,9 +11,9 @@ class documentpage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'Documents'),
       body: ListView.builder(
-        itemCount: TileConfig.documentItems.length,
+        itemCount: DocumentList.documentItems.length,
         itemBuilder: (context, index) {
-          return DocumentListTile(item: TileConfig.documentItems[index]);
+          return DocumentListTile(item: DocumentList.documentItems[index]);
         },
       ),
     );

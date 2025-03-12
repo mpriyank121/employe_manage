@@ -1,81 +1,77 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:math';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Encryption_helper.dart';
+import 'api_client.dart';
+import '../Screens/otp_page.dart';
 
 class ApiService {
-  final String baseUrl = "https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//login.php";
+  final ApiClient _apiClient = ApiClient(); // ✅ Create an instance of ApiClient
 
-  /// ✅ Encryption Function
-  String encryptString(String input) {
-    try {
-      int inputLen = input.length;
-      int randKey = Random().nextInt(9) + 1; // Generate random key (1-9)
-      List<int> inputChr = List<int>.filled(inputLen, 0);
-
-      for (int i = 0; i < inputLen; i++) {
-        inputChr[i] = input.codeUnitAt(i) - randKey; // Shift ASCII values
-      }
-
-      StringBuffer sb = StringBuffer();
-      for (int i in inputChr) {
-        sb.write('$i  a'); // Append ASCII values with " a" separator
-      }
-
-      sb.write((randKey.toString().codeUnitAt(0)) + 50); // Append encryption key
-      return sb.toString();
-    } catch (e) {
-      return "";
-    }
-  }
-
-  /// ✅ Send OTP Function (with Encryption)
+  /// ✅ Send OTP Function
   Future<bool> sendOtp(String phone) async {
-    String encryptedPhone = (phone); // Encrypt phone number
+    try {
+      String encryptedPhone = EncryptionHelper.encryptString(phone);
+      String encryptedType = EncryptionHelper.encryptString('send_otp');
 
-    var request = http.MultipartRequest('POST', Uri.parse(baseUrl));
-    request.fields.addAll({
-      'phone': encryptedPhone,
-      'type': encryptString('send_otp'),
-    });
+      var jsonResponse = await _apiClient.postRequest("login.php", {
+        'phone': encryptedPhone,
+        'type': encryptedType,
+      });
 
-    var response = await request.send();
-    String responseData = await response.stream.bytesToString();
+      if (jsonResponse != null && jsonResponse['status'] == true) {
+        print("✅ OTP Sent Successfully");
 
-    print("🔹 Encrypted Phone: $encryptedPhone");
-    print("🔹 API Response: $responseData"); // Debugging
+        /// ✅ Store phone number in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('phone', phone);
 
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(responseData);
-      return jsonResponse['status'] == true; // Adjust based on API response
-    } else {
+        /// ✅ Navigate to OTP Page
+        Get.to(() => OtpPage());
+
+        return true;
+      } else {
+        print("🔴 OTP Sending Failed");
+        return false;
+      }
+    } catch (e) {
+      print("🔴 Exception in sendOtp: $e");
       return false;
     }
   }
 
-  /// ✅ Verify OTP Function (with Encryption)
+  /// ✅ Verify OTP Function
   Future<bool> verifyOtp(String phone, String otp) async {
-    String encryptedPhone = (phone);
-    String encryptedOtp = (otp); // Encrypt OTP
+    try {
+      String encryptedPhone = EncryptionHelper.encryptString(phone);
+      String encryptedOtp = EncryptionHelper.encryptString(otp);
+      String encryptedType = EncryptionHelper.encryptString('verify_otp');
 
-    var request = http.MultipartRequest('POST', Uri.parse(baseUrl));
-    request.fields.addAll({
-      'phone': encryptedPhone,
-      'otp': encryptedOtp,
-      'type': encryptString('verify_otp'),
-    });
+      var jsonResponse = await _apiClient.postRequest("login.php", {
+        'phone': encryptedPhone,
+        'otp': encryptedOtp,
+        'type': encryptedType,
+      });
 
-    var response = await request.send();
-    String responseData = await response.stream.bytesToString();
+      if (jsonResponse != null && jsonResponse['status'] == true) {
+        print("✅ OTP Verified Successfully");
 
-    print("🔹 Encrypted Phone: $encryptedPhone");
-    print("🔹 Encrypted OTP: $encryptedOtp");
-    print("🔹 API Response: $responseData"); // Debugging
+        /// ✅ Save login status in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
 
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(responseData);
-      return jsonResponse['status'] == true; // Ensure API response validation
-    } else {
+        /// ✅ Navigate to Home
+        Get.offAllNamed('/home');
+
+        return true;
+      } else {
+        print("🔴 OTP Verification Failed");
+        return false;
+      }
+    } catch (e) {
+      print("🔴 Exception in verifyOtp: $e");
       return false;
     }
   }
 }
+

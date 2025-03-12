@@ -1,25 +1,36 @@
 import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:employe_manage/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Widgets/primary_button.dart';
 import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 import 'package:get/get.dart';
 import 'otp_page.dart';
 import 'package:employe_manage/API/api_service.dart';
-import 'package:employe_manage/Configuration/routes.dart';
-import 'package:employe_manage/Configuration/getpages.dart';
-void main() {
-  runApp(const MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(title: 'Home'),
+      initialRoute: isLoggedIn ? '/home' : '/login',
+      routes: {
+        '/login': (context) => MyHomePage(title: 'Login'),
+        '/otp': (context) => OtpPage(),
+        '/home': (context) => MainScreen(),
+      },
     );
   }
 }
@@ -37,30 +48,37 @@ class _MyHomePageState extends State<MyHomePage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
-  /// ✅ Send OTP Function
-  void sendOtp() async {
-    String phone = _phoneController.text.trim();
+  /// ✅ Send OTP and Save Phone Number
+  Future<void> sendOtp() async {
+    String phoneNumber = _phoneController.text.trim();
 
-    if (phone.length < 10) {
-      Get.snackbar('Error', 'Enter a valid phone number',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+    if (phoneNumber.isEmpty || phoneNumber.length != 10) {
+      Get.snackbar("Error", "Enter a valid 10-digit phone number", snackPosition: SnackPosition.BOTTOM);
       return;
     }
-    print('is entered');
-    String encryptedPhone = _apiService.encryptString(phone); // ✅ Encrypt phone number
-print('is everything ok');
-    bool success = await _apiService.sendOtp(encryptedPhone);
 
-    print("🔹 Encrypted Phone: $encryptedPhone"); // Debugging
-    if (success) {
-      print('✅ OTP Sent Successfully');
-      if (encryptedPhone != null && encryptedPhone.isNotEmpty) {
-        Get.to(() => OtpPage(), arguments: {'phone': phone});
-      } else {
-        print("❌ Error: Encrypted phone is null or empty!");
-      }
+    setState(() {
+      _isLoading = true;
+    });
+
+    bool otpSent = await _apiService.sendOtp(phoneNumber);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (otpSent) {
+      /// ✅ Store phone number in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('phone', phoneNumber);
+      print("📌 Phone number saved: $phoneNumber");
+
+      Get.to(() => OtpPage()); // ✅ Navigate to OTP page
+    } else {
+      Get.snackbar("Error", "Failed to send OTP. Try again.", snackPosition: SnackPosition.BOTTOM);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -92,11 +110,10 @@ print('is everything ok');
             ),
             SizedBox(height: screenHeight * 0.025),
 
-            // ✅ Corrected TextField
             SizedBox(
               width: screenWidth * 0.9,
               child: TextField(
-                controller: _phoneController, // ✅ Linked controller
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: 'Mobile Number',
@@ -118,13 +135,12 @@ print('is everything ok');
 
             Spacer(),
 
-            // ✅ Button with loading state
             SizedBox(
               width: screenWidth * 0.9,
               height: screenHeight * 0.065,
               child: PrimaryButton(
                 initialtext: _isLoading ? 'Sending...' : 'Continue',
-                onPressed: _isLoading ? null : sendOtp, // Disable button while loading
+                onPressed: _isLoading ? null : sendOtp,
               ),
             ),
           ],
