@@ -1,8 +1,8 @@
+import 'package:employe_manage/Widgets/Resend_Button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:employe_manage/API/api_service.dart';
-
 import '../Configuration/style.dart';
 import '../Widgets/otp_text_feild.dart';
 import '../Widgets/primary_button.dart';
@@ -109,9 +109,8 @@ class _OtpPageState extends State<OtpPage> {
                   ),
 
                   SizedBox(height: screenHeight * 0.03),
-                  PrimaryButton(
-                    initialtext: 'Resend Code',
-                    onPressed: () {
+                  ResendButton(
+                    onResend: () {
                       _apiService.sendOtp(phoneNumber); // ✅ Resend OTP function
                     },
                   ),
@@ -126,7 +125,7 @@ class _OtpPageState extends State<OtpPage> {
             left: screenWidth * 0.05,
             right: screenWidth * 0.05,
             child: PrimaryButton(
-              initialtext: _isLoading ? 'Verifying...' : 'Verify OTP',
+              text: _isLoading ? 'Verifying...' : 'Verify OTP',
               onPressed: () {
                 // Make sure we pass the OTP from OtpTextField to verifyOtp function
                 Get.snackbar("Error", "Please enter the OTP", snackPosition: SnackPosition.BOTTOM);

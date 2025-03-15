@@ -14,7 +14,7 @@ class CustomButton extends StatefulWidget {
     Key? key,
     this.widthFactor = 0.25,
     this.heightFactor = 0.04,
-    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     this.margin = const EdgeInsets.symmetric(horizontal: 16),
     this.borderColor = const Color(0xFFE6E6E6),
     this.borderRadius = 15.0,

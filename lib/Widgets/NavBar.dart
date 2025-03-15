@@ -14,7 +14,7 @@ class _MainScreenState extends State<MainScreen> {
 
   // Define screens corresponding to each tab
   final List<Widget> _screens = [
-    welcomepage(title: "Home"),
+    WelcomePage(title: "Home"),
     CategoryPage(title: "Categories"),
     settingpage(title: "Settings"),
   ];

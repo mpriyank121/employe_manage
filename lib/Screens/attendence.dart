@@ -59,22 +59,16 @@ class _attendencepageState extends State<attendencepage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         LeaveCard(
-                          widthFactor: 0.3,
-                          heightFactor: 0.08, // Increased height to prevent shrinkage
                           title: "Present",
                           count: "3/12",
                           icon: Icons.person_off,
                         ),
                         LeaveCard(
-                          widthFactor: 0.3,
-                          heightFactor: 0.08,
                           title: "Absent",
                           count: "5/10",
                           icon: Icons.sick,
                         ),
                         LeaveCard(
-                          widthFactor: 0.3,
-                          heightFactor: 0.08,
                           title: "Leave",
                           count: "5/10",
                           icon: Icons.sick,

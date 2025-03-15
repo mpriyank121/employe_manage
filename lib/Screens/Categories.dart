@@ -57,7 +57,6 @@ class _CategoryPageState extends State<CategoryPage> {
       appBar: CustomAppBar(
         title: 'Categories',
 
-
       ),
       body: Column(
         children: [

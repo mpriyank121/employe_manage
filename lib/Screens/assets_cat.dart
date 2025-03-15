@@ -2,112 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Configuration/style.dart';
 import 'package:get/get.dart';
-import '../Widgets/Assets_List.dart';
+import '../Widgets/Assets_List.dart'; // Import the asset list file
+import '../Widgets/CustomListTile.dart';
 import '/Widgets/App_bar.dart';
 
-
-void main(){
+void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-    return MaterialApp(
-        title: 'Flutter Demo',
-
-        home:  Assetspage(title: '',
-        )
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      home: const Assetspage(title: 'Assets'),
     );
   }
 }
+
 class Assetspage extends StatefulWidget {
   const Assetspage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widgets subclass are
-  // always marked "final".
-
   final String title;
 
-
   @override
-  State<Assetspage> createState() => _MyHomePageState();
+  State<Assetspage> createState() => _AssetspageState();
 }
-class _MyHomePageState extends State<Assetspage> {
 
+class _AssetspageState extends State<Assetspage> {
+  @override
   Widget build(BuildContext context) {
-
-    double _value = 30;
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width; // Get screen width
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height; // Get screen height
-
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: CustomAppBar(title: 'Assets',
-
-      ),
-
-      body: Container(
-
+      appBar: CustomAppBar(title: 'Assets'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context,index){
-    final item = items[index];
+          itemCount: assetsList.length,
+          itemBuilder: (context, index) {
+            final asset = assetsList[index];
 
-    return ListTile(
-              leading: CircleAvatar(
-                radius: 24, // Size of the CircleAvatar
-                backgroundColor: Color(0x193CAB88),// Background color
-                child:SvgPicture.asset(item['icon'],
-                  width: screenWidth * (30 / 375), // Assuming 375 is the base width
-
-                  height: screenHeight * (30 / 812), // Assuming 375 is the base width
-
-                )
+            return Card(
+              elevation: 3,
+              margin: const EdgeInsets.symmetric(vertical: 10.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              title: Text(item['title'],style: fontStyles.headingStyle,),
-              subtitle:Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey,
-                          width: 1,
-                        )
-                    )
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(12),
+                leading: SvgPicture.asset(
+                  asset["icon"],
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.contain,
                 ),
-                child: Column(
+                title: Text(
+                  asset["title"],
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  Text(item['size'],style: fontStyles.subTextStyle,),
-                  Text(item['subtitle'],style: fontStyles.subTextStyle,),
-                  Text(item['sub2'],style: fontStyles.subTextStyle,)
-                ],),
-                )
-              );
-          }
-
+                    Text(asset["subtitle"], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                    const SizedBox(height: 4),
+                    Text(asset["sub2"], style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    const SizedBox(height: 4),
+                    Text(asset["size"], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue)),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -1,49 +1,21 @@
-import 'package:employe_manage/Widgets/App_bar.dart';
-import 'package:employe_manage/Widgets/NavBar.dart';
+import 'package:employe_manage/Screens/otp_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../Widgets/primary_button.dart';
-import '/Configuration/config_file.dart';
-import '/Configuration/style.dart';
 import 'package:get/get.dart';
-import 'otp_page.dart';
-import 'package:employe_manage/API/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../Configuration/style.dart';
+import '../widgets/app_bar.dart';
+import '../widgets/primary_button.dart';
+import '../api/api_service.dart';
+import 'package:flutter_svg/svg.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-  runApp(MyApp(isLoggedIn: isLoggedIn));
-}
-
-class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({super.key, required this.isLoggedIn});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: isLoggedIn ? '/home' : '/login',
-      routes: {
-        '/login': (context) => MyHomePage(title: 'Login'),
-        '/otp': (context) => OtpPage(),
-        '/home': (context) => MainScreen(),
-      },
-    );
-  }
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
@@ -68,7 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     if (otpSent) {
-      /// ✅ Store phone number in SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('phone', phoneNumber);
       print("📌 Phone number saved: $phoneNumber");
@@ -87,7 +58,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Bookchor',
-        leading: AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg'),
+        leading: IconButton(
+          icon: SvgPicture.asset('assets/images/bc 3.svg'),
+          onPressed: () {},
+        ),
         actions: [],
       ),
       body: Padding(
@@ -119,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Mobile Number',
                   hintText: 'Enter your mobile number',
                   prefixIcon: Padding(
-                    padding: EdgeInsets.only(left: screenWidth * 0.03, top: screenHeight * 0.01),
+                    padding: EdgeInsets.only(left: screenWidth * 0.03, top: screenHeight * 0.015),
                     child: Text(
                       '+91',
                       style: fontStyles.headingStyle,
@@ -135,13 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
             Spacer(),
 
-            SizedBox(
-              width: screenWidth * 0.9,
-              height: screenHeight * 0.065,
-              child: PrimaryButton(
-                initialtext: _isLoading ? 'Sending...' : 'Continue',
-                onPressed: _isLoading ? null : sendOtp,
-              ),
+            PrimaryButton(
+              text: _isLoading ? 'Sending...' : 'Continue',
+              icon: SvgPicture.asset('assets/images/Arrow_Circle_Right.svg'),
+              onPressed: _isLoading ? null : sendOtp,
             ),
           ],
         ),

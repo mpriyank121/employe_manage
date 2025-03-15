@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Encryption_helper.dart';
@@ -60,6 +59,17 @@ class ApiService {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
 
+        // ✅ Fix: Use `jsonResponse` instead of `data`
+        if (jsonResponse.containsKey('emp_id')) {
+          String empId = jsonResponse['emp_id']; // Extract employee ID
+
+          // Store emp_id in SharedPreferences
+          await prefs.setString('emp_id', empId);
+          print('✅ Employee ID saved: $empId');
+        } else {
+          print('🔴 Employee ID not found in response');
+        }
+
         /// ✅ Navigate to Home
         Get.offAllNamed('/home');
 
@@ -74,4 +84,3 @@ class ApiService {
     }
   }
 }
-

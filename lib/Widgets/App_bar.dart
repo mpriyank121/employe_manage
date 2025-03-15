@@ -10,7 +10,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const CustomAppBar({
     Key? key,
-    this.leading,
+    this.leading = const SizedBox(),
     this.title,
     this.actions,
     this.trailing = const SizedBox(),
@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
 
     return Container(
-      decoration: AppBarConfig.bottomBorderDecoration,
+      decoration: AppBorders.bottomBorder,
       child: AppBar(
 
         leading: leading ??

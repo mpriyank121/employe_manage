@@ -1,6 +1,4 @@
-class HolidayList {
-  // Sample List Data
-  static final List<Map<String, dynamic>> items = [
+   final List<Map<String, dynamic>> holidayList = [
     {
       "title": "New Year",
       "subtitle": "1 Jan",
@@ -17,4 +15,4 @@ class HolidayList {
       "icon": "assets/images/Frame 427319800.svg",
     },
   ];
-}
+

@@ -1,67 +1,63 @@
 import 'package:flutter/material.dart';
 import '../Configuration/config_file.dart';
 
-class PrimaryButton extends StatefulWidget {
-  final String initialtext;
+class PrimaryButton extends StatelessWidget {
+  final String text;
   final VoidCallback? onPressed;
-  final double? widthFactor;  // Allow custom width
-  final double? heightFactor; // Allow custom height
-  final Color? buttonColor;   // Allow custom button color
+  final double? widthFactor;
+  final double? heightFactor;
+  final Color? buttonColor;
+  final Color? textColor;
+  final Widget? icon; // ✅ Added icon parameter
 
   const PrimaryButton({
     Key? key,
-    required this.initialtext,
+    required this.text,
     this.onPressed,
     this.widthFactor,
     this.heightFactor,
     this.buttonColor,
+    this.textColor,
+    this.icon, // ✅ New parameter
   }) : super(key: key);
-
-  @override
-  _PrimaryButton createState() => _PrimaryButton();
-}
-
-class _PrimaryButton extends State<PrimaryButton> {
-  bool isClicked = false;
-
-  void toggleColor() {
-    setState(() {
-      isClicked = !isClicked;
-    });
-    if (widget.onPressed != null) {
-      widget.onPressed!();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return GestureDetector(
-      child: InkWell(
-        onTap: toggleColor,
-        borderRadius: BorderRadius.circular(PrimaryButtonConfig.borderRadius),
-        splashColor: PrimaryButtonConfig.splashColor,
-        child: Padding(
-          padding: PrimaryButtonConfig.defaultPadding,
-          child: AnimatedContainer(
-            duration: PrimaryButtonConfig.animationDuration,
-            width: screenWidth * (widget.widthFactor ?? PrimaryButtonConfig.buttonWidthFactor),
-            height: screenHeight * (widget.heightFactor ?? PrimaryButtonConfig.buttonHeightFactor),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: widget.buttonColor ?? PrimaryButtonConfig.primaryButtonColor, // Use custom color if provided
-              borderRadius: BorderRadius.circular(PrimaryButtonConfig.borderRadius),
-            ),
-            child: Text(
-              widget.initialtext,
-              style: TextStyle(
-                color: PrimaryButtonConfig.textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(PrimaryButtonConfig.borderRadius),
+      splashColor: Colors.white.withOpacity(0.3),
+      child: Padding(
+        padding: PrimaryButtonConfig.padding,
+        child: AnimatedContainer(
+          duration: PrimaryButtonConfig.animationDuration,
+          width: screenWidth * (widthFactor ?? PrimaryButtonConfig.widthFactor),
+          height: screenHeight * (heightFactor ?? PrimaryButtonConfig.heightFactor),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: buttonColor ?? PrimaryButtonConfig.color,
+            borderRadius: BorderRadius.circular(PrimaryButtonConfig.borderRadius),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min, // ✅ Ensures compact button size
+            children: [
+
+              Text(
+                text,
+                style: AppTextStyles.buttonText.copyWith(
+                  color: textColor ?? Colors.white, // ✅ Allows text color customization
+                ),
               ),
-            ),
+              const SizedBox(width: 8), // ✅ Spacing between icon & text
+
+              if (icon != null) ...[
+                icon!,
+              ],
+            ],
           ),
         ),
       ),

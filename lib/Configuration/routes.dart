@@ -1,4 +1,4 @@
-import 'package:employe_manage/Screens/main.dart';
+import 'package:employe_manage/main.dart';
 class Routes {
   static const String settings = '/settings';
   static const String otp = '/otp';

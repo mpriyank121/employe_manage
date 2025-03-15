@@ -1,4 +1,4 @@
-final List<Map<String, dynamic>> items = [
+final List<Map<String, dynamic>> assetsList = [
   {
     "title": "Lenovo Flex 5",
     "subtitle" : "Specification Details",

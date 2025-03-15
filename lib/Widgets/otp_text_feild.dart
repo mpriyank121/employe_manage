@@ -70,7 +70,7 @@ class _OtpTextFieldState extends State<OtpTextField> {
             keyboardType: TextInputType.number,
             maxLength: 1,
             style: TextStyle(
-                height: 1.5, // ✅ Ensures proper vertical alignment
+                height: 2, // ✅ Ensures proper vertical alignment
 
                 fontSize: fieldSize * 0.5, color: Colors.white),
             decoration: InputDecoration(

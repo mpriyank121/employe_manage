@@ -1,47 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Configuration/config_file.dart'; // Import config
+import '../Configuration/config_file.dart';
 
 class LeaveCard extends StatelessWidget {
-
   final String title;
-  final double widthFactor;  // Allow custom width
-  final double heightFactor;
   final String count;
   final IconData icon;
+  final double? widthFactor;  // ✅ Custom width factor
+  final double? heightFactor; // ✅ Custom height factor
+  final Color? backgroundColor; // ✅ Custom background color
 
   const LeaveCard({
     Key? key,
     required this.title,
-    this.widthFactor = 0.9,
-    this.heightFactor = 0.1,
     required this.count,
-    this.icon = Icons.person_off, // Default icon
+    required this.icon,
+    this.widthFactor,
+    this.heightFactor,
+    this.backgroundColor, // Optional background color
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-
     return Container(
-      height: screenHeight * heightFactor,
-
-      width: screenWidth * widthFactor, // Apply width factor
-      padding: LeaveCardConfig.globalPadding(context),
-      margin: LeaveCardConfig.globalMargin(context),
-
+      width: widthFactor != null
+          ? MediaQuery.of(context).size.width * widthFactor!
+          : LeaveCardConfig.defaultWidth(context),
+      height: heightFactor != null
+          ? MediaQuery.of(context).size.height * heightFactor!
+          : LeaveCardConfig.defaultHeight(context),
+      padding: LeaveCardConfig.padding(context),
+      margin: LeaveCardConfig.margin(context),
       decoration: BoxDecoration(
-        color: LeaveCardConfig.defaultBackgroundColor,
-        border: Border.all(color: LeaveCardConfig.defaultBorderColor, width: 1),
-        borderRadius: BorderRadius.circular(LeaveCardConfig.defaultBorderRadius(context)),
+        color: backgroundColor ?? LeaveCardConfig.backgroundColor,
+        borderRadius: BorderRadius.circular(LeaveCardConfig.borderRadius),
+        border: Border.all(color: LeaveCardConfig.borderColor),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: Colors.grey),
+          Icon(icon, color: Colors.grey, size: 24), // Using blue as default icon color
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(title, style: LeaveCardConfig.titleStyle(context)),
               Text(count, style: LeaveCardConfig.countStyle(context)),

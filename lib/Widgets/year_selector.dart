@@ -48,7 +48,7 @@ class _YearSelectorState extends State<YearSelector> {
       height: MediaQuery.of(context).size.height * 0.06,
 
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.secondaryColor),
+        border: Border.all(color: AppColors.secondary),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(

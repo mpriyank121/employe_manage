@@ -1,56 +1,114 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../Configuration/config_file.dart';
+import '../Configuration/Custom_Animation.dart';
 import '../Configuration/style.dart';
 import '../Widgets/App_bar.dart';
 import '../Widgets/Bottom_card.dart';
+import '../Widgets/CustomListTile.dart';
 import '../Widgets/Welcome_card.dart';
 import '../Widgets/custom_button.dart';
+import '../Widgets/leave_list.dart';
 import '../Widgets/slide_checkin.dart';
 
-// ✅ Define the StatefulWidget with a title parameter
-class welcomepage extends StatefulWidget {
+class WelcomePage extends StatefulWidget {
   final String title;
-  const welcomepage({super.key, required this.title});
+  const WelcomePage({super.key, required this.title});
 
   @override
-  State<welcomepage> createState() => _welcomepageState();
+  State<WelcomePage> createState() => _WelcomePageState();
 }
 
-class _welcomepageState extends State<welcomepage> {
-  bool isCheckedIn = false; // ✅ Track Check-in State
-  int elapsedSeconds = 0;   // ✅ Track Timer
+class _WelcomePageState extends State<WelcomePage> {
+  bool isCheckedIn = false;
+  int elapsedSeconds = 0;
+  String userName = "Loading...";
+  String jobRole = "Loading...";
 
-  // ✅ Sample items list for ListView (Replace with your actual data)
-  final List<Map<String, String>> items1 = [
-    {"title": "Sick Leave", "subtitle": "12 Jan"},
-    {"title": "Annual Leave", "subtitle": "8 October"},
-  ];
+  DateTime checkInTime = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData(); // ✅ Fetch employee details from API
+  }
+
+  /// ✅ Fetch Employee Data from API
+  Future<void> _fetchUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? phone = prefs.getString('phone'); // Retrieve phone from shared preferences
+
+    if (phone == null) {
+      print("🔴 Phone number not found in SharedPreferences");
+      return;
+    }
+
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//emp_info.php'),
+      );
+
+      request.fields.addAll({
+        'phone': phone, // ✅ Use stored phone number
+        'type': 'user_info',
+      });
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        String responseBody = await response.stream.bytesToString();
+        var jsonResponse = json.decode(responseBody);
+
+        if (jsonResponse['status'] == true) {
+          if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map<String, dynamic>) {
+            var userData = jsonResponse['data']; // ✅ Extract data object
+
+            setState(() {
+              userName = userData['name'] ?? "Unknown";
+              jobRole = userData['designation'] ?? "Unknown";
+            });
+
+            print("✅ User Data Fetched: $userName - $jobRole");
+          } else {
+            print("🔴 Missing 'data' key in API response: $jsonResponse");
+          }
+        } else {
+          print("🔴 API Status Failure: ${jsonResponse['message']}");
+        }
+      } else {
+        print("🔴 API Error: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      print("🔴 Exception in fetching user data: $e");
+    }
+  }
 
   void _startTimer() {
     elapsedSeconds = 0;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!isCheckedIn) {
-        timer.cancel(); // Stop timer if checked out
+        timer.cancel();
       } else {
         setState(() {
-          elapsedSeconds++; // Increase timer every second
+          elapsedSeconds++;
         });
       }
     });
   }
-  DateTime checkInTime = DateTime.now(); // ✅ Store check-in time
 
   void onCheckIn() {
     setState(() {
       isCheckedIn = true;
-      checkInTime = DateTime.now(); // ✅ Store check-in time
+      checkInTime = DateTime.now();
       elapsedSeconds = 0;
     });
     _startTimer();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +117,7 @@ class _welcomepageState extends State<welcomepage> {
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.title, // ✅ Use the passed title parameter
+        title: widget.title,
         leading: IconButton(
           icon: SvgPicture.asset('assets/images/bc 3.svg'),
           onPressed: () {},
@@ -69,7 +127,6 @@ class _welcomepageState extends State<welcomepage> {
           icon: const Icon(Icons.notifications),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,
@@ -77,31 +134,28 @@ class _welcomepageState extends State<welcomepage> {
         ),
         child: Column(
           children: [
-            // ✅ Date Container
             Container(
               width: screenWidth * 0.9,
               height: screenHeight * 0.06,
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: AppColors.borderColor),
+                  side: BorderSide(width: 1, color: AppColors.primary),
                   borderRadius: BorderRadius.circular(screenWidth * 0.1),
                 ),
               ),
               child: Center(
-                child: Text('10 - Jan - 2024', style: fontStyles.headingStyle),
+                child: Text('11 - Jan - 2024', style: fontStyles.headingStyle),
               ),
             ),
-
             AppSpacing.medium(context),
 
-            // ✅ Welcome Card - Dynamically Updates on Check-in
             WelcomeCard(
-              userName: isCheckedIn ? "" : 'Priyank Mangal',
-              jobRole: isCheckedIn ? "" : 'Tech - UI/UX Designer',
+              userName: isCheckedIn ? "" : userName,
+              jobRole: isCheckedIn ? "" : jobRole,
               screenWidth: screenWidth,
               screenHeight: screenHeight,
               elapsedSeconds: isCheckedIn ? elapsedSeconds : 0,
-              isCheckedIn: isCheckedIn, // ✅ Pass check-in state
+              isCheckedIn: isCheckedIn,
               checkInTime: checkInTime,
             ),
 
@@ -110,10 +164,7 @@ class _welcomepageState extends State<welcomepage> {
               screenHeight: screenHeight,
             ),
 
-
             AppSpacing.medium(context),
-
-            // ✅ Leave Applications Section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
               child: Row(
@@ -122,59 +173,52 @@ class _welcomepageState extends State<welcomepage> {
                   Text('Leave Application', style: fontStyles.normalText),
                   TextButton(
                     onPressed: () {},
-                    child: Text('See All', style: TextStyle(color: AppColors.secondaryColor)),
+                    child: Text('See All', style: TextStyle(color: AppColors.secondary)),
                   ),
                 ],
               ),
             ),
 
+
             // ✅ Responsive Leave Status Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                customanime(initialtext: 'Approved'),
-                customanime(initialtext: 'Pending'),
-                customanime(initialtext: 'Declined'),
+                CustomAnimation(initialText: 'Approved'),
+                CustomAnimation(initialText: 'Pending'),
+                CustomAnimation(initialText: 'Declined'),
               ],
             ),
 
             SizedBox(height: screenHeight * 0.02), // Responsive spacing
 
-            // ✅ Leave Application List
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: items1.length,
-              itemBuilder: (context, index) {
-                final item = items1[index];
-                return ListTile(
-                  title: Text(item["title"] ?? "", style: fontStyles.headingStyle),
-                  subtitle: Text(item["subtitle"] ?? "", style: fontStyles.subTextStyle),
-                  trailing: CustomButton(), // ✅ Fixed CustomButton
-                );
-              },
-            ),
+              ListView.builder(
+                shrinkWrap: true,
 
-            // ✅ Slide Check-In Button
+                itemCount: leaveList.length,
+                itemBuilder: (context, index) {
+                  return CustomListTile(item: leaveList[index],
+                    trailing: const CustomButton(),
+
+                  );
+                },
+              ),
+
+            SizedBox(height: screenHeight * 0.02),
+
             SlideCheckIn(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
               isCheckedIn: isCheckedIn,
-              onCheckIn: () {
-                setState(() {
-                  isCheckedIn = true;
-                });
-                _startTimer(); // Start timer
-              },
+              onCheckIn: onCheckIn,
               onCheckOut: () {
                 setState(() {
                   isCheckedIn = false;
-                  elapsedSeconds = 0; // Reset timer
+                  elapsedSeconds = 0;
                 });
               },
             ),
-
-            SizedBox(height: screenHeight * 0.02), // Responsive spacing
+            SizedBox(height: screenHeight * 0.02),
           ],
         ),
       ),

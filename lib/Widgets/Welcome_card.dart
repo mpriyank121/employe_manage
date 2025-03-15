@@ -49,7 +49,6 @@ class WelcomeCard extends StatelessWidget {
       decoration: ShapeDecoration(
         color: WelcomeCardConfig.backgroundColor,
         shape: RoundedRectangleBorder(
-          side: BorderSide(width: WelcomeCardConfig.borderWidth, color: WelcomeCardConfig.borderColor),
           borderRadius: BorderRadius.circular(WelcomeCardConfig.borderRadius),
         ),
       ),
@@ -61,7 +60,7 @@ class WelcomeCard extends StatelessWidget {
             isCheckedIn
                 ? "Checked in at ${_formatCheckInTime(checkInTime)}"
                 : "Let’s get to work!",
-            style: WelcomeCardConfig.welcomeTextStyle,
+            style: WelcomeCardConfig.welcomeText,
           ),
 
           SizedBox(height: screenHeight * 0.005),
@@ -69,7 +68,7 @@ class WelcomeCard extends StatelessWidget {
           // ✅ Show Elapsed Time Instead of Username When Checked In
           Text(
             isCheckedIn ? formatElapsedTime(elapsedSeconds) : userName,
-            style: WelcomeCardConfig.nameTextStyle,
+            style: WelcomeCardConfig.welcomeText,
           ),
 
           SizedBox(height: screenHeight * 0.005),
@@ -78,7 +77,7 @@ class WelcomeCard extends StatelessWidget {
           Text(
             isCheckedIn ? "Today" : jobRole,
             textAlign: TextAlign.center,
-            style: WelcomeCardConfig.roleTextStyle,
+            style: WelcomeCardConfig.welcomeText,
           ),
 
           SizedBox(height: screenHeight * 0.01), // Space before timer

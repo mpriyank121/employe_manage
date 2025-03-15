@@ -1,135 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import '../Widgets/primary_button.dart';
-import '/Configuration/config_file.dart';
 import '/Configuration/style.dart';
 
-void main(){
+void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-        title: 'Flutter Demo',
-
-        home:  settingpage(title: '',
-        )
+      title: 'Flutter Demo',
+      home: const settingpage(title: ''),
     );
   }
 }
+
 class settingpage extends StatefulWidget {
   const settingpage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widgets subclass are
-  // always marked "final".
-
   final String title;
 
+  @override
+  State<settingpage> createState() => _settingpageState();
+}
+
+class _settingpageState extends State<settingpage> {
+  String userName = "Loading...";
+  String jobRole = "Loading...";
 
   @override
-  State<settingpage> createState() => _MyHomePageState();
-}
-class _MyHomePageState extends State<settingpage> {
+  void initState() {
+    super.initState();
+    _fetchUserData();
+    print('✅ initState: Fetching user data...');  // ✅ Ensuring function call
+  }
 
-  Widget build(BuildContext context) {
-    Future<void> logout() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.clear(); // ✅ Clears all stored data
-      // Navigate to Login Page
-      Navigator.pushReplacementNamed(context, '/login');
+  /// ✅ Fetch Employee Data from SharedPreferences
+  Future<void> _fetchUserData() async {
+    print('🔍 Checking SharedPreferences for user data...'); // ✅ Debugging
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? name = prefs.getString('name'); // Stored user name
+    String? role = prefs.getString('designation'); // Stored job role
+
+    print('📌 Fetched from SharedPreferences → Name: $name, Role: $role'); // ✅ Debugging
+
+    if (name != null && role != null) {
+      setState(() {
+        userName = userName;
+        jobRole = jobRole;
+      });
+      print('✅ UI Updated → userName: $userName, jobRole: $jobRole');
+    } else {
+      print('⚠️ No user data found in SharedPreferences!');
     }
+  }
 
-    double _value = 30;
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width; // Get screen width
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height; // Get screen height
+  /// ✅ Logout Function
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    print('🚪 User Logged Out: SharedPreferences cleared.');
+    Navigator.pushReplacementNamed(context, '/login');
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Settings',
-        leading: AppBarConfig.getIconImage(imagePath: 'assets/images/bc 3.svg',),
-        actions: [],
-
+      appBar: CustomAppBar(
+        title: 'Settings',
+        leading: IconButton(
+          icon: SvgPicture.asset('assets/images/bc 3.svg'),
+          onPressed: () {},
+        ),        actions: [],
       ),
       body: Column(
-        children: [ListTile(
-
-          leading:CircleAvatar(
-            radius: 24, // Adjust size as needed
-            backgroundImage: AssetImage('assets/images/Ellipse.jpg'),
-            backgroundColor: Colors.transparent,
+        children: [
+          // ✅ User Profile Info
+          ListTile(
+            leading: CircleAvatar(
+              radius: 24,
+              backgroundImage: AssetImage('assets/images/Ellipse.jpg'),
+              backgroundColor: Colors.transparent,
+            ),
+            title: Row(
+              children: [
+                Text(userName, style: fontStyles.headingStyle), // ✅ Dynamic Username
+                SizedBox(width: 10),
+                Text(
+                  'See All',
+                  style: TextStyle(
+                    color: Color(0xFFF25922),
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    height: 1.60,
+                    letterSpacing: 0.20,
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Text(jobRole, style: fontStyles.subTextStyle), // ✅ Dynamic Job Role
           ),
-          title:Column(children: [Row(children: [
-            Text('Priyank Mangal',style: fontStyles.headingStyle,),
-            SizedBox(width: 10,),
-            Text('See All',style: TextStyle(
-              color: Color(0xFFF25922),
-              fontSize: 14,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              height: 1.60,
-              letterSpacing: 0.20,
-            ),)
-          ],)],) ,
-          subtitle:Text('UI UX design',style: fontStyles.subTextStyle,),
-        ),
-        Column(
 
-          children: [
-            Container(
-
-
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 16), // Same padding as above
-
-                leading: SvgPicture.asset('assets/images/iconoir_profile-circle.svg'),
-                title: Text('Edit Profie'),
-                trailing:SvgPicture.asset('assets/images/chevron-ups.svg') ,
+          // ✅ Menu Options
+          Column(
+            children: [
+              _buildListTile(
+                icon: 'assets/images/iconoir_profile-circle.svg',
+                title: 'Edit Profile',
               ),
-            ),
-            Container(
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 16), // Same padding as above
-
-                leading: SvgPicture.asset('assets/images/fluent_people-48-regular.svg'),
-                title: Text('Tasks'),
-                trailing:SvgPicture.asset('assets/images/chevron-ups.svg'),
+              _buildListTile(
+                icon: 'assets/images/fluent_people-48-regular.svg',
+                title: 'Tasks',
               ),
-            ),
-            PrimaryButton(
-              initialtext: 'Log Out',
-              widthFactor: 0.7,
-              heightFactor: 0.07,
-              buttonColor: Color(0x19CD0909),
 
+              // ✅ Logout Button
+              PrimaryButton(
+                textColor: Color(0xFFCD0909), // ✅ Custom text color
 
-              onPressed: () {
-                logout();
-              },
-            ),
-          ],
-        )
+                text: 'Log Out',
+                widthFactor: 0.7,
+                heightFactor: 0.07,
+                buttonColor: Color(0x19CD0909),
+                onPressed: _logout,
+                icon: SvgPicture.asset('assets/images/ant-design_logout-outlined.svg'),
+
+              ),
+            ],
+          ),
         ],
-
-
       ),
+    );
+  }
+
+  /// 🔹 Reusable ListTile Widget
+  Widget _buildListTile({required String icon, required String title}) {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+      leading: SvgPicture.asset(icon),
+      title: Text(title),
+      trailing: SvgPicture.asset('assets/images/chevron-ups.svg'),
     );
   }
 }

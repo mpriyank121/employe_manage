@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SlideCheckIn extends StatefulWidget {
   final double screenWidth;
@@ -28,19 +29,38 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   bool _isCheckedIn = false;
   int _elapsedSeconds = 0;
   Timer? _timer;
+  String? empId; // Store employee ID
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmployeeId(); // Load emp_id when the widget initializes
+  }
+
+  Future<void> _loadEmployeeId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      empId = prefs.getString("emp_id"); // Retrieve employee ID
+    });
+  }
 
   Future<void> _performCheckIn() async {
+    if (empId == null) {
+      print("Employee ID is missing. Cannot check-in.");
+      return;
+    }
+
     setState(() {
       _isChecking = true;
     });
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//checkIn.php'),
+      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php'),
     );
 
     request.fields.addAll({
-      'emp_id': '142',
+      'emp_id': empId ?? '',
       'latitude': '28.5582006',
       'longitude': '77.341035',
       'type': 'checkin'
@@ -69,17 +89,22 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   }
 
   Future<void> _performCheckOut() async {
+    if (empId == null) {
+      print("Employee ID is missing. Cannot check-out.");
+      return;
+    }
+
     setState(() {
       _isChecking = true;
     });
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//checkIn.php'),
+      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php'),
     );
 
     request.fields.addAll({
-      'emp_id': '142',
+      'emp_id': empId ?? '',
       'latitude': '28.5582006',
       'longitude': '77.341035',
       'type': 'checkout'
@@ -185,16 +210,14 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                       await _performCheckIn();
                     }
 
-                    // ✅ Reset slider position after action
                     setState(() {
                       _position = 0;
                     });
                   } else if (_position <= 10 && _isCheckedIn) {
-                    // ✅ If user slides back after check-in, perform check-out
                     await _performCheckOut();
 
                     setState(() {
-                      _position = 0; // Reset slider position
+                      _position = 0;
                     });
                   } else {
                     setState(() {

@@ -1,6 +1,7 @@
 import 'package:employe_manage/Widgets/holiday_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:flutter_svg/svg.dart';
 import '../Widgets/CustomListTile.dart';
 import '../Widgets/year_selector.dart';
 import 'package:get/get.dart';
@@ -62,9 +63,11 @@ class _MyHomePageState extends State<holidaypage> {
             Expanded(child:Container(
               width: screenWidth * 0.9,
               child:ListView.builder(
-                itemCount: HolidayList.items.length,
+                itemCount: holidayList.length,
                 itemBuilder: (context, index) {
-                  return CustomListTile(item: HolidayList.items[index]);
+                  return CustomListTile(item: holidayList[index],
+                    leading: SvgPicture.asset("assets/images/Frame 427319800.svg"),
+                  );
                 },
               ),
             ))],

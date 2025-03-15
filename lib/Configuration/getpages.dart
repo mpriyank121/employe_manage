@@ -14,7 +14,7 @@ import 'package:employe_manage/Screens/attendence.dart';
 final List<GetPage> getPages = [
   GetPage(name: Routes.settings, page: () => settingpage(title: 'settings')),
   GetPage(name: Routes.otp, page: () => OtpPage()),
-  GetPage(name: Routes.welcome, page: () => welcomepage(title: 'welcome',)),
+  GetPage(name: Routes.welcome, page: () => WelcomePage(title: 'welcome',)),
   GetPage(name: Routes.assets, page: () => Assetspage(title: 'assets')),
   GetPage(name: Routes.document, page: () => documentpage(title: 'document')),
   GetPage(name: Routes.holiday, page: () => holidaypage(title: 'holiday')),
