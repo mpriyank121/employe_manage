@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       initialRoute: isLoggedIn ? '/home' : '/login',
       routes: {
         '/login': (context) => LoginScreen(),
-        '/otp': (context) => OtpPage(),
+        '/otp': (context) => OtpPage(phone: 'phone',),
         '/home': (context) => MainScreen(),
       },
     );

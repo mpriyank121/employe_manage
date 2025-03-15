@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../API/Services/Check_In_Service.dart';
 
 class SlideCheckIn extends StatefulWidget {
   final double screenWidth;
@@ -24,117 +24,48 @@ class SlideCheckIn extends StatefulWidget {
 }
 
 class _SlideCheckInState extends State<SlideCheckIn> {
+  final CheckInService _checkInService = CheckInService();
+
   double _position = 0.0;
   bool _isChecking = false;
   bool _isCheckedIn = false;
   int _elapsedSeconds = 0;
   Timer? _timer;
-  String? empId; // Store employee ID
 
   @override
   void initState() {
     super.initState();
-    _loadEmployeeId(); // Load emp_id when the widget initializes
   }
 
-  Future<void> _loadEmployeeId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      empId = prefs.getString("emp_id"); // Retrieve employee ID
-    });
+  Future<void> _handleCheckIn() async {
+    setState(() => _isChecking = true);
+    bool success = await _checkInService.performCheckIn();
+    if (success) {
+      setState(() {
+        _isCheckedIn = true;
+        _elapsedSeconds = 0;
+      });
+      widget.onCheckIn();
+      _startTimer();
+    }
+    setState(() => _isChecking = false);
   }
 
-  Future<void> _performCheckIn() async {
-    if (empId == null) {
-      print("Employee ID is missing. Cannot check-in.");
-      return;
+  Future<void> _handleCheckOut() async {
+    setState(() => _isChecking = true);
+    bool success = await _checkInService.performCheckOut();
+    if (success) {
+      _stopTimer();
+      widget.onCheckOut();
     }
-
-    setState(() {
-      _isChecking = true;
-    });
-
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php'),
-    );
-
-    request.fields.addAll({
-      'emp_id': empId ?? '',
-      'latitude': '28.5582006',
-      'longitude': '77.341035',
-      'type': 'checkin'
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      if (mounted) {
-        setState(() {
-          _isCheckedIn = true;
-          _elapsedSeconds = 0;
-        });
-
-        widget.onCheckIn();
-        _startTimer();
-      }
-    } else {
-      print('Check-in failed');
-    }
-
-    setState(() {
-      _isChecking = false;
-    });
-  }
-
-  Future<void> _performCheckOut() async {
-    if (empId == null) {
-      print("Employee ID is missing. Cannot check-out.");
-      return;
-    }
-
-    setState(() {
-      _isChecking = true;
-    });
-
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php'),
-    );
-
-    request.fields.addAll({
-      'emp_id': empId ?? '',
-      'latitude': '28.5582006',
-      'longitude': '77.341035',
-      'type': 'checkout'
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-      if (mounted) {
-        print('Check-Out successful');
-        _stopTimer();
-        widget.onCheckOut();
-      }
-    } else {
-      print('Check-Out failed');
-    }
-
-    setState(() {
-      _isChecking = false;
-    });
+    setState(() => _isChecking = false);
   }
 
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
-        setState(() {
-          _elapsedSeconds++;
-        });
+        setState(() => _elapsedSeconds++);
       }
     });
   }
@@ -205,24 +136,14 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                     _position = widget.screenWidth * 0.75;
 
                     if (_isCheckedIn) {
-                      await _performCheckOut();
+                      await _handleCheckOut();
                     } else {
-                      await _performCheckIn();
+                      await _handleCheckIn();
                     }
 
-                    setState(() {
-                      _position = 0;
-                    });
-                  } else if (_position <= 10 && _isCheckedIn) {
-                    await _performCheckOut();
-
-                    setState(() {
-                      _position = 0;
-                    });
+                    setState(() => _position = 0);
                   } else {
-                    setState(() {
-                      _position = 0;
-                    });
+                    setState(() => _position = 0);
                   }
                 },
                 child: Container(

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Configuration/config_file.dart';
+import '../Configuration/config_file.dart';
+import 'package:intl/intl.dart'; // ✅ For date formatting
 
 class WelcomeCard extends StatelessWidget {
   final String userName;
   final String jobRole;
   final double screenWidth;
   final double screenHeight;
-  final int elapsedSeconds; // ✅ Receive elapsed time
-  final bool isCheckedIn; // ✅ Receive check-in state
-  final DateTime checkInTime; // ✅ Receive check-in time
+  final int elapsedSeconds;
+  final bool isCheckedIn;
+  final DateTime checkInTime;
+  final String workedTime; // ✅ NEW: Worked Time
 
   const WelcomeCard({
     Key? key,
@@ -17,26 +19,22 @@ class WelcomeCard extends StatelessWidget {
     required this.screenWidth,
     required this.screenHeight,
     required this.elapsedSeconds,
-    required this.isCheckedIn, // ✅ Added
-    required this.checkInTime, // ✅ Added
+    required this.isCheckedIn,
+    required this.checkInTime,
+    this.workedTime = "", // ✅ Default empty if not checked out
   }) : super(key: key);
 
-  // ✅ Function to format elapsed time
-  String formatElapsedTime(int elapsedSeconds) {
-    int hours = elapsedSeconds ~/ 3600;
-    int minutes = (elapsedSeconds % 3600) ~/ 60;
-    int seconds = elapsedSeconds % 60;
-
-    return "${hours.toString().padLeft(2, '0')}:"
-        "${minutes.toString().padLeft(2, '0')}:"
-        "${seconds.toString().padLeft(2, '0')}";
+  /// ✅ Convert seconds into HH:MM:SS format
+  String formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int secs = seconds % 60;
+    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
 
-  // ✅ Function to format check-in time (HH:MM:SS)
-  String _formatCheckInTime(DateTime time) {
-    return "${time.hour.toString().padLeft(2, '0')}:"
-        "${time.minute.toString().padLeft(2, '0')}:"
-        "${time.second.toString().padLeft(2, '0')}";
+  /// ✅ Format DateTime to readable Check-in Time
+  String formatCheckInTime(DateTime time) {
+    return DateFormat('hh:mm a').format(time);
   }
 
   @override
@@ -53,35 +51,32 @@ class WelcomeCard extends StatelessWidget {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // ✅ Show Check-in Time or Default Welcome Message
           Text(
             isCheckedIn
-                ? "Checked in at ${_formatCheckInTime(checkInTime)}"
+                ? "Checked in at ${formatCheckInTime(checkInTime)}"
                 : "Let’s get to work!",
             style: WelcomeCardConfig.welcomeText,
           ),
-
-          SizedBox(height: screenHeight * 0.005),
-
-          // ✅ Show Elapsed Time Instead of Username When Checked In
+          AppSpacing.small(context),
           Text(
-            isCheckedIn ? formatElapsedTime(elapsedSeconds) : userName,
-            style: WelcomeCardConfig.welcomeText,
+            isCheckedIn ? "Today" : userName,
+            style: WelcomeCardConfig.nameText,
           ),
+          if (!isCheckedIn)
+            Text(jobRole, style: WelcomeCardConfig.roleText),
 
-          SizedBox(height: screenHeight * 0.005),
-
-          // ✅ Show "Today" Instead of Job Role When Checked In
-          Text(
-            isCheckedIn ? "Today" : jobRole,
-            textAlign: TextAlign.center,
-            style: WelcomeCardConfig.welcomeText,
-          ),
-
-          SizedBox(height: screenHeight * 0.01), // Space before timer
-
+          if (isCheckedIn) ...[
+            Text(
+              " ${formatTime(elapsedSeconds)}",
+              style: WelcomeCardConfig.welcomeText,
+            ),
+          ] else if (workedTime.isNotEmpty) ...[
+            Text(
+              "Total Worked Time: $workedTime",
+              style: WelcomeCardConfig.welcomeText,
+            ),
+          ],
         ],
       ),
     );

@@ -1,11 +1,10 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import '../Configuration/config_file.dart';
+import 'package:get/get.dart';
+import '../API/Controllers/check_in_controller.dart';
+import '../API/Services/user_service.dart';
 import '../Configuration/Custom_Animation.dart';
+import '../Configuration/config_file.dart';
 import '../Configuration/style.dart';
 import '../Widgets/App_bar.dart';
 import '../Widgets/Bottom_card.dart';
@@ -24,90 +23,35 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  bool isCheckedIn = false;
-  int elapsedSeconds = 0;
-  String userName = "Loading...";
-  String jobRole = "Loading...";
+  final CheckInController checkInController = Get.put(CheckInController());
+  final UserService userService = UserService();
 
-  DateTime checkInTime = DateTime.now();
+  var userName = "Loading...".obs;
+  var jobRole = "Loading...".obs;
+  var totalWorkedTime = "".obs; // ✅ Stores total worked time after checkout
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData(); // ✅ Fetch employee details from API
+    _fetchUserData();
   }
 
-  /// ✅ Fetch Employee Data from API
+  /// ✅ Fetch User Data
   Future<void> _fetchUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? phone = prefs.getString('phone'); // Retrieve phone from shared preferences
-
-    if (phone == null) {
-      print("🔴 Phone number not found in SharedPreferences");
-      return;
-    }
-
-    try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//emp_info.php'),
-      );
-
-      request.fields.addAll({
-        'phone': phone, // ✅ Use stored phone number
-        'type': 'user_info',
-      });
-
-      http.StreamedResponse response = await request.send();
-
-      if (response.statusCode == 200) {
-        String responseBody = await response.stream.bytesToString();
-        var jsonResponse = json.decode(responseBody);
-
-        if (jsonResponse['status'] == true) {
-          if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map<String, dynamic>) {
-            var userData = jsonResponse['data']; // ✅ Extract data object
-
-            setState(() {
-              userName = userData['name'] ?? "Unknown";
-              jobRole = userData['designation'] ?? "Unknown";
-            });
-
-            print("✅ User Data Fetched: $userName - $jobRole");
-          } else {
-            print("🔴 Missing 'data' key in API response: $jsonResponse");
-          }
-        } else {
-          print("🔴 API Status Failure: ${jsonResponse['message']}");
-        }
-      } else {
-        print("🔴 API Error: ${response.reasonPhrase}");
-      }
-    } catch (e) {
-      print("🔴 Exception in fetching user data: $e");
+    var userData = await userService.fetchUserData();
+    if (userData != null) {
+      userName.value = userData['name'] ?? "Unknown";
+      jobRole.value = userData['designation'] ?? "Unknown";
+      print("✅ User Data Fetched: ${userName.value} - ${jobRole.value}");
     }
   }
 
-  void _startTimer() {
-    elapsedSeconds = 0;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!isCheckedIn) {
-        timer.cancel();
-      } else {
-        setState(() {
-          elapsedSeconds++;
-        });
-      }
-    });
-  }
-
-  void onCheckIn() {
-    setState(() {
-      isCheckedIn = true;
-      checkInTime = DateTime.now();
-      elapsedSeconds = 0;
-    });
-    _startTimer();
+  /// ✅ Convert elapsed seconds into HH:MM:SS format
+  String formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int secs = seconds % 60;
+    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
 
   @override
@@ -149,38 +93,21 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
             AppSpacing.medium(context),
 
-            WelcomeCard(
-              userName: isCheckedIn ? "" : userName,
-              jobRole: isCheckedIn ? "" : jobRole,
+            /// ✅ Welcome Card - Updates in real-time
+            Obx(() => WelcomeCard(
+              userName: checkInController.isCheckedIn.value ? "" : userName.value,
+              jobRole: checkInController.isCheckedIn.value ? "" : jobRole.value,
               screenWidth: screenWidth,
               screenHeight: screenHeight,
-              elapsedSeconds: isCheckedIn ? elapsedSeconds : 0,
-              isCheckedIn: isCheckedIn,
-              checkInTime: checkInTime,
-            ),
+              elapsedSeconds: checkInController.elapsedSeconds.value,
+              isCheckedIn: checkInController.isCheckedIn.value,
+              checkInTime: checkInController.checkInTime.value,
+              workedTime: checkInController.workedTime.value, // ✅ Now updates after checkout
+            )),
 
-            BottomCard(
-              screenWidth: screenWidth,
-              screenHeight: screenHeight,
-            ),
-
+            BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
             AppSpacing.medium(context),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Leave Application', style: fontStyles.normalText),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text('See All', style: TextStyle(color: AppColors.secondary)),
-                  ),
-                ],
-              ),
-            ),
 
-
-            // ✅ Responsive Leave Status Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -189,36 +116,34 @@ class _WelcomePageState extends State<WelcomePage> {
                 CustomAnimation(initialText: 'Declined'),
               ],
             ),
+            AppSpacing.medium(context),
 
-            SizedBox(height: screenHeight * 0.02), // Responsive spacing
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: leaveList.length,
+              itemBuilder: (context, index) {
+                return CustomListTile(item: leaveList[index], trailing: const CustomButton());
+              },
+            ),
 
-              ListView.builder(
-                shrinkWrap: true,
-
-                itemCount: leaveList.length,
-                itemBuilder: (context, index) {
-                  return CustomListTile(item: leaveList[index],
-                    trailing: const CustomButton(),
-
-                  );
-                },
-              ),
-
-            SizedBox(height: screenHeight * 0.02),
-
+            /// ✅ Slide Check-In Button - Updates Welcome Card and Timer in real-time
             SlideCheckIn(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
-              isCheckedIn: isCheckedIn,
-              onCheckIn: onCheckIn,
+              isCheckedIn: checkInController.isCheckedIn.value,
+              onCheckIn: () {
+                checkInController.checkIn();
+                _fetchUserData(); // ✅ Refresh user data
+                totalWorkedTime.value = ""; // ✅ Clear total worked time on check-in
+              },
               onCheckOut: () {
-                setState(() {
-                  isCheckedIn = false;
-                  elapsedSeconds = 0;
-                });
+                checkInController.checkOut();
+                _fetchUserData(); // ✅ Refresh user data
+
+                /// ✅ Save the total worked time after checkout
+                totalWorkedTime.value = formatTime(checkInController.elapsedSeconds.value);
               },
             ),
-            SizedBox(height: screenHeight * 0.02),
           ],
         ),
       ),

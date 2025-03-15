@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+const String baseUrl = "https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/";
 
 /// 🌟 Common App Colors
 class AppColors {
