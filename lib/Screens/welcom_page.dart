@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import '../API/Controllers/check_in_controller.dart';
+import '../API/Controllers/checkIn_Controller.dart';
 import '../API/Services/user_service.dart';
 import '../Configuration/Custom_Animation.dart';
 import '../Configuration/app_colors.dart';

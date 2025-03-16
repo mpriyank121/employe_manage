@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../Screens/otp_page.dart';
-import '../Services/api_service.dart'; // ❌ Removed EncryptionHelper (not needed)
+import '../../screens/otp_page.dart';
+import '../Services/auth_service.dart';
 
 class AuthController extends GetxController {
-  final ApiService _apiService = ApiService();
+  final AuthService _authService = AuthService();
   var isLoading = false.obs;
 
   /// ✅ Send OTP Function
@@ -15,9 +15,7 @@ class AuthController extends GetxController {
     }
 
     isLoading.value = true;
-
-    // ❌ Do NOT encrypt here. Let ApiService handle it.
-    bool otpSent = await _apiService.sendOtp(phoneNumber);
+    bool otpSent = await _authService.sendOtp(phoneNumber);
     isLoading.value = false;
 
     if (otpSent) {
@@ -25,7 +23,7 @@ class AuthController extends GetxController {
       await prefs.setString('phone', phoneNumber);
       print("📌 Phone number saved: $phoneNumber");
 
-      Get.to(() => OtpPage(phone: phoneNumber)); // ✅ Pass phone directly
+      Get.to(() => OtpPage(phone: phoneNumber));
     } else {
       print('🔴 Error in sending OTP');
       Get.snackbar("Error", "Failed to send OTP. Try again.", snackPosition: SnackPosition.BOTTOM);
@@ -35,15 +33,13 @@ class AuthController extends GetxController {
   /// ✅ Verify OTP Function
   Future<void> verifyOtp(String phone, String otp) async {
     isLoading.value = true;
-
-    // ❌ Do NOT encrypt here. Let ApiService handle it.
-    bool verified = await _apiService.verifyOtp(phone, otp);
+    bool verified = await _authService.verifyOtp(phone, otp);
     isLoading.value = false;
 
     if (verified) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
-      Get.offAllNamed('/home'); // ✅ Navigate to home
+      Get.offAllNamed('/home');
     } else {
       Get.snackbar("Error", "Invalid OTP. Try again.", snackPosition: SnackPosition.BOTTOM);
     }

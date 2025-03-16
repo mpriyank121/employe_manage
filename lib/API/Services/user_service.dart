@@ -17,7 +17,7 @@ class UserService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/emp_info.php'), // Use base URL from config
+        Uri.parse('$baseUrl/emp_info.php'),
       );
 
       request.fields.addAll({
@@ -30,12 +30,7 @@ class UserService {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseBody);
-        if (jsonResponse['status'] == true) {
-          return jsonResponse['data']; // ✅ Return only user data
-        } else {
-          print("🔴 API Error: ${jsonResponse['message']}");
-          return null;
-        }
+        return jsonResponse['status'] == true ? jsonResponse['data'] : null;
       } else {
         print("🔴 Server Error: ${response.reasonPhrase}");
         return null;
@@ -46,4 +41,3 @@ class UserService {
     }
   }
 }
-///

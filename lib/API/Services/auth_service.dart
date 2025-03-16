@@ -1,11 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api_client.dart';
-import '../encryption/Encryption_helper.dart';
+import '../encryption/encryption_helper.dart';
 
-class ApiService {
+class AuthService {
   final ApiClient _apiClient = ApiClient();
 
-  /// ✅ Helper to encrypt data before sending to API
+  /// ✅ Encrypts data before sending
   Map<String, String> _encryptData(Map<String, String> data) {
     return data.map((key, value) => MapEntry(key, EncryptionHelper.encryptString(value)));
   }
@@ -19,9 +19,7 @@ class ApiService {
       });
 
       var jsonResponse = await _apiClient.postRequest("/login.php", encryptedData);
-      print('Sended from here');
       return jsonResponse != null && jsonResponse['status'] == true;
-
     } catch (e) {
       print("🔴 Exception in sendOtp: $e");
       return false;
@@ -45,9 +43,8 @@ class ApiService {
           await prefs.setString('emp_id', jsonResponse['emp_id']);
         }
         return true;
-      } else {
-        return false;
       }
+      return false;
     } catch (e) {
       print("🔴 Exception in verifyOtp: $e");
       return false;

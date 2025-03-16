@@ -24,12 +24,6 @@ class CategoryPage extends StatefulWidget {
   State<CategoryPage> createState() => _CategoryPageState();
 }
 class _CategoryPageState extends State<CategoryPage> {
-  int _selectedIndex = 0;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
   final List<Map<String, dynamic>> categoryItems = [
     {'title': 'Attendance', 'icon': 'assets/images/wired_clock.jpg', 'route': () => attendencepage(title: 'Attendence')},
     {'title': 'Remuneration', 'icon': 'assets/images/remuneration.svg', 'route': null},
@@ -41,7 +35,6 @@ class _CategoryPageState extends State<CategoryPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
     double iconSize = 50.0;
     return Scaffold(
       appBar: CustomAppBar(

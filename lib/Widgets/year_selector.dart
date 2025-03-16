@@ -38,11 +38,6 @@ class _YearSelectorState extends State<YearSelector> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    void onYearChanged(int newYear) {
-      setState(() {
-        selectedYear = newYear;
-      });
-    }
 
     return Container(
       width: screenWidth * 0.85,

@@ -38,10 +38,6 @@ class _MyHomePageState extends State<holidaypage> {
           .of(context)
           .size
           .width; // Get screen width
-      double screenHeight = MediaQuery
-          .of(context)
-          .size
-          .height;
       return Scaffold(
           appBar: CustomAppBar(title: 'Holiday List',
           ),
