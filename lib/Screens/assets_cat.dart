@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:employe_manage/Configuration/style.dart';
 import 'package:get/get.dart';
 import '../Widgets/Assets_List.dart'; // Import the asset list file
-import '../Widgets/CustomListTile.dart';
 import '/Widgets/App_bar.dart';
 
 void main() {

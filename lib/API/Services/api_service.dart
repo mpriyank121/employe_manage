@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api_client.dart';
-import '../Encryption_helper.dart';
+import '../encryption/Encryption_helper.dart';
 
 class ApiService {
   final ApiClient _apiClient = ApiClient();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Configuration/config_file.dart';
+import '../Configuration/app_cards.dart';
 
 class LeaveCard extends StatelessWidget {
   final String title;
@@ -43,8 +43,8 @@ class LeaveCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(title, style: LeaveCardConfig.titleStyle(context)),
-              Text(count, style: LeaveCardConfig.countStyle(context)),
+              Text(title, style: LeaveCardConfig.titleStyle),
+              Text(count, style: LeaveCardConfig.countStyle),
             ],
           ),
         ],

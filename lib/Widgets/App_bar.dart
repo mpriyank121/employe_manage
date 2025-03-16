@@ -1,6 +1,6 @@
-import 'package:employe_manage/Configuration/config_file.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../Configuration/app_borders.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading; // Custom leading widget

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Configuration/config_file.dart';
+import '../Configuration/app_cards.dart';
 
 class BottomCard extends StatelessWidget {
   final double screenWidth;

@@ -9,7 +9,6 @@ import '../Widgets/custom_button.dart';
 import '../Widgets/year_selector.dart';
 import 'package:employe_manage/Widgets/leave_list.dart';
 import 'package:employe_manage/Widgets/holiday_list_tile.dart';
-
 void main() {
   runApp(const MyApp());
 }
@@ -25,7 +24,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 class leavepage extends StatefulWidget {
   const leavepage({super.key, required this.title});
   final String title;

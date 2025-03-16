@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Configuration/config_file.dart';
+import 'package:employe_manage/Configuration/app_animations.dart';
 class CustomAnimation extends StatefulWidget {
   final String initialText;
   final double widthFactor;

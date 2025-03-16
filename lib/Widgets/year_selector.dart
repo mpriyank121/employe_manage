@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '/Configuration/config_file.dart'; // Import styles
+
+import '../Configuration/app_colors.dart';
 
 class YearSelector extends StatefulWidget {
 

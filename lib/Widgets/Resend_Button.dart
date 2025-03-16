@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../Configuration/config_file.dart';
+import '../Configuration/app_buttons.dart';
 class ResendButton extends StatefulWidget {
   final VoidCallback onResend; // Function callback when button is clicked
 

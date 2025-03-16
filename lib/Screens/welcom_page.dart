@@ -4,15 +4,16 @@ import 'package:get/get.dart';
 import '../API/Controllers/check_in_controller.dart';
 import '../API/Services/user_service.dart';
 import '../Configuration/Custom_Animation.dart';
-import '../Configuration/config_file.dart';
+import '../Configuration/app_colors.dart';
+import '../Configuration/app_spacing.dart';
 import '../Configuration/style.dart';
-import '../Widgets/App_bar.dart';
-import '../Widgets/Bottom_card.dart';
 import '../Widgets/CustomListTile.dart';
-import '../Widgets/Welcome_card.dart';
+import '../Widgets/app_bar.dart';
+import '../Widgets/bottom_card.dart';
 import '../Widgets/custom_button.dart';
 import '../Widgets/leave_list.dart';
 import '../Widgets/slide_checkin.dart';
+import '../Widgets/welcome_card.dart';
 
 class WelcomePage extends StatefulWidget {
   final String title;
@@ -28,7 +29,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   var userName = "Loading...".obs;
   var jobRole = "Loading...".obs;
-  var totalWorkedTime = "".obs; // ✅ Stores total worked time after checkout
+  var totalWorkedTime = "".obs;
 
   @override
   void initState() {
@@ -36,22 +37,12 @@ class _WelcomePageState extends State<WelcomePage> {
     _fetchUserData();
   }
 
-  /// ✅ Fetch User Data
   Future<void> _fetchUserData() async {
     var userData = await userService.fetchUserData();
     if (userData != null) {
       userName.value = userData['name'] ?? "Unknown";
       jobRole.value = userData['designation'] ?? "Unknown";
-      print("✅ User Data Fetched: ${userName.value} - ${jobRole.value}");
     }
-  }
-
-  /// ✅ Convert elapsed seconds into HH:MM:SS format
-  String formatTime(int seconds) {
-    int hours = seconds ~/ 3600;
-    int minutes = (seconds % 3600) ~/ 60;
-    int secs = seconds % 60;
-    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
 
   @override
@@ -78,22 +69,9 @@ class _WelcomePageState extends State<WelcomePage> {
         ),
         child: Column(
           children: [
-            Container(
-              width: screenWidth * 0.9,
-              height: screenHeight * 0.06,
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: AppColors.primary),
-                  borderRadius: BorderRadius.circular(screenWidth * 0.1),
-                ),
-              ),
-              child: Center(
-                child: Text('11 - Jan - 2024', style: fontStyles.headingStyle),
-              ),
-            ),
+            _buildDateContainer(screenWidth),
             AppSpacing.medium(context),
 
-            /// ✅ Welcome Card - Updates in real-time
             Obx(() => WelcomeCard(
               userName: checkInController.isCheckedIn.value ? "" : userName.value,
               jobRole: checkInController.isCheckedIn.value ? "" : jobRole.value,
@@ -102,51 +80,72 @@ class _WelcomePageState extends State<WelcomePage> {
               elapsedSeconds: checkInController.elapsedSeconds.value,
               isCheckedIn: checkInController.isCheckedIn.value,
               checkInTime: checkInController.checkInTime.value,
-              workedTime: checkInController.workedTime.value, // ✅ Now updates after checkout
+              workedTime: checkInController.workedTime.value,
             )),
 
             BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
             AppSpacing.medium(context),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CustomAnimation(initialText: 'Approved'),
-                CustomAnimation(initialText: 'Pending'),
-                CustomAnimation(initialText: 'Declined'),
-              ],
-            ),
+            _buildLeaveSummary(),
             AppSpacing.medium(context),
 
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: leaveList.length,
-              itemBuilder: (context, index) {
-                return CustomListTile(item: leaveList[index], trailing: const CustomButton());
-              },
-            ),
+            _buildLeaveList(),
 
-            /// ✅ Slide Check-In Button - Updates Welcome Card and Timer in real-time
-            SlideCheckIn(
+            Obx(() => SlideCheckIn(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
               isCheckedIn: checkInController.isCheckedIn.value,
               onCheckIn: () {
                 checkInController.checkIn();
-                _fetchUserData(); // ✅ Refresh user data
-                totalWorkedTime.value = ""; // ✅ Clear total worked time on check-in
+                _fetchUserData();
+                totalWorkedTime.value = "";
               },
               onCheckOut: () {
                 checkInController.checkOut();
-                _fetchUserData(); // ✅ Refresh user data
-
-                /// ✅ Save the total worked time after checkout
-                totalWorkedTime.value = formatTime(checkInController.elapsedSeconds.value);
+                _fetchUserData();
+                totalWorkedTime.value = checkInController.workedTime.value;
               },
-            ),
+            )),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDateContainer(double screenWidth) {
+    return Container(
+      width: screenWidth * 0.9,
+      height: 50,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1, color: AppColors.primary),
+          borderRadius: BorderRadius.circular(screenWidth * 0.1),
+        ),
+      ),
+      child: Center(
+        child: Text('11 - Jan - 2024', style: fontStyles.headingStyle),
+      ),
+    );
+  }
+
+  Widget _buildLeaveSummary() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        CustomAnimation(initialText: 'Approved'),
+        CustomAnimation(initialText: 'Pending'),
+        CustomAnimation(initialText: 'Declined'),
+      ],
+    );
+  }
+
+  Widget _buildLeaveList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: leaveList.length,
+      itemBuilder: (context, index) {
+        return CustomListTile(item: leaveList[index], trailing: const CustomButton());
+      },
     );
   }
 }
