@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../api_client.dart';
+import '../api_service.dart';
 import '../encryption/encryption_helper.dart';
 
 class AuthService {

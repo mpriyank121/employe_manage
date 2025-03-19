@@ -1,19 +1,20 @@
+import 'package:employe_manage/Screens/leave_detail.dart';
+import 'package:employe_manage/Widgets/Calender_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Controllers/checkIn_Controller.dart';
 import '../API/Services/user_service.dart';
-import '../Configuration/Custom_Animation.dart';
-import '../Configuration/app_colors.dart';
 import '../Configuration/app_spacing.dart';
 import '../Configuration/style.dart';
-import '../Widgets/CustomListTile.dart';
+import '../Widgets/Date_Picker.dart';
 import '../Widgets/app_bar.dart';
 import '../Widgets/bottom_card.dart';
-import '../Widgets/custom_button.dart';
-import '../Widgets/leave_list.dart';
+import '../Widgets/leave_tab_view.dart';
 import '../Widgets/slide_checkin.dart';
 import '../Widgets/welcome_card.dart';
+
 
 class WelcomePage extends StatefulWidget {
   final String title;
@@ -36,17 +37,23 @@ class _WelcomePageState extends State<WelcomePage> {
     super.initState();
     _fetchUserData();
   }
-
   Future<void> _fetchUserData() async {
     var userData = await userService.fetchUserData();
     if (userData != null) {
       userName.value = userData['name'] ?? "Unknown";
       jobRole.value = userData['designation'] ?? "Unknown";
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('username', userName.value);
+      await prefs.setString('jobRole', jobRole.value);
+      userName.value = userName.value;
+      jobRole.value = jobRole.value;
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -68,8 +75,15 @@ class _WelcomePageState extends State<WelcomePage> {
           vertical: screenHeight * 0.03,
         ),
         child: Column(
-          children: [
-            _buildDateContainer(screenWidth),
+          children: [DatePickerDropdown(
+            onCalendarTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => CalendarWidget(),
+              );
+            },
+          ),
+
             AppSpacing.medium(context),
 
             Obx(() => WelcomeCard(
@@ -81,15 +95,29 @@ class _WelcomePageState extends State<WelcomePage> {
               isCheckedIn: checkInController.isCheckedIn.value,
               checkInTime: checkInController.checkInTime.value,
               workedTime: checkInController.workedTime.value,
+                checkOutTime :checkInController.checkOutTime.value,
             )),
-
             BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
             AppSpacing.medium(context),
+            Column(children: [Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [Text('Leave Application',style: fontStyles.headingStyle),
+                TextButton(onPressed: (){
+                  Get.to(leavepage(title: "leave detail",));
 
-            _buildLeaveSummary(),
-            AppSpacing.medium(context),
 
-            _buildLeaveList(),
+                }, child: Text('See All',style: TextStyle(
+                  color: Color(0xFFF25922),
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  height: 1.60,
+                  letterSpacing: 0.20,
+                ),))
+                ],)],),
+
+            LeaveTabView(heightFactor: 0.3),
+
 
             Obx(() => SlideCheckIn(
               screenWidth: screenWidth,
@@ -108,44 +136,11 @@ class _WelcomePageState extends State<WelcomePage> {
             )),
           ],
         ),
+
       ),
     );
   }
 
-  Widget _buildDateContainer(double screenWidth) {
-    return Container(
-      width: screenWidth * 0.9,
-      height: 50,
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: AppColors.primary),
-          borderRadius: BorderRadius.circular(screenWidth * 0.1),
-        ),
-      ),
-      child: Center(
-        child: Text('11 - Jan - 2024', style: fontStyles.headingStyle),
-      ),
-    );
-  }
 
-  Widget _buildLeaveSummary() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        CustomAnimation(initialText: 'Approved'),
-        CustomAnimation(initialText: 'Pending'),
-        CustomAnimation(initialText: 'Declined'),
-      ],
-    );
-  }
 
-  Widget _buildLeaveList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: leaveList.length,
-      itemBuilder: (context, index) {
-        return CustomListTile(item: leaveList[index], trailing: const CustomButton());
-      },
-    );
-  }
 }

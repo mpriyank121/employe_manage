@@ -75,9 +75,6 @@ class LoginScreen extends StatelessWidget {
                 String phoneNumber = _phoneController.text.trim();
                 if (phoneNumber.length == 10) {
                   _authController.sendOtp(phoneNumber);
-                } else {
-                  Get.snackbar("Error", "Enter a valid 10-digit phone number",
-                      snackPosition: SnackPosition.BOTTOM);
                 }
               },
             )),

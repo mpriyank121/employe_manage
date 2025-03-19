@@ -3,10 +3,13 @@ import 'package:employe_manage/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'API/Controllers/employee_attendence_controller.dart';
 import 'Screens/LoginPage.dart';
 
 
 void main() async {
+  Get.put(AttendanceController()); // ✅ Register Controller Before Running the App
+
   WidgetsFlutterBinding.ensureInitialized();
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;

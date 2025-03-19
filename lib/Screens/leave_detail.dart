@@ -1,29 +1,14 @@
-import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:employe_manage/Configuration/Custom_Animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../Configuration/Custom_Animation.dart';
-import '../Widgets/CustomListTile.dart';
+import '../Widgets/App_bar.dart';
+import '../API/Controllers/holiday_controller.dart';
 import '../Widgets/Leave_card.dart';
-import '../Widgets/custom_button.dart';
+import '../Widgets/holiday_list.dart';
+import '../Widgets/leave_tab_view.dart';
 import '../Widgets/year_selector.dart';
-import 'package:employe_manage/Widgets/leave_list.dart';
-import 'package:employe_manage/Widgets/holiday_list_tile.dart';
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const leavepage(title: 'Leave Details'),
-    );
-  }
-}
 class leavepage extends StatefulWidget {
   const leavepage({super.key, required this.title});
   final String title;
@@ -34,6 +19,7 @@ class leavepage extends StatefulWidget {
 
 class _leavepageState extends State<leavepage> {
   int selectedYear = DateTime.now().year;
+  final HolidayController controller = Get.put(HolidayController());
 
   void onYearChanged(int newYear) {
     setState(() {
@@ -52,71 +38,53 @@ class _leavepageState extends State<leavepage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // **Year Selector**
+            /// **Year Selector**
             YearSelector(
               initialYear: selectedYear,
               onYearChanged: onYearChanged,
             ),
             SizedBox(height: screenHeight * 0.02),
 
-            // **Leave Cards**
+            /// **Leave Cards Row**
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 LeaveCard(
-                  widthFactor: 0.45, // ✅ Corrected widthFactor usage
+                  widthFactor: 0.45,
                   title: "Total Casual Leave",
                   count: "3/12",
                   icon: Icons.person_off,
                 ),
                 LeaveCard(
-
-                  widthFactor: 0.45,// ✅ Ensure both cards have correct widthFactor
+                  widthFactor: 0.45,
                   title: "Total Sick Leave",
                   count: "5/10",
                   icon: Icons.sick,
                 ),
               ],
             ),
-
             SizedBox(height: screenHeight * 0.02),
+            LeaveTabView(heightFactor: 0.3),
 
-            // **Leave List**
-            Expanded(
-              child: ListView.builder(
-                itemCount: leaveList.length,
-                itemBuilder: (context, index) {
-                  return CustomListTile(
-                    item: leaveList[index],
-                    trailing: const CustomButton(),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: screenHeight* 0.02,),
 
-            // **Holiday Section Title**
-            Expanded(
+            /// **Holiday This Month Button**
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // ✅ Added padding for proper spacing
               child: CustomAnimation(
-                heightFactor: 0.1,
                 widthFactor: 0.9,
-                initialText: "Holidays This Month",
+                heightFactor: 0.05,
+                initialText: "Holiday This Month",
               ),
             ),
 
-            SizedBox(height: screenHeight * 0.02),
-
-            // **Holiday List**
+            /// **Holiday Section**
             Expanded(
-              child: ListView.builder(
-                itemCount: holidayList.length,
-                itemBuilder: (context, index) {
-                  return CustomListTile(
-                    item: holidayList[index],
-                    leading: SvgPicture.asset("assets/images/Frame 427319800.svg"),
-                  );
-                },
-              ),
+              flex: 4, // ✅ Adjusted flex to distribute space evenly
+              child: Obx(() => HolidayList(
+                holidays: controller.monthHolidays.toList(),
+                isLoading: controller.isLoading.value,
+                phoneNumber: controller.phoneNumber.value,
+              )),
             ),
           ],
         ),

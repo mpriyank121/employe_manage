@@ -1,74 +1,40 @@
-import 'package:employe_manage/Widgets/holiday_list_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Widgets/App_bar.dart';
-import 'package:flutter_svg/svg.dart';
-import '../Widgets/CustomListTile.dart';
-import '../Widgets/year_selector.dart';
 import 'package:get/get.dart';
+import '../API/Controllers/holiday_controller.dart';
+import '../Widgets/App_bar.dart';
+import '../Widgets/year_selector.dart';
+import 'package:employe_manage/Widgets/holiday_list.dart';
 
-void main(){
-  runApp(const MyApp());
-}
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+
+class holidaypage extends StatelessWidget {
+  final String title;  // ✅ Add title parameter
+
+  holidaypage({Key? key, required this.title}) : super(key: key);
+
+  final HolidayController controller = Get.put(HolidayController());
+
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-        home:  holidaypage(title: '',
-        )
+    return Scaffold(
+      appBar: CustomAppBar(title: "Holiday List"),  // ✅ Pass title here
+      body: Column(
+        children: [
+          /// ✅ Year Selector Widget
+          Obx(() => YearSelector(
+            initialYear: controller.selectedYear.value,
+            onYearChanged: controller.updateYear,
+          )),
+
+          /// ✅ Holiday List Widget
+          Expanded(
+            child: Obx(() => HolidayList(
+              holidays: controller.allHolidays.toList(),
+              isLoading: controller.isLoading.value,
+              phoneNumber: controller.phoneNumber.value,
+            )),
+          ),
+        ],
+      ),
     );
   }
 }
-class holidaypage extends StatefulWidget {
-  const holidaypage({super.key, required this.title});
-  final String title;
-  @override
-  State<holidaypage> createState() => _MyHomePageState();
-}
-class _MyHomePageState extends State<holidaypage> {
-  int selectedYear = DateTime.now().year;
-  void onYearChanged(int newYear) {
-    setState(() {
-      selectedYear = newYear;
-    });
-  }
-  @override
-  Widget build(BuildContext context) {
-      double screenWidth = MediaQuery
-          .of(context)
-          .size
-          .width; // Get screen width
-      return Scaffold(
-          appBar: CustomAppBar(title: 'Holiday List',
-          ),
-        body:
-        Center(child:
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                YearSelector(
-                  initialYear: selectedYear,
-                  onYearChanged: onYearChanged,
-                ),
-              ],
-            ),
-          ),
-            Expanded(child:Container(
-              width: screenWidth * 0.9,
-              child:ListView.builder(
-                itemCount: holidayList.length,
-                itemBuilder: (context, index) {
-                  return CustomListTile(item: holidayList[index],
-                    leading: SvgPicture.asset("assets/images/Frame 427319800.svg"),
-                  );
-                },
-              ),
-            ))],
-        ),
-          )
-      );
-    }
-  }

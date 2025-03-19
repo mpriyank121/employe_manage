@@ -20,11 +20,13 @@ class WelcomeCardConfig {
 }
 
 class BottomCardConfig {
+  static const Color borderColor = Colors.grey; // Customize Border Color
+  static const double borderWidth = 1.0;
   static const Color backgroundColor = AppColors.backgroundLight;
   static const double borderRadius = 8.0;
   static const double separatorWidthFactor = 0.003;
   static const Color separatorColor = Colors.grey;
-  static const double separatorHeightFactor = 0.08;
+  static const double separatorHeightFactor = 0.06;
   static final TextStyle commonTextStyle = AppTextStyles.subText;
 }
 

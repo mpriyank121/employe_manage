@@ -12,6 +12,7 @@ class WelcomeCard extends StatelessWidget {
   final int elapsedSeconds;
   final bool isCheckedIn;
   final DateTime checkInTime;
+  final DateTime? checkOutTime; // ✅ Allow nullable checkout time
   final String workedTime; // ✅ NEW: Worked Time
 
   const WelcomeCard({
@@ -23,6 +24,7 @@ class WelcomeCard extends StatelessWidget {
     required this.elapsedSeconds,
     required this.isCheckedIn,
     required this.checkInTime,
+    this.checkOutTime, // ✅ Allow optional checkOutTime
     this.workedTime = "", // ✅ Default empty if not checked out
   }) : super(key: key);
 
@@ -38,6 +40,10 @@ class WelcomeCard extends StatelessWidget {
   String formatCheckInTime(DateTime time) {
     return DateFormat('hh:mm a').format(time);
   }
+  String formatCheckOutTime(DateTime? time) {
+    if (time == null) return "Not checked out yet";
+    return DateFormat('hh:mm a').format(time); // Example: 02:30 PM
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,36 +55,52 @@ class WelcomeCard extends StatelessWidget {
       decoration: ShapeDecoration(
         color: WelcomeCardConfig.backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(WelcomeCardConfig.borderRadius),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(WelcomeCardConfig.borderRadius),
+            topRight: Radius.circular(WelcomeCardConfig.borderRadius),
+          )
         ),
       ),
       child: Column(
         children: [
           Text(
             isCheckedIn
-                ? "Checked in at ${formatCheckInTime(checkInTime)}"
+                ? "Check in at ${formatCheckInTime(checkInTime)}"
                 : "Let’s get to work!",
             style: WelcomeCardConfig.welcomeText,
           ),
           AppSpacing.small(context),
+
+// ✅ Show "Today" when checked in, otherwise show Username
           Text(
-            isCheckedIn ? "Today" : userName,
+            isCheckedIn ? "${formatTime(elapsedSeconds)}" : userName,
             style: WelcomeCardConfig.nameText,
           ),
-          if (!isCheckedIn)
+
+// ✅ Show worked time instead of jobRole after checkout
+          if (!isCheckedIn && workedTime.isNotEmpty)
+            Column(
+
+              children: [Text("Total Worked Time: $workedTime",style: WelcomeCardConfig.welcomeText),
+              SizedBox(height: screenHeight* 0.01,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // ✅ Distributes space evenly
+
+                children: [Text("Check in  ${formatCheckInTime(checkInTime)}",style: WelcomeCardConfig.welcomeText),
+                Text("Check Out: ${formatCheckOutTime(checkOutTime)}",style: WelcomeCardConfig.welcomeText),
+              ],)
+              ,],)
+
+          else if (!isCheckedIn)
             Text(jobRole, style: WelcomeCardConfig.roleText),
 
-          if (isCheckedIn) ...[
+// ✅ Show elapsed time only when checked in
+          if (isCheckedIn)
             Text(
-              " ${formatTime(elapsedSeconds)}",
+              " Today",
               style: WelcomeCardConfig.welcomeText,
             ),
-          ] else if (workedTime.isNotEmpty) ...[
-            Text(
-              "Total Worked Time: $workedTime",
-              style: WelcomeCardConfig.welcomeText,
-            ),
-          ],
+
         ],
       ),
     );

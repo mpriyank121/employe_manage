@@ -1,0 +1,32 @@
+FutureBuilder<Map<String, List<dynamic>>>(
+          future: LeaveService.fetchLeaveData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error fetching data"));
+            }
+
+            var leaveData = snapshot.data!;
+            return DefaultTabController(
+              length: leaveData.length,
+              child: Column(
+                children: [
+                  TabBar(
+                    tabs: leaveData.keys
+                        .map((status) => Tab(text: status))
+                        .toList(),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: leaveData.entries.map((entry) {
+                        return LeaveList(items: entry.value.cast<LeaveModel>()); // ✅ Casting fixed
+                      }).toList(),
+                    ),
+                  ),
+
+                ],
+              ),
+            );
+          },
+        ),

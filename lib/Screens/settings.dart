@@ -34,31 +34,19 @@ class _settingpageState extends State<settingpage> {
   String jobRole = "Loading...";
 
   @override
+
   void initState() {
     super.initState();
-    _fetchUserData();
-    print('✅ initState: Fetching user data...');  // ✅ Ensuring function call
+    _loadUserData();
   }
-
-  /// ✅ Fetch Employee Data from SharedPreferences
-  Future<void> _fetchUserData() async {
-    print('🔍 Checking SharedPreferences for user data...'); // ✅ Debugging
-
+  Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? name = prefs.getString('name'); // Stored user name
-    String? role = prefs.getString('designation'); // Stored job role
-
-    print('📌 Fetched from SharedPreferences → Name: $name, Role: $role'); // ✅ Debugging
-
-    if (name != null && role != null) {
-      setState(() {
-        userName = userName;
-        jobRole = jobRole;
-      });
-      print('✅ UI Updated → userName: $userName, jobRole: $jobRole');
-    } else {
-      print('⚠️ No user data found in SharedPreferences!');
-    }
+  print("Fetching Data");
+    setState(() {
+      userName = prefs.getString('username') ?? 'Guest';
+      jobRole = prefs.getString('jobRole') ?? 'Unknown Role';
+      print("Fetched all data");
+    });
   }
 
   /// ✅ Logout Function
@@ -93,7 +81,7 @@ class _settingpageState extends State<settingpage> {
                 Text(userName, style: fontStyles.headingStyle), // ✅ Dynamic Username
                 SizedBox(width: 10),
                 Text(
-                  'See All',
+                  'Full Time',
                   style: TextStyle(
                     color: Color(0xFFF25922),
                     fontSize: 14,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import '../API/Controllers/employee_attendence_controller.dart';
 import '../Widgets/Calender_widget.dart';
 import '../Widgets/Leave_card.dart';
 
@@ -13,6 +15,7 @@ class attendencepage extends StatefulWidget {
 }
 
 class _attendencepageState extends State<attendencepage> {
+  final AttendanceController controller = Get.put(AttendanceController());
   int selectedYear = DateTime.now().year;
 
   void changeYear(int step) {
@@ -50,38 +53,46 @@ class _attendencepageState extends State<attendencepage> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Leave Cards Section (Scrollable Row to prevent overflow)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        LeaveCard(
-                          title: "Present",
-                          count: "3/12",
-                          icon: Icons.person_off,
-                        ),
-                        LeaveCard(
-                          title: "Absent",
-                          count: "5/10",
-                          icon: Icons.sick,
-                        ),
-                        LeaveCard(
-                          title: "Leave",
-                          count: "5/10",
-                          icon: Icons.sick,
-                        ),
-                      ],
+                // ✅ Leave Cards Section (Uses GetX Observer)
+                Obx(() {
+                  if (controller.isLoading.value) {
+                    return Center(child: CircularProgressIndicator()); // ✅ Show Loading Indicator
+                  }
+
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          LeaveCard(
+                            title: "Present",
+                            count:  controller.present.value.toString(),
+                            icon: Icons.person,
+                          ),
+                          LeaveCard(
+                            title: "Absent",
+                            count:  controller.absent.value.toString(),
+                            icon: Icons.person_off,
+                          ),
+                          LeaveCard(
+                            title: "Leave",
+                            count: controller.halfday.value.toString(),
+                            icon: Icons.sick,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }),
+
                 // Space after Leave Cards
                 SizedBox(height: screenHeight * 0.012),
-                // Calendar Section (Scrollable & Avoid Overflow)
+
+                // Calendar Section (Scrollable)
                 SizedBox(
-                  height: screenHeight * 0.7, // Set height dynamically
+                  height: screenHeight * 0.7,
                   child: SingleChildScrollView(
                     child: CalendarWidget(),
                   ),

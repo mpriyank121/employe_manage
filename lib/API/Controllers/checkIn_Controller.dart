@@ -5,7 +5,8 @@ class CheckInController extends GetxController {
   var isCheckedIn = false.obs;
   var elapsedSeconds = 0.obs;
   var checkInTime = DateTime.now().obs;
-  var workedTime = "".obs; // ✅ NEW: Store total worked time
+  var checkOutTime = Rxn<DateTime>(); // ✅ Nullable checkout time
+  var workedTime = "".obs; // ✅ Store total worked time
   Timer? _timer;
 
   /// ✅ Start Timer when user checks in
@@ -26,15 +27,18 @@ class CheckInController extends GetxController {
   void checkIn() {
     isCheckedIn.value = true;
     checkInTime.value = DateTime.now();
-    workedTime.value = ""; // ✅ Reset worked time when checking in
+    workedTime.value = ""; // ✅ Reset worked time
+    checkOutTime.value = null; // ✅ Reset checkout time
     startTimer();
   }
 
   /// ✅ Handle Check-Out
   void checkOut() {
     if (isCheckedIn.value) {
+      checkOutTime.value = DateTime.now(); // ✅ Store checkout time
       workedTime.value = formatTime(elapsedSeconds.value); // ✅ Store total worked time
       print("✅ Total Worked Time: ${workedTime.value}");
+      print("✅ Check Out Time: ${CheckOutTime()}"); // ✅ Debugging
 
       isCheckedIn.value = false;
       elapsedSeconds.value = 0; // ✅ Reset after storing worked time
@@ -48,5 +52,12 @@ class CheckInController extends GetxController {
     int minutes = (seconds % 3600) ~/ 60;
     int secs = seconds % 60;
     return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
+  }
+
+  /// ✅ Format Check-Out Time for UI
+  String CheckOutTime() {
+    return checkOutTime.value != null
+        ? "${checkOutTime.value!.hour.toString().padLeft(2, '0')}:${checkOutTime.value!.minute.toString().padLeft(2, '0')}"
+        : "Not Checked Out";
   }
 }

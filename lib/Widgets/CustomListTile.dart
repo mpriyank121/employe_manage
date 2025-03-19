@@ -6,8 +6,10 @@ class CustomListTile extends StatelessWidget {
   final Map<String, dynamic> item;
   final Widget? leading;
   final Widget? trailing;
+  final Widget? title;
+  final Widget? subtitle;
 
-  const CustomListTile({Key? key, required this.item, this.leading, this.trailing}) : super(key: key);
+  const CustomListTile({Key? key, this.item = const{}, this.leading, this.trailing,this.title,this.subtitle}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
