@@ -1,38 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import '../Configuration/app_colors.dart';
 
-class YearSelector extends StatefulWidget {
-
+class YearMonthSelector extends StatefulWidget {
   final int initialYear;
-  final Function(int) onYearChanged;
+  final int initialMonth;
+  final Function(int, int) onDateChanged;
 
-  const YearSelector({
+  const YearMonthSelector({
     super.key,
     required this.initialYear,
-    required this.onYearChanged,
+    required this.initialMonth,
+    required this.onDateChanged,
   });
 
   @override
-  _YearSelectorState createState() => _YearSelectorState();
+  _YearMonthSelectorState createState() => _YearMonthSelectorState();
 }
 
-class _YearSelectorState extends State<YearSelector> {
+class _YearMonthSelectorState extends State<YearMonthSelector> {
   late int selectedYear;
+  late int selectedMonth;
 
+  final List<String> months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
 
   @override
   void initState() {
     super.initState();
     selectedYear = widget.initialYear;
+    selectedMonth = widget.initialMonth;
   }
 
-  void changeYear(int step) {
+  /// ✅ Change the month (updates year after 12 months)
+  void changeMonth(int step) {
     setState(() {
-      selectedYear += step;
+      selectedMonth += step;
+
+      if (selectedMonth < 1) {
+        selectedMonth = 12;
+        selectedYear--; // Move to previous year
+      } else if (selectedMonth > 12) {
+        selectedMonth = 1;
+        selectedYear++; // Move to next year
+      }
     });
-    widget.onYearChanged(selectedYear);
+
+    widget.onDateChanged(selectedYear, 0); // ✅ Always send 0 for month
   }
 
   @override
@@ -41,8 +57,8 @@ class _YearSelectorState extends State<YearSelector> {
 
     return Container(
       width: screenWidth * 0.85,
-      height: MediaQuery.of(context).size.height * 0.06,
-
+      height: MediaQuery.of(context).size.height * 0.07,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.secondary),
         borderRadius: BorderRadius.circular(6),
@@ -50,23 +66,26 @@ class _YearSelectorState extends State<YearSelector> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          /// Left Arrow (Previous Month)
           IconButton(
-            onPressed: () => changeYear(-1),
+            onPressed: () => changeMonth(-1),
             icon: SvgPicture.asset('assets/images/chevron-u.svg'),
           ),
+
+          /// Year & Month Display
           Text(
-            "$selectedYear",
-            style: TextStyle(
+            "${months[selectedMonth - 1]} $selectedYear", // Example: "Mar 2024"
+            style: const TextStyle(
               color: Color(0xFFF25922),
-              fontSize: 22,
+              fontSize: 20,
               fontFamily: 'Urbanist',
               fontWeight: FontWeight.w600,
-
-
-            ), // ✅ Use heading style from config
+            ),
           ),
+
+          /// Right Arrow (Next Month)
           IconButton(
-            onPressed: () => changeYear(1),
+            onPressed: () => changeMonth(1),
             icon: SvgPicture.asset('assets/images/chevron-up.svg'),
           ),
         ],

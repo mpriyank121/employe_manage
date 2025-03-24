@@ -7,12 +7,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? trailing;// Custom title widget
   final List<Widget>? actions; // Custom actions
+  final bool showBackButton;
 
   const CustomAppBar({
     Key? key,
-    this.leading = const SizedBox(),
+    this.leading,
     this.title,
     this.actions,
+    this.showBackButton = true,  // Default: Show back button
+
     this.trailing = const SizedBox(),
   }) : super(key: key);
 
@@ -22,23 +25,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       decoration: AppBorders.bottomBorder,
       child: AppBar(
-
         leading: leading ??
-            IconButton(
+            (showBackButton
+                ? IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
                 Get.back();
               },
-            ),
+            ) : null),  // No back button if false
+
         title:
         Text(title ?? "",),
         centerTitle: true,
         actions: [ if (actions != null) ...actions!,
 // Add existing actions
-          trailing ?? IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.notifications),
-          ),]
+          ]
     ),);
   }
 

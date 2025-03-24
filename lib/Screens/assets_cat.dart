@@ -1,79 +1,61 @@
+import 'package:employe_manage/Widgets/CustomListTile.dart';
+import 'package:employe_manage/Widgets/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import '../Widgets/Assets_List.dart'; // Import the asset list file
-import '/Widgets/App_bar.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: const Assetspage(title: 'Assets'),
-    );
-  }
-}
+import '../API/Services/assets_service.dart';
 
 class Assetspage extends StatefulWidget {
-  const Assetspage({super.key, required this.title});
-
+  final String empId; // ✅ Pass Dynamic empId
   final String title;
 
+  const Assetspage({Key? key,required this.empId, required this.title}) : super(key: key);
+
   @override
-  State<Assetspage> createState() => _AssetspageState();
+  _AssetspageState createState() => _AssetspageState();
 }
 
 class _AssetspageState extends State<Assetspage> {
+  final AssetService assetService = AssetService();
+  late Future<List<Map<String, dynamic>>> assetFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    assetFuture = assetService.fetchAssets(widget.empId); // ✅ Fetch assets dynamically
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Assets'),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: assetsList.length,
-          itemBuilder: (context, index) {
-            final asset = assetsList[index];
+      appBar: CustomAppBar(title: "Assets",),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: assetFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No assets found"));
+          }
 
-            return Card(
-              elevation: 3,
-              margin: const EdgeInsets.symmetric(vertical: 10.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(12),
-                leading: SvgPicture.asset(
-                  asset["icon"],
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.contain,
-                ),
-                title: Text(
-                  asset["title"],
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(asset["subtitle"], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                    const SizedBox(height: 4),
-                    Text(asset["sub2"], style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    const SizedBox(height: 4),
-                    Text(asset["size"], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blue)),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+          var assets = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: assets.length,
+            itemBuilder: (context, index) {
+              var asset = assets[index];
+
+              return
+                CustomListTile(
+                  leading: Image.network(asset['Image'], width: 50, height: 50, fit: BoxFit.cover),
+                  title: Text(asset['asset_name'] ?? 'No Asset Name'),
+                  subtitle: Text('Assigned By: ${asset['assigned_by'] ?? 'Unknown'}'),
+                  trailing: Text('#${asset['unique_serial_no']}'),
+                );
+
+            },
+          );
+        },
       ),
     );
   }

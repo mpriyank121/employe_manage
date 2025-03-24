@@ -18,12 +18,17 @@ class holidaypage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: "Holiday List"),  // ✅ Pass title here
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           /// ✅ Year Selector Widget
-          Obx(() => YearSelector(
-            initialYear: controller.selectedYear.value,
-            onYearChanged: controller.updateYear,
-          )),
+          YearMonthSelector(
+            initialYear: DateTime.now().year,
+            initialMonth: DateTime.now().month,
+            onDateChanged: (year, month) {
+              print("📆 Selected Date: $month/$year");
+            },
+          ),
+
 
           /// ✅ Holiday List Widget
           Expanded(

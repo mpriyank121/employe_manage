@@ -103,10 +103,7 @@ class _settingpageState extends State<settingpage> {
                 icon: 'assets/images/iconoir_profile-circle.svg',
                 title: 'Edit Profile',
               ),
-              _buildListTile(
-                icon: 'assets/images/fluent_people-48-regular.svg',
-                title: 'Tasks',
-              ),
+
 
               // ✅ Logout Button
               PrimaryButton(
@@ -126,7 +123,6 @@ class _settingpageState extends State<settingpage> {
       ),
     );
   }
-
   /// 🔹 Reusable ListTile Widget
   Widget _buildListTile({required String icon, required String title}) {
     return ListTile(

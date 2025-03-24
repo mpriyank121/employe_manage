@@ -1,5 +1,4 @@
 import 'package:employe_manage/Screens/leave_detail.dart';
-import 'package:employe_manage/Widgets/Calender_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -14,7 +13,6 @@ import '../Widgets/bottom_card.dart';
 import '../Widgets/leave_tab_view.dart';
 import '../Widgets/slide_checkin.dart';
 import '../Widgets/welcome_card.dart';
-
 
 class WelcomePage extends StatefulWidget {
   final String title;
@@ -31,12 +29,18 @@ class _WelcomePageState extends State<WelcomePage> {
   var userName = "Loading...".obs;
   var jobRole = "Loading...".obs;
   var totalWorkedTime = "".obs;
+  var selectedFirstIn = "N/A".obs;
+  var selectedLastOut = "N/A".obs;
+  int selectedMonth = DateTime.now().month; // Defaults to current month
+  int selectedYear = DateTime.now().year; // Defaults to current year
+
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
   }
+
   Future<void> _fetchUserData() async {
     var userData = await userService.fetchUserData();
     if (userData != null) {
@@ -50,10 +54,23 @@ class _WelcomePageState extends State<WelcomePage> {
     }
   }
 
+  void _updateAttendance(DateTime selectedDate, String firstIn, String lastOut) {
+    setState(() {
+      selectedFirstIn.value = firstIn;
+      selectedLastOut.value = lastOut;
+
+      /// ✅ Keep month & year as selected date's values
+      selectedYear = selectedDate.year;
+      selectedMonth = selectedDate.month;
+
+      print("📅 Selected Date: ${selectedDate.day}-${selectedDate.month}-${selectedDate.year}");
+      print("🕒 First In: $selectedFirstIn, Last Out: $selectedLastOut");
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -75,17 +92,11 @@ class _WelcomePageState extends State<WelcomePage> {
           vertical: screenHeight * 0.03,
         ),
         child: Column(
-          children: [DatePickerDropdown(
-            onCalendarTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => CalendarWidget(),
-              );
-            },
-          ),
-
+          children: [
+            DatePickerDropdown(
+              onDateSelected: _updateAttendance, // ✅ Pass update function
+            ),
             AppSpacing.medium(context),
-
             Obx(() => WelcomeCard(
               userName: checkInController.isCheckedIn.value ? "" : userName.value,
               jobRole: checkInController.isCheckedIn.value ? "" : jobRole.value,
@@ -93,32 +104,46 @@ class _WelcomePageState extends State<WelcomePage> {
               screenHeight: screenHeight,
               elapsedSeconds: checkInController.elapsedSeconds.value,
               isCheckedIn: checkInController.isCheckedIn.value,
-              checkInTime: checkInController.checkInTime.value,
+              checkInTime: checkInController.checkInTime.value ?? DateTime.now(),
               workedTime: checkInController.workedTime.value,
-                checkOutTime :checkInController.checkOutTime.value,
+              checkOutTime: checkInController.checkOutTime.value ?? DateTime.now(),
+              selectedFirstIn: selectedFirstIn.value,
+              selectedLastOut: selectedLastOut.value,
             )),
-            BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
+            BottomCard(screenWidth: screenWidth, screenHeight: screenHeight,
+              ),
             AppSpacing.medium(context),
-            Column(children: [Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('Leave Application',style: fontStyles.headingStyle),
-                TextButton(onPressed: (){
-                  Get.to(leavepage(title: "leave detail",));
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Leave Application', style: fontStyles.headingStyle),
+                    TextButton(
+                      onPressed: () {
+                        Get.to(leavepage(title: "leave detail"));
+                      },
+                      child: Text(
+                        'See All',
+                        style: TextStyle(
+                          color: Color(0xFFF25922),
+                          fontSize: 14,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 1.60,
+                          letterSpacing: 0.20,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+            LeaveTabView(heightFactor: 0.3,
+              selectedMonth: selectedMonth,
+              selectedYear: selectedYear,
 
-
-                }, child: Text('See All',style: TextStyle(
-                  color: Color(0xFFF25922),
-                  fontSize: 14,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  height: 1.60,
-                  letterSpacing: 0.20,
-                ),))
-                ],)],),
-
-            LeaveTabView(heightFactor: 0.3),
-
-
+            ),
             Obx(() => SlideCheckIn(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
@@ -136,11 +161,7 @@ class _WelcomePageState extends State<WelcomePage> {
             )),
           ],
         ),
-
       ),
     );
   }
-
-
-
 }

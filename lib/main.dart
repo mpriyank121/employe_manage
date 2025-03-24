@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
 import 'Screens/LoginPage.dart';
 
-
 void main() async {
   Get.put(AttendanceController()); // ✅ Register Controller Before Running the App
 

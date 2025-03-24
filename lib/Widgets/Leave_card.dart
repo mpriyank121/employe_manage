@@ -4,19 +4,19 @@ import '../Configuration/app_cards.dart';
 class LeaveCard extends StatelessWidget {
   final String title;
   final String count;
-  final IconData icon;
   final double? widthFactor;  // ✅ Custom width factor
   final double? heightFactor; // ✅ Custom height factor
-  final Color? backgroundColor; // ✅ Custom background color
+  final Color? backgroundColor;
+  final  Color? borderColor;// ✅ Custom background color
 
   const LeaveCard({
     Key? key,
     required this.title,
     required this.count,
-    required this.icon,
     this.widthFactor,
     this.heightFactor,
-    this.backgroundColor, // Optional background color
+    this.backgroundColor,
+    this.borderColor,// Optional background color
   }) : super(key: key);
 
   @override
@@ -33,22 +33,27 @@ class LeaveCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? LeaveCardConfig.backgroundColor,
         borderRadius: BorderRadius.circular(LeaveCardConfig.borderRadius),
-        border: Border.all(color: LeaveCardConfig.borderColor),
+        border: Border.all(color: borderColor ?? LeaveCardConfig.borderColor),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.grey, size: 24), // Using blue as default icon color
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(title, style: LeaveCardConfig.titleStyle),
-              Text(count, style: LeaveCardConfig.countStyle),
-            ],
-          ),
-        ],
+
+      /// **💡 Center the Row**
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,  // ✅ Centers the Column inside Row
+          crossAxisAlignment: CrossAxisAlignment.center,  // ✅ Aligns Column contents
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,  // ✅ Centers text inside Column
+              crossAxisAlignment: CrossAxisAlignment.center,  // ✅ Aligns text to center
+              children: [
+                Text(title, style: LeaveCardConfig.titleStyle),
+                Text(count, style: LeaveCardConfig.countStyle),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+
   }
 }

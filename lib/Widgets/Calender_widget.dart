@@ -52,25 +52,19 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 fontSize: 22,
                 fontFamily: 'Urbanist',
                 fontWeight: FontWeight.w600,
-
-
               ),
             ),
-
             // Right Arrow Button
             IconButton(
               onPressed: () => changeMonth(1),
               icon: SvgPicture.asset('assets/images/chevron-up.svg'),
-
             ),
           ],
         ),
-
         SizedBox(height: MediaQuery.of(context).size.height * 0.012), // 1.2% of screen height
 
         // Calendar Widget
         Card(
-
         child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: TableCalendar(
@@ -86,11 +80,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         },
     calendarFormat: CalendarFormat.month,
     headerVisible: false, // Hide default header
-
     // **Calendar Style**
     calendarStyle: CalendarStyle(
     outsideDaysVisible: false, // Hide previous & next month dates
-
     // **Today’s Date Style (Orange Circle)**
     todayDecoration: BoxDecoration(
     color: Colors.orange,

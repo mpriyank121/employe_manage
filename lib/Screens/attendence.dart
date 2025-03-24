@@ -1,10 +1,9 @@
+import 'package:employe_manage/Widgets/attendance_calender.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import '../API/Controllers/employee_attendence_controller.dart';
-import '../Widgets/Calender_widget.dart';
 import '../Widgets/Leave_card.dart';
-
 class attendencepage extends StatefulWidget {
   const attendencepage({super.key, required this.title});
 
@@ -31,22 +30,8 @@ class _attendencepageState extends State<attendencepage> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Attendance',
-        trailing: TextButton(
-          onPressed: () {},
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: ShapeDecoration(
-              color: Color(0xFFF25922),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            child: Text(
-              'Apply',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
+        showBackButton: true,
+
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -58,7 +43,6 @@ class _attendencepageState extends State<attendencepage> {
                   if (controller.isLoading.value) {
                     return Center(child: CircularProgressIndicator()); // ✅ Show Loading Indicator
                   }
-
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Padding(
@@ -69,33 +53,35 @@ class _attendencepageState extends State<attendencepage> {
                           LeaveCard(
                             title: "Present",
                             count:  controller.present.value.toString(),
-                            icon: Icons.person,
+
                           ),
                           LeaveCard(
                             title: "Absent",
                             count:  controller.absent.value.toString(),
-                            icon: Icons.person_off,
+                            backgroundColor: Color(0x19C13C0B),
+                            borderColor: Color(0xFFC13C0B),
                           ),
                           LeaveCard(
                             title: "Leave",
                             count: controller.halfday.value.toString(),
-                            icon: Icons.sick,
+                            backgroundColor: Color(0x1933B2E9),
+                            borderColor: Color(0xFF33B2E9),
                           ),
                         ],
                       ),
                     ),
                   );
                 }),
-
                 // Space after Leave Cards
                 SizedBox(height: screenHeight * 0.012),
-
                 // Calendar Section (Scrollable)
-                SizedBox(
-                  height: screenHeight * 0.7,
-                  child: SingleChildScrollView(
-                    child: CalendarWidget(),
-                  ),
+                Container(
+                height: screenHeight * 0.6,  // Set height dynamically
+                child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AttendanceCalendar(
+                ),  // Embed Attendance Calendar here
+                ),
                 ),
               ],
             ),

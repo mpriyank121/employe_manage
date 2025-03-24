@@ -39,11 +39,11 @@ class LeaveCardConfig {
   static final TextStyle titleStyle = AppTextStyles.textStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey);
   static final TextStyle countStyle = AppTextStyles.textStyle(fontSize: 14, color: Colors.grey[700]!);
   static EdgeInsets padding(BuildContext context) {
-    return const EdgeInsets.symmetric(vertical: 1, horizontal: 1);
+    return const EdgeInsets.symmetric(vertical: 4, horizontal: 4);
   }
 
   static EdgeInsets margin(BuildContext context) {
-    return const EdgeInsets.symmetric(vertical: 1, horizontal: 1);
+    return const EdgeInsets.symmetric(vertical: 1, horizontal: 4);
   }
 
   static double defaultWidth(BuildContext context) {
@@ -63,5 +63,10 @@ class OtpTextFieldConfig {
   static const double fontSizeFactor = 0.022;
   static const Color textColor = Colors.white;
   static const Color borderColor = Colors.transparent;
+}
+class LeaveContainerConfig {
+  static const EdgeInsetsGeometry defaultPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 1);
+  static const double defaultBorderRadius = 8.0;
+  static const Color defaultColor = Colors.white; // Equivalent to Colors.grey[200]
 }
 

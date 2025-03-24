@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:employe_manage/Configuration/style.dart';
 
 class ContainerCard extends StatelessWidget {
@@ -24,7 +23,7 @@ class ContainerCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(iconPath, width: iconSize, height: iconSize),
+          Image.asset(iconPath, width: iconSize, height: iconSize),
           Text(title, style: AppStyles.textStyle),
         ],
       ),

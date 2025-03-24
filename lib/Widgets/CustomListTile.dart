@@ -9,7 +9,14 @@ class CustomListTile extends StatelessWidget {
   final Widget? title;
   final Widget? subtitle;
 
-  const CustomListTile({Key? key, this.item = const{}, this.leading, this.trailing,this.title,this.subtitle}) : super(key: key);
+  const CustomListTile({
+    Key? key,
+    this.item = const {},
+    this.leading,
+    this.trailing,
+    this.title,
+    this.subtitle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +30,15 @@ class CustomListTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        leading: leading, // ✅ Leading widget (used for holiday list)
-        title: Text(item['title'] ?? "No Title", style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Padding(
+        leading: leading, // ✅ Leading widget
+        title: title ?? Text(item['title'] ?? "No Title",
+            style: const TextStyle(fontWeight: FontWeight.bold)), // ✅ Use title if provided
+        subtitle: subtitle ?? Padding(
           padding: const EdgeInsets.all(5),
-          child: Text(item['subtitle'] ?? "No Date Available", style: const TextStyle(color: Colors.grey)),
+          child: Text(item['subtitle'] ?? "No Date Available",
+              style: const TextStyle(color: Colors.grey)), // ✅ Use subtitle if provided
         ),
-        trailing: trailing, // ✅ Trailing widget (used for leave list)
+        trailing: trailing, // ✅ Trailing widget
       ),
     );
   }

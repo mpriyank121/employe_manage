@@ -1,11 +1,10 @@
 import 'package:employe_manage/Screens/attendence.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../widgets/app_bar.dart';
+import 'package:employe_manage/Widgets/App_bar.dart';
 import '../screens/assets_cat.dart';
 import '../screens/holiday_list.dart';
 import '../screens/leave_detail.dart';
-import '../screens/documents.dart';
 import 'package:employe_manage/Widgets/Container_card.dart';
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -19,19 +18,19 @@ class MyApp extends StatelessWidget {
 }
 class CategoryPage extends StatefulWidget {
   final String title;
+  final String empId = '';
   const CategoryPage({super.key, required this.title});
   @override
   State<CategoryPage> createState() => _CategoryPageState();
 }
 class _CategoryPageState extends State<CategoryPage> {
   final List<Map<String, dynamic>> categoryItems = [
-    {'title': 'Attendance', 'icon': 'assets/images/wired_clock.jpg', 'route': () => attendencepage(title: 'Attendence')},
-    {'title': 'Remuneration', 'icon': 'assets/images/remuneration.svg', 'route': null},
-    {'title': 'Assets', 'icon': 'assets/images/assets.svg', 'route': () => Assetspage(title: 'Assets')},
-    {'title': 'Holidays', 'icon': 'assets/images/holidays.svg', 'route': () => holidaypage(title: 'Holidays')},
-    {'title': 'Leave', 'icon': 'assets/images/leave.svg', 'route': () => leavepage(title: 'Leave')},
-    {'title': 'Tasks', 'icon': 'assets/images/tasks.svg', 'route': null},
-    {'title': 'Documents', 'icon': 'assets/images/wired-flat-245-edit-document 1.jpg', 'route': ()=>documentpage(title: 'document',)},
+    {'title': 'Attendance', 'icon': 'assets/images/clock.png', 'route': () => attendencepage(title: 'Attendence')},
+    //{'title': 'Remuneration', 'icon': 'assets/images/wired-flat-290-coin 1.png', 'route': null},
+    {'title': 'Assets', 'icon': 'assets/images/wired-flat-146-trolley 1.png', 'route': () => Assetspage(title: 'assets',empId : '')},
+    {'title': 'Holidays', 'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png', 'route': () => holidaypage(title: 'Holidays')},
+    {'title': 'Leave', 'icon': 'assets/images/wired-flat-1725-exit-sign 1.png', 'route': () => leavepage(title: 'Leave')},
+    //{'title': 'Documents', 'icon': 'assets/images/wired-flat-56-document 1.png', 'route': ()=>documentpage(title: 'document',)},
   ];
   @override
   Widget build(BuildContext context) {
@@ -39,6 +38,8 @@ class _CategoryPageState extends State<CategoryPage> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Categories',
+        showBackButton: false,
+
       ),
       body: Column(
         children: [
