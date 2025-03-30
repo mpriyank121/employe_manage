@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../Configuration/app_cards.dart';
 import '../Configuration/app_spacing.dart';
+import 'Image_preview.dart';
 
 class WelcomeCard extends StatelessWidget {
   final String userName;
@@ -15,6 +16,8 @@ class WelcomeCard extends StatelessWidget {
   final String workedTime;
   final String selectedFirstIn;
   final String selectedLastOut;
+  final String? checkInImage;
+  final String? checkOutImage;
 
   const WelcomeCard({
     Key? key,
@@ -25,6 +28,8 @@ class WelcomeCard extends StatelessWidget {
     required this.elapsedSeconds,
     required this.isCheckedIn,
     required this.checkInTime,
+    required this.checkOutImage,
+    required this.checkInImage,
     this.checkOutTime,
     this.workedTime = "",
     this.selectedFirstIn = "N/A",
@@ -62,6 +67,32 @@ class WelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void _showImagePreview(BuildContext context, String imageUrl) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: InteractiveViewer(
+              panEnabled: true, // Enable dragging
+              minScale: 0.2,
+              maxScale: 2.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.broken_image, size: 10, color: Colors.grey);
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     bool hasValidDateData = selectedFirstIn.isNotEmpty &&
         selectedFirstIn != "N/A" &&
         selectedLastOut.isNotEmpty &&
@@ -87,10 +118,20 @@ class WelcomeCard extends StatelessWidget {
             style: WelcomeCardConfig.welcomeText,
           ),
           AppSpacing.small(context),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // ✅ Check-in Image
+              ImagePreviewWidget(imageUrl: checkInImage),
+              Text(
+                isCheckedIn ? formatTime(elapsedSeconds) : userName,
+                style: WelcomeCardConfig.nameText,
+              ),
 
-          Text(
-            isCheckedIn ? formatTime(elapsedSeconds) : userName,
-            style: WelcomeCardConfig.nameText,
+
+              // ✅ Check-out Image
+              ImagePreviewWidget(imageUrl: checkOutImage),
+            ],
           ),
 
           if (!isCheckedIn) Text(jobRole, style: WelcomeCardConfig.roleText),

@@ -6,25 +6,28 @@ class LeaveContainer extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Color? color;
   final double? borderRadius;
-
+  final double? height; // ✅ Added height parameter
+  final double? width;
   const LeaveContainer({
     Key? key,
     required this.child,
     this.padding,
     this.color,
     this.borderRadius,
+    this.height,
+    this.width,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
+      width: width,
       padding: padding ?? LeaveContainerConfig.defaultPadding,
       decoration: ShapeDecoration(
+        color: LeaveContainerConfig.backgroundColor, // ✅ Use Background Color
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: const Color(0xFFB3B3B3),
-          ),
+
           borderRadius: BorderRadius.circular(borderRadius ?? LeaveContainerConfig.defaultBorderRadius),
         ),
       ),

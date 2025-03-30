@@ -4,7 +4,7 @@ import '../Configuration/ui_styles.dart';
 import 'bottom_sheet_helper.dart';
 
 class DatePickerDropdown extends StatefulWidget {
-  final Function(DateTime, String, String) onDateSelected;
+  final Function(DateTime, String, String, String?, String?) onDateSelected;
 
   const DatePickerDropdown({Key? key, required this.onDateSelected}) : super(key: key);
 
@@ -16,16 +16,20 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
   DateTime selectedDate = DateTime.now();
   String selectedFirstIn = "N/A";
   String selectedLastOut = "N/A";
+  String? selectedCheckinImage;
+  String? selectedCheckoutImage;
 
-  void _updateDate(DateTime newDate, String firstInTime, String lastOutTime) {
+  void _updateDate(DateTime newDate, String firstInTime, String lastOutTime, String? checkinImage, String? checkoutImage) {
     setState(() {
       selectedDate = newDate;
       selectedFirstIn = firstInTime.isNotEmpty ? firstInTime : "N/A";
       selectedLastOut = lastOutTime.isNotEmpty ? lastOutTime : "N/A";
+      selectedCheckinImage = checkinImage;
+      selectedCheckoutImage = checkoutImage;
     });
 
-    /// ✅ Now passing selectedDate to parent along with first-in and last-out times
-    widget.onDateSelected(selectedDate, selectedFirstIn, selectedLastOut);
+    /// ✅ Pass selectedDate, times, and images to parent widget
+    widget.onDateSelected(selectedDate, selectedFirstIn, selectedLastOut, selectedCheckinImage, selectedCheckoutImage);
   }
 
   @override

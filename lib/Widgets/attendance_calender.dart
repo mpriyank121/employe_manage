@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 import '../API/Services/attendance_service.dart';
 
 class AttendanceCalendar extends StatefulWidget {
-  final Function(DateTime, String, String)? onDateSelected;
+  final Function(DateTime, String, String, String?, String?)? onDateSelected;
 
-  const AttendanceCalendar({super.key, this.onDateSelected,}); // ✅ Callback function
+  const AttendanceCalendar({super.key, this.onDateSelected}); // ✅ Updated Callback
 
   @override
   _AttendanceCalendarState createState() => _AttendanceCalendarState();
@@ -21,7 +21,6 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
   int selectedYear = DateTime.now().year;
   int selectedMonth = DateTime.now().month;
 
-
   @override
   void initState() {
     super.initState();
@@ -31,8 +30,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
   /// ✅ Fetch Attendance Data
   Future<void> _loadAttendanceData() async {
     try {
-      List<Map<String, dynamic>> data = await AttendanceService
-          .fetchAttendanceData();
+      List<Map<String, dynamic>> data = await AttendanceService.fetchAttendanceData();
 
       if (mounted) {
         setState(() {
@@ -42,6 +40,8 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 "status": record['status'] ?? "N",
                 "first_in": record['first_in'] ?? "N/A",
                 "last_out": record['last_out'] ?? "N/A",
+                "checkin_image": record['checkinImage'] ?? "",  // ✅ Added Check-in Image
+                "checkout_image": record['checkoutImage'] ?? "", // ✅ Added Check-out Image
               }
           };
         });
@@ -52,7 +52,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
     }
   }
 
-    /// ✅ Update Month & Year Navigation
+  /// ✅ Update Month & Year Navigation
   void _changeMonth(int step) {
     setState(() {
       selectedMonth += step;
@@ -139,16 +139,13 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
 
                   String firstIn = (record?["first_in"]?.trim().isNotEmpty == true) ? record!["first_in"]! : "N/A";
                   String lastOut = (record?["last_out"]?.trim().isNotEmpty == true) ? record!["last_out"]! : "N/A";
+                  String checkinImage = record?["checkin_image"] ?? ""; // ✅ Extracted Check-in Image
+                  String checkoutImage = record?["checkout_image"] ?? ""; // ✅ Extracted Check-out Image
 
                   // ✅ Pass Data to Callback
-                  widget.onDateSelected?.call(selectedDay, firstIn, lastOut);
-                  // ✅ Navigate to the correct screen based on attendance status
-                  if (record != null && record["status"] == "P") {
-                    // Present → Show Report Screen
-                    return  Navigator.pop(context);
-                  } else
-                    return  Navigator.pop(context);
+                  widget.onDateSelected?.call(selectedDay, firstIn, lastOut, checkinImage, checkoutImage);
 
+                  Navigator.pop(context);
                 },
                 calendarFormat: CalendarFormat.month,
                 headerVisible: false, // 🔹 Hide default header
@@ -171,19 +168,33 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   defaultBuilder: (context, date, _) {
                     DateTime normalizedDate = DateTime(date.year, date.month, date.day);
                     String status = attendanceData[normalizedDate]?['status'] ?? "N";
+                    String checkinImage = attendanceData[normalizedDate]?['checkin_image'] ?? "";
+                    String checkoutImage = attendanceData[normalizedDate]?['checkout_image'] ?? "";
 
-                    return Container(
-                      margin: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _getStatusColor(status),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "${date.day}",
-                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    return Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _getStatusColor(status),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "${date.day}",
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (checkinImage.isNotEmpty || checkoutImage.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (checkinImage.isNotEmpty) Icon(Icons.camera_alt, size: 12, color: Colors.green), // 📸 Check-in Icon
+                              if (checkoutImage.isNotEmpty) Icon(Icons.camera_alt, size: 12, color: Colors.blue), // 📸 Check-out Icon
+                            ],
+                          ),
+                      ],
                     );
                   },
                 ),

@@ -28,12 +28,14 @@ class _WelcomePageState extends State<WelcomePage> {
 
   var userName = "Loading...".obs;
   var jobRole = "Loading...".obs;
+  var employeeType = "Loading.".obs;
   var totalWorkedTime = "".obs;
   var selectedFirstIn = "N/A".obs;
   var selectedLastOut = "N/A".obs;
-  int selectedMonth = DateTime.now().month; // Defaults to current month
-  int selectedYear = DateTime.now().year; // Defaults to current year
-
+  var checkInImage = RxnString();
+  var checkOutImage = RxnString();
+  int selectedMonth = DateTime.now().month;
+  int selectedYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -46,28 +48,31 @@ class _WelcomePageState extends State<WelcomePage> {
     if (userData != null) {
       userName.value = userData['name'] ?? "Unknown";
       jobRole.value = userData['designation'] ?? "Unknown";
+      employeeType.value = userData['emp_type'] ?? "Unknown";
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('emp_type', employeeType.value);
       await prefs.setString('username', userName.value);
       await prefs.setString('jobRole', jobRole.value);
-      userName.value = userName.value;
-      jobRole.value = jobRole.value;
     }
   }
 
-  void _updateAttendance(DateTime selectedDate, String firstIn, String lastOut) {
+  /// ✅ Fixed Function to Accept Five Parameters (Date, First-In, Last-Out, Check-in & Check-out Images)
+  void _updateAttendance(DateTime selectedDate, String firstIn, String lastOut, String? checkInImg, String? checkOutImg) {
     setState(() {
       selectedFirstIn.value = firstIn;
       selectedLastOut.value = lastOut;
+      checkInImage.value = checkInImg;
+      checkOutImage.value = checkOutImg;
 
-      /// ✅ Keep month & year as selected date's values
+      /// ✅ Update selected month & year
       selectedYear = selectedDate.year;
       selectedMonth = selectedDate.month;
 
       print("📅 Selected Date: ${selectedDate.day}-${selectedDate.month}-${selectedDate.year}");
       print("🕒 First In: $selectedFirstIn, Last Out: $selectedLastOut");
+      print("📸 Check-In Image: $checkInImage, Check-Out Image: $checkOutImage");
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +98,9 @@ class _WelcomePageState extends State<WelcomePage> {
         ),
         child: Column(
           children: [
+            /// ✅ Pass the updated function with correct parameters
             DatePickerDropdown(
-              onDateSelected: _updateAttendance, // ✅ Pass update function
+              onDateSelected: _updateAttendance,
             ),
             AppSpacing.medium(context),
             Obx(() => WelcomeCard(
@@ -109,9 +115,10 @@ class _WelcomePageState extends State<WelcomePage> {
               checkOutTime: checkInController.checkOutTime.value ?? DateTime.now(),
               selectedFirstIn: selectedFirstIn.value,
               selectedLastOut: selectedLastOut.value,
+              checkInImage: checkInImage.value,    // ✅ Pass Check-in Image
+              checkOutImage: checkOutImage.value,
             )),
-            BottomCard(screenWidth: screenWidth, screenHeight: screenHeight,
-              ),
+            BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
             AppSpacing.medium(context),
             Column(
               children: [
@@ -139,10 +146,10 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ],
             ),
-            LeaveTabView(heightFactor: 0.3,
+            LeaveTabView(
+              heightFactor: 0.3,
               selectedMonth: selectedMonth,
               selectedYear: selectedYear,
-
             ),
             Obx(() => SlideCheckIn(
               screenWidth: screenWidth,

@@ -2,73 +2,116 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class CheckInService {
   final String _baseUrl = 'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php';
-  final String _uploadUrl = 'https://your-server.com/upload_image.php'; // Change this to your actual upload API
 
-  /// ✅ Save Employee ID
+  /// Save Employee ID
   Future<void> saveEmpId(String empId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString("emp_id", empId);
   }
-  /// ✅ Retrieve Employee ID
+
+  /// Retrieve Employee ID
   Future<String?> _getEmpId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString("emp_id");
   }
 
-  /// ✅ Perform Check-In with Image Upload
+  /// Get File Extension
+  String getFileExtension(String filePath) {
+    return extension(filePath);
+  }
+
+  /// Get MIME Type
+  String? getMimeType(String filePath) {
+    return lookupMimeType(filePath);
+  }
+
+  /// Perform Check-In with Image Upload
   Future<bool> performCheckIn(File imageFile) async {
-    return await uploadImageAndPerformAction(imageFile, 'checkin');
+    return await uploadImageAndPerformAction(imageFile, 'checkin', 'checkIn_image') == null;
   }
 
-  /// ✅ Perform Check-Out with Image Upload
+  /// Perform Check-Out with Image Upload
   Future<bool> performCheckOut(File imageFile) async {
-    return await uploadImageAndPerformAction(imageFile, 'checkout');
+    return await uploadImageAndPerformAction(imageFile, 'checkout', 'checkout_image') == null;
   }
 
-  /// ✅ Upload Image and Check-In/Check-Out
-  Future<bool> uploadImageAndPerformAction(File imageFile, String type) async {
+  /// Upload Image and Perform Check-In/Check-Out
+  Future<String?> uploadImageAndPerformAction(File imageFile, String type, String imageKey) async {
     String? empId = await _getEmpId();
     if (empId == null) {
       print("🔴 Employee ID is missing. Cannot $type.");
-      return false;
+      return "Employee ID is missing. Please login again.";
     }
 
     try {
-      // ✅ Create Multipart Request
+      // Get File Details
+      String fileExtension = getFileExtension(imageFile.path);
+      String? mimeType = getMimeType(imageFile.path) ?? 'image/jpeg';
+      print("📂 File Extension: $fileExtension | MIME Type: $mimeType");
+
+      // Create Multipart Request
       var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
 
-      // ✅ Attach Form Data
+      // Attach Form Data
       request.fields['emp_id'] = empId;
       request.fields['latitude'] = '28.5582006';
       request.fields['longitude'] = '77.341035';
       request.fields['type'] = type;
 
-      // ✅ Attach Image File
+      // Attach Image File with Proper MIME Type
       request.files.add(
         await http.MultipartFile.fromPath(
-          'image', // Field name expected by API
+          imageKey,
           imageFile.path,
           filename: basename(imageFile.path),
+          contentType: mimeType != null ? MediaType.parse(mimeType) : null,
         ),
       );
 
-      // ✅ Send Request
+      // Send Request
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
-        print("✅ $type Success: $responseBody");
-        return true;
+        Map<String, dynamic> responseData = jsonDecode(responseBody);
+        bool success = responseData['success'] ?? false;
+        String message = responseData['message'] ?? "Unknown error";
+
+        if (success) {
+          print("✅ $type Success: $message");
+          await _saveImage(imageFile.path, type);
+          return null;
+        } else {
+          print("🔴 $type Failed: $message");
+          return message;
+        }
       } else {
-        print("🔴 $type Failed: ${response.reasonPhrase}");
-        return false;
+        print("🔴 $type Request Failed: \${response.reasonPhrase}");
+        return "Server error: \${response.reasonPhrase}";
       }
     } catch (e) {
       print("🔴 Exception during $type: $e");
-      return false;
+      return "Unexpected error occurred. Please try again.";
     }
+  }
+
+  /// Save Check-In/Check-Out Image with Date Key
+  Future<void> _saveImage(String imagePath, String type) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String dateKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    await prefs.setString("${type}_image_$dateKey", imagePath);
+  }
+
+  /// Retrieve Image Path for a Given Date (Check-In or Check-Out)
+  Future<String?> getImage(String type, String date) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("${type}_image_$date");
   }
 }

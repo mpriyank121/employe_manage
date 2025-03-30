@@ -1,4 +1,3 @@
-// config/app_buttons.dart
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
@@ -25,4 +24,14 @@ class ResendButtonConfig {
   static const Color timerColor = Colors.orange;
   static const double borderRadius = 8.0;
   static const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 25, vertical: 15);
+}
+class AppConfig {
+  // Default Colors for Buttons
+  static const Color defaultButtonColor = Colors.grey;
+  static final ButtonStyle reasonButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: defaultButtonColor,
+    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+    minimumSize: const Size(30, 22),
+    textStyle: const TextStyle(fontSize: 9),
+  );
 }

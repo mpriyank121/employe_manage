@@ -6,7 +6,7 @@ class ImagePickerService {
 
   Future<File?> captureImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera,preferredCameraDevice: CameraDevice.front);
       return image != null ? File(image.path) : null;
     } catch (e) {
       print("Error capturing image: $e");

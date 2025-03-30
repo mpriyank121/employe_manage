@@ -39,14 +39,23 @@ class AttendanceService {
           String firstIn = record['first_in']?.toString().trim() ?? record['last_in']?.toString().trim() ?? "N/A";
           String lastOut = record['last_out']?.toString().trim() ?? record['first_out']?.toString().trim() ?? "N/A";
 
+          // ✅ Extract Check-in and Check-out Images
+          String checkInImage = record['checkinImage']?.toString()?.trim() ?? "";
+          String checkOutImage = record['checkoutImage']?.toString()?.trim() ?? "";
+
+          // ✅ Debug Log
+          print("📸 Extracted Images: Check-in: $checkInImage, Check-out: $checkOutImage");
+
           formattedData.add({
-            "date": record['attendence_date'].toString(), // Keeping date as-is
+            "date": record['attendence_date'].toString(),
             "status": status,
             "first_in": firstIn,
             "last_out": lastOut,
+            "checkinImage": checkInImage,  // ✅ Now correctly assigned
+            "checkoutImage": checkOutImage,  // ✅ Now correctly assigned
           });
 
-          print("✅ Stored: ${record['attendence_date']} -> Status: $status, Check-in: $firstIn, Check-out: $lastOut");
+          print("✅ Stored: ${record['attendence_date']} -> Status: $status, Check-in: $firstIn, Check-out: $lastOut, Check-in Image: ${checkInImage.isNotEmpty ? checkInImage : '❌ No Image'}, Check-out Image: ${checkOutImage.isNotEmpty ? checkOutImage : '❌ No Image'}");
         }
       }
 

@@ -1,4 +1,3 @@
-// config/app_spacing.dart
 import 'package:flutter/material.dart';
 
 class AppSpacing {

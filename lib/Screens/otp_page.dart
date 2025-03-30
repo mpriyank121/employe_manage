@@ -45,10 +45,10 @@ class OtpPage extends StatelessWidget {
 
             /// ✅ Verify Button
             Spacer(),
-             PrimaryButton(
+            PrimaryButton(
                 text: _authController.isLoading.value ? 'Verifying...' : 'Verify OTP',
                 onPressed: () {}
-              ),
+            ),
           ],
         ),
       ),

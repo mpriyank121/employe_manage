@@ -1,8 +1,10 @@
+import 'package:employe_manage/Widgets/Reason_view_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Services/leave_service.dart';
 import 'CustomListTile.dart';
+import 'Custom_dialog.dart';
 import 'Status_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:employe_manage/API/models/leave_model.dart';
@@ -32,6 +34,13 @@ class _LeaveTabViewState extends State<LeaveTabView> {
     super.initState();
     _fetchLeaveData();
   }
+  void showCustomDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(title: title, content: content),
+    );
+  }
+
 
   @override
   void didUpdateWidget(covariant LeaveTabView oldWidget) {
@@ -51,7 +60,7 @@ class _LeaveTabViewState extends State<LeaveTabView> {
     String? empId = prefs.getString("emp_id");
 
     if (empId != null) {
-      var data = await LeaveService.fetchLeaveData(empId);
+      var data = await LeaveService.fetchLeaveData();
 
       /// ✅ Force UI update after filtering
       leaveData.assignAll(_filterLeaveData(data));
@@ -141,8 +150,33 @@ class _LeaveTabViewState extends State<LeaveTabView> {
                             "title": leave.leaveName ?? "Leave Request",
                             "subtitle": "${_formatDate(leave.startDate)} - ${_formatDate(leave.endDate)}",
                           },
-                          trailing: StatusWidget(status: leave.status),
+                          trailing: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end, // Center-align items
+                            children: [
+                              StatusWidget(status: leave.status),
+                              const SizedBox(height: 4), // Add spacing
+                              Row(
+                                mainAxisSize: MainAxisSize.min, // Prevents Row from expanding
+                                children: [
+                                  if (leave.comment != "NA" && leave.comment!.trim().isNotEmpty)
+                                    ReasonViewButton(
+                                    text: "View Comment",
+                                    color: Colors.grey,
+                                    onPressed: () => showCustomDialog(context, "Comment", leave.comment ?? "No comment available"),
+                                  ),
+                                  const SizedBox(width: 4), // Add spacing between buttons
+                                  ReasonViewButton(
+                                    text: "View Reason",
+                                    color: Colors.grey,
+                                    onPressed: () => showCustomDialog(context, "Reason", leave.resson ?? "No reason provided"), // ✅ Fixed Typo: `resson` → `reason`
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         );
+
                       },
                     );
                   }).toList(),

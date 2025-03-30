@@ -32,6 +32,7 @@ class settingpage extends StatefulWidget {
 class _settingpageState extends State<settingpage> {
   String userName = "Loading...";
   String jobRole = "Loading...";
+  String employeeType = "Loading...";
 
   @override
 
@@ -45,6 +46,8 @@ class _settingpageState extends State<settingpage> {
     setState(() {
       userName = prefs.getString('username') ?? 'Guest';
       jobRole = prefs.getString('jobRole') ?? 'Unknown Role';
+      employeeType = prefs.getString('emp_type') ?? 'Unknown type';
+
       print("Fetched all data");
     });
   }
@@ -81,7 +84,7 @@ class _settingpageState extends State<settingpage> {
                 Text(userName, style: fontStyles.headingStyle), // ✅ Dynamic Username
                 SizedBox(width: 10),
                 Text(
-                  'Full Time',
+                  employeeType,
                   style: TextStyle(
                     color: Color(0xFFF25922),
                     fontSize: 14,
@@ -99,10 +102,10 @@ class _settingpageState extends State<settingpage> {
           // ✅ Menu Options
           Column(
             children: [
-              _buildListTile(
-                icon: 'assets/images/iconoir_profile-circle.svg',
-                title: 'Edit Profile',
-              ),
+              //_buildListTile(
+               // icon: 'assets/images/iconoir_profile-circle.svg',
+               // title: 'Edit Profile',
+              //),
 
 
               // ✅ Logout Button
@@ -110,8 +113,8 @@ class _settingpageState extends State<settingpage> {
                 textColor: Color(0xFFCD0909), // ✅ Custom text color
 
                 text: 'Log Out',
-                widthFactor: 0.7,
-                heightFactor: 0.07,
+                widthFactor: 0.9,
+                heightFactor: 0.05,
                 buttonColor: Color(0x19CD0909),
                 onPressed: _logout,
                 icon: SvgPicture.asset('assets/images/ant-design_logout-outlined.svg'),
@@ -121,15 +124,6 @@ class _settingpageState extends State<settingpage> {
           ),
         ],
       ),
-    );
-  }
-  /// 🔹 Reusable ListTile Widget
-  Widget _buildListTile({required String icon, required String title}) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 16),
-      leading: SvgPicture.asset(icon),
-      title: Text(title),
-      trailing: SvgPicture.asset('assets/images/chevron-ups.svg'),
     );
   }
 }

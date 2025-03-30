@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'attendance_calender.dart';
 
-void showDatePickerBottomSheet(BuildContext context, Function(DateTime, String, String) onDateSelected) {
+void showDatePickerBottomSheet(BuildContext context, Function(DateTime, String, String,String?,String?) onDateSelected) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

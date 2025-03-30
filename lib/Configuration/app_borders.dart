@@ -1,4 +1,3 @@
-// config/app_borders.dart
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 

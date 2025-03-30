@@ -1,4 +1,3 @@
-// config/app_cards.dart
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
@@ -68,5 +67,6 @@ class LeaveContainerConfig {
   static const EdgeInsetsGeometry defaultPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 1);
   static const double defaultBorderRadius = 8.0;
   static const Color defaultColor = Colors.white; // Equivalent to Colors.grey[200]
+  static const Color backgroundColor = Color(0xFFF6F6F6);
 }
 

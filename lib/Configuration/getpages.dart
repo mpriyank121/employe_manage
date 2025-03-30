@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:employe_manage/Configuration/routes.dart';
 import 'package:employe_manage/Screens/settings.dart';
 import 'package:employe_manage/Screens/otp_page.dart';
-import 'package:employe_manage/Screens/welcom_page.dart';
+import 'package:employe_manage/Screens/welcome_page.dart';
 import 'package:employe_manage/Screens/assets_cat.dart';
 import 'package:employe_manage/Screens/holiday_list.dart';
 import 'package:employe_manage/Screens/leave_detail.dart';
@@ -20,5 +20,5 @@ final List<GetPage> getPages = [
   GetPage(name: Routes.holiday, page: () => holidaypage(title: 'holiday')),
   GetPage(name: Routes.category, page: () =>CategoryPage(title: 'category')),
   GetPage(name: Routes.leaveDetail, page: () => leavepage(title: 'leave')),
-  GetPage(name: Routes.attendence, page: () => attendencepage(title: 'attendence',))
+  GetPage(name: Routes.attendence, page: () => AttendancePage(title: 'attendence',))
 ];

@@ -34,6 +34,7 @@ class StatusWidget extends StatelessWidget {
     }
 
     return Container(
+
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: bgColor,

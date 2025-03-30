@@ -1,8 +1,9 @@
+import 'package:employe_manage/Screens/Tasks_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Screens/Categories.dart';
 import 'package:employe_manage/Screens/settings.dart';
-import 'package:employe_manage/Screens/welcom_page.dart';
+import 'package:employe_manage/Screens/welcome_page.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -16,7 +17,9 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     WelcomePage(title: "Home"),
     CategoryPage(title: "Categories"),
+    TaskScreen(),
     settingpage(title: "Settings"),
+
   ];
 
   // Function to handle tab switching
@@ -59,13 +62,23 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              "assets/images/settings-02.svg",
+              "assets/images/task-square.svg",
               width: 24,
               height: 24,
               color: _selectedIndex == 2 ? Colors.orangeAccent : Colors.grey,
             ),
+            label: "Tasks",
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              "assets/images/settings-02.svg",
+              width: 24,
+              height: 24,
+              color: _selectedIndex == 3 ? Colors.orangeAccent : Colors.grey,
+            ),
             label: "Settings",
           ),
+
         ],
       ),
     );
