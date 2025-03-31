@@ -15,6 +15,19 @@ class _TaskScreenState extends State<TaskScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllTasksByDefault(); // ✅ Fetch all tasks on load
+  }
+
+  void _fetchAllTasksByDefault() {
+    setState(() {
+      _startDate = null;
+      _endDate = null;
+    });
+  }
+
   Future<void> _selectDateRange(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime firstDate = now.subtract(const Duration(days: 365));
@@ -34,6 +47,10 @@ class _TaskScreenState extends State<TaskScreen> {
         _startDate = picked.start;
         _endDate = picked.end;
       });
+
+      // ✅ Debugging Selected Dates
+      print("📅 Selected Start Date: $_startDate");
+      print("📅 Selected End Date: $_endDate");
     }
   }
 
@@ -47,9 +64,9 @@ class _TaskScreenState extends State<TaskScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-            // Date Range Picker Button
+            // 🔹 Date Range Picker Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -57,32 +74,34 @@ class _TaskScreenState extends State<TaskScreen> {
                   onPressed: () => _selectDateRange(context),
                   child: Text(
                     _startDate != null && _endDate != null
-                        ? "📅 ${DateFormat('dd MMM yyyy').format(_startDate!)} - ${DateFormat('dd MMM yyyy').format(_endDate!)}"
+                        ? "📅 ${DateFormat('yyyy-MM-dd').format(_startDate!)} - ${DateFormat('yyyy-MM-dd').format(_endDate!)}"
                         : "Select Date Range",
                   ),
                 ),
+                Container(child:ElevatedButton(
+                  onPressed: _fetchAllTasksByDefault, // Reset date filter
+                  child: Text("Reset", style: TextStyle(color: Colors.blue)),
+                ))
+
               ],
             ),
-
-            SizedBox(height: 10),
-
-            // Task List with Date Filter
-            Container(
-              height: screenHeight * 0.6,
+            const SizedBox(height: 10),
+            // 🔹 Task List with Date Filter (Expanded to avoid ParentDataWidget Error)
+            Expanded(
               child: TaskListWidget(
+                key: ValueKey(_startDate.toString() + _endDate.toString()), // ✅ Forces rebuild
                 employeeId: '229',
                 startDate: _startDate,
                 endDate: _endDate,
               ),
             ),
 
-            Spacer(),
-
+            // 🔹 Add BOD & EOD Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 PrimaryButton(
-                  widthFactor: 0.4,
+                  widthFactor: 0.42,
                   heightFactor: 0.05,
                   onPressed: () {
                     Navigator.push(
@@ -93,7 +112,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   text: "ADD BOD",
                 ),
                 PrimaryButton(
-                  widthFactor: 0.4,
+                  widthFactor: 0.42,
                   heightFactor: 0.05,
                   onPressed: () {
                     Navigator.push(

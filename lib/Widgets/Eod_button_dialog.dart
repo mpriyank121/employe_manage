@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:employe_manage/Widgets/Custom_quill_editor.dart';
+import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
-import '../API/Services/EOD_service.dart'; // Assuming there's an EOD service
+import '../API/Services/EOD_service.dart';
 
 class Eodbuttondialog extends StatefulWidget {
   @override
@@ -9,7 +14,8 @@ class Eodbuttondialog extends StatefulWidget {
 
 class _EodbuttondialogState extends State<Eodbuttondialog> {
   final TextEditingController _taskTitleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final QuillController _quillController = QuillController.basic();
+
   bool _isLoading = false;
   String? _eodResponse;
 
@@ -19,7 +25,6 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
     checkEODStatus();
   }
 
-  // ✅ Check if EOD already exists
   Future<void> checkEODStatus() async {
     setState(() => _isLoading = true);
     try {
@@ -43,10 +48,9 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
     }
   }
 
-  // ✅ Handle API Call (Submit EOD)
   Future<void> handleApiCall() async {
     String taskTitle = _taskTitleController.text.trim();
-    String description = _descriptionController.text.trim();
+    String description = jsonEncode(_quillController.document.toDelta().toJson());
 
     if (taskTitle.isEmpty || description.isEmpty) {
       Get.snackbar(
@@ -88,38 +92,46 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Submit EOD")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_eodResponse != null)
-              Text(
-                _eodResponse!,
-                style: const TextStyle(fontSize: 16, color: Colors.blue),
-              )
-            else ...[
-              TextField(
-                controller: _taskTitleController,
-                decoration: const InputDecoration(labelText: "Task Summary"),
+      appBar: CustomAppBar(title: 'Submit BOD'),
+      resizeToAvoidBottomInset: true, // ✅ Prevents keyboard overflow
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(8.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    if (_eodResponse != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _eodResponse!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16, color: Colors.blue),
+                        ),
+                      ),
+                    Expanded(
+                      child: CustomQuillEditor(
+                        controller: _quillController,
+                        taskTitleController: _taskTitleController,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : PrimaryButton(onPressed: handleApiCall, text: "Submit EOD"),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: "description"),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                onPressed: handleApiCall,
-                child: const Text("Submit EOD"),
-              ),
-            ],
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }

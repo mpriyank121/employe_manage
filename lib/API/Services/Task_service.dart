@@ -1,19 +1,31 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; // For Date Formatting
+
 
 class TaskService {
-  static Future<List<dynamic>> fetchTaskList(String empId, {int limit = 10, int offset = 0}) async {
+  static Future<List<dynamic>> fetchTaskList(String empId, {int limit = 10, int offset = 0,
+    DateTime? startDate,
+    DateTime? endDate,}) async {
     try {
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/task_list.php'),
       );
 
+      // ✅ Ensuring date format before sending
+      String formattedStartDate = startDate != null ? DateFormat('yyyy-MM-dd').format(startDate) : '';
+      String formattedEndDate = endDate != null ? DateFormat('yyyy-MM-dd').format(endDate) : '';
+
       request.fields.addAll({
         'type': 'get_task_data',
         'emp_id': empId, // ✅ Dynamic Employee ID
         'limit': limit.toString(),
         'offset': offset.toString(),
+
+        if (formattedStartDate.isNotEmpty) 'start_date': formattedStartDate,
+        if (formattedEndDate.isNotEmpty) 'end_date': formattedEndDate,
+
       });
 
       http.StreamedResponse response = await request.send();
@@ -23,7 +35,9 @@ class TaskService {
         var data = json.decode(responseBody);
 
         if (data["message"] == "Success" && data["found"] == true) {
-          return data['taskData'] ?? []; // ✅ Correct key
+          return data['taskData'] ?? [];
+
+          // ✅ Correct key
         } else {
           print("⚠️ No tasks found.");
           return [];

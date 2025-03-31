@@ -63,17 +63,11 @@ class _WelcomePageState extends State<WelcomePage> {
       selectedLastOut.value = lastOut;
       checkInImage.value = checkInImg;
       checkOutImage.value = checkOutImg;
-
       /// ✅ Update selected month & year
       selectedYear = selectedDate.year;
       selectedMonth = selectedDate.month;
-
-      print("📅 Selected Date: ${selectedDate.day}-${selectedDate.month}-${selectedDate.year}");
-      print("🕒 First In: $selectedFirstIn, Last Out: $selectedLastOut");
-      print("📸 Check-In Image: $checkInImage, Check-Out Image: $checkOutImage");
-    });
+      });
   }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;

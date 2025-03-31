@@ -39,7 +39,7 @@ class CheckInService {
 
   /// Perform Check-Out with Image Upload
   Future<bool> performCheckOut(File imageFile) async {
-    return await uploadImageAndPerformAction(imageFile, 'checkout', 'checkout_image') == null;
+    return await uploadImageAndPerformAction(imageFile, 'checkout', 'checkOut_image') == null;
   }
 
   /// Upload Image and Perform Check-In/Check-Out

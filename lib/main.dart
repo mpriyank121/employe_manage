@@ -1,10 +1,13 @@
 import 'package:employe_manage/Screens/otp_page.dart';
 import 'package:employe_manage/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart%20';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
 import 'Screens/LoginPage.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 void main() async {
   Get.put(AttendanceController()); // ✅ Register Controller Before Running the App
@@ -23,6 +26,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
       debugShowCheckedModeBanner: false,
       initialRoute: isLoggedIn ? '/home' : '/login',
       routes: {

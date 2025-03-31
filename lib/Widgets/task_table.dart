@@ -27,12 +27,35 @@ class _TaskListWidgetState extends State<TaskListWidget> {
   int _page = 1;
   final int _limit = 10;
   final ScrollController _scrollController = ScrollController();
+  double _averageRating = 0.0;
 
   @override
   void initState() {
     super.initState();
     fetchTasks();
     _scrollController.addListener(_scrollListener);
+  }
+
+  void _calculateAverageRating() {
+    if (_tasks.isEmpty) {
+      _averageRating = 0.0;
+      return;
+    }
+    double totalRating = 0;
+    int count = 0;
+
+    for (var task in _tasks) {
+      if (task['rating'] != null) {
+        try {
+          totalRating += double.parse(task['rating'].toString());
+          count++;
+        } catch (e) {
+          print("⚠️ Rating Parse Error: $e");
+        }
+      }
+    }
+
+    _averageRating = count > 0 ? totalRating / count : 0.0;
   }
 
   Future<void> fetchTasks({bool isRefreshing = false}) async {
@@ -53,14 +76,21 @@ class _TaskListWidgetState extends State<TaskListWidget> {
         widget.employeeId,
         limit: _limit,
         offset: (_page - 1) * _limit,
+        startDate: widget.startDate,
+        endDate: widget.endDate,
       );
 
-      // Filter tasks based on date range
       if (widget.startDate != null && widget.endDate != null) {
+        DateFormat apiDateFormat = DateFormat('dd MMM, yyyy hh:mm a');
         tasks = tasks.where((task) {
-          DateTime taskDate = DateFormat('yyyy-MM-dd').parse(task['date']);
-          return taskDate.isAfter(widget.startDate!.subtract(Duration(days: 1))) &&
-              taskDate.isBefore(widget.endDate!.add(Duration(days: 1)));
+          try {
+            DateTime taskDate = apiDateFormat.parse(task['date']);
+            return taskDate.isAfter(widget.startDate!.subtract(Duration(days: 1))) &&
+                taskDate.isBefore(widget.endDate!.add(Duration(days: 1)));
+          } catch (e) {
+            print("⚠️ Date Parse Error: $e");
+            return false;
+          }
         }).toList();
       }
 
@@ -73,9 +103,9 @@ class _TaskListWidgetState extends State<TaskListWidget> {
           _tasks.addAll(tasks);
           _page++;
         }
+        _calculateAverageRating();
       });
     } catch (e) {
-      print("Error: $e");
       setState(() => _hasError = true);
     } finally {
       setState(() => _isLoading = false);
@@ -90,82 +120,71 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => fetchTasks(isRefreshing: true),
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _tasks.length + (_isLoading ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _tasks.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+    double screenWidth = MediaQuery.of(context).size.width;
 
-                  var task = _tasks[index];
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
 
-                  return CustomListTile(
-                    heightFactor: 0.15,
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: "Date: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: task['date'] ?? "N/A"),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: "BOD Task: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: task['bod'] ?? "N/A"),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: "EOD Task: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: task['eod'] ?? "N/A"),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: "Hours: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: task['hours'] ?? "N/A"),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: "Rating: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: task['rating'] ?? "N/A"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+          width: screenWidth * 0.9,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            " Average Rating: ${_averageRating.toStringAsFixed(2)}",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => fetchTasks(isRefreshing: true),
+            child: _hasError
+                ? Center(child: Text("❌ Error fetching tasks. Try again."))
+                : _tasks.isEmpty && !_isLoading
+                ? Center(child: Text("📭 No tasks found for selected dates."))
+                : ListView.builder(
+              controller: _scrollController,
+              itemCount: _tasks.length + (_isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _tasks.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(child: CircularProgressIndicator()),
                   );
-                },
-              ),
+                }
+
+                var task = _tasks[index];
+
+                return CustomListTile(
+                  heightFactor: 0.15,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTaskDetail("Date", task['date']),
+                      _buildTaskDetail("BOD Task", task['bod']),
+                      _buildTaskDetail("EOD Task", task['eod']),
+                      _buildTaskDetail("Hours", task['hours']),
+                      _buildTaskDetail("Rating", task['rating']),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          if (!_hasMore && _tasks.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("No more tasks"),
-            ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskDetail(String title, String? value) {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: "$title: ", style: TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: value ?? "N/A"),
         ],
       ),
     );

@@ -29,16 +29,12 @@ class SlideCheckIn extends StatefulWidget {
 class _SlideCheckInState extends State<SlideCheckIn> {
   final CheckInService _checkInService = CheckInService();
   final ImagePickerService _imagePickerService = ImagePickerService(); // Use the new service
-
-
   double _position = 0.0;
   bool _isChecking = false;
   bool _isCheckedIn = false;
   int _elapsedSeconds = 0;
   File? _selectedImage;
-
   Timer? _timer;
-
   @override
   void initState() {
     super.initState();
