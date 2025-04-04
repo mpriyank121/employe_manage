@@ -8,6 +8,8 @@ class CheckInController extends GetxController {
   var elapsedSeconds = 0.obs;
   var checkInTime = Rxn<DateTime>();
   var checkOutTime = Rxn<DateTime>();
+  var inImg = "".obs;
+  var outImg = "".obs;
   var workedTime = "".obs;
   Timer? _timer;
 
@@ -28,6 +30,7 @@ class CheckInController extends GetxController {
     if (storedCheckIn != null) {
       checkInTime.value = DateTime.parse(storedCheckIn);
       isCheckedIn.value = storedCheckOut == null;
+      // outImg.value =
 
       if (storedCheckOut != null) {
         checkOutTime.value = DateTime.parse(storedCheckOut);

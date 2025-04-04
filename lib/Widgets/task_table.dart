@@ -126,7 +126,6 @@ class _TaskListWidgetState extends State<TaskListWidget> {
       children: [
         Container(
           alignment: Alignment.center,
-
           width: screenWidth * 0.9,
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           decoration: BoxDecoration(

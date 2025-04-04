@@ -5,11 +5,16 @@ import 'package:flutter_quill/flutter_quill.dart';
 class CustomQuillEditor extends StatefulWidget {
   final QuillController controller;
   final TextEditingController taskTitleController;
+  final bool showTaskFields;
+  final bool showDescriptionField; // New parameter to toggle fields
 
   const CustomQuillEditor({
     Key? key,
     required this.controller,
     required this.taskTitleController,
+    this.showTaskFields = true, // Default: Show fields
+    this.showDescriptionField = true, // Default: Show description label
+
   }) : super(key: key);
 
   @override
@@ -27,24 +32,26 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // ✅ Task Title Input Field
-        Text("Today's To-do Heading",style: fontStyles.headingStyle,),
-        TextField(
-          controller: widget.taskTitleController,
-          decoration: InputDecoration(
-            labelText: "Task Title",
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+        // ✅ Show task title fields only if showTaskFields is true
+        if (widget.showTaskFields) ...[
+          Text("Today's To-do Heading", style: fontStyles.headingStyle),
+          TextField(
+            controller: widget.taskTitleController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
           ),
-        ),
-        const SizedBox(height: 16),
-        Text("To-do's description",style: fontStyles.headingStyle,),
-        // ✅ Combined Toolbar and Editor
+          const SizedBox(height: 16),
+        ],
+
+        if (widget.showDescriptionField)
+          Text("To-do's description", style: fontStyles.headingStyle),
+        // ✅ Quill Editor with Toolbar
         Container(
           decoration: BoxDecoration(
-
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -69,7 +76,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                   showBackgroundColorButton: false,
                   showColorButton: false,
                   showCodeBlock: false,
-                  showListCheck: false,
+                  showListCheck: true,
                   showDirection: false,
                   showClearFormat: false,
                   showHeaderStyle: false,
@@ -80,7 +87,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
               ),
               Divider(color: Colors.grey), // Separator
               Container(
-                height: screenHeight*0.2,
+                height: screenHeight * 0.2,
                 padding: const EdgeInsets.all(12),
                 child: QuillEditor.basic(
                   controller: widget.controller,

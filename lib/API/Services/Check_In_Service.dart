@@ -6,6 +6,7 @@ import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:geolocator/geolocator.dart';
 
 class CheckInService {
   final String _baseUrl = 'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php';
@@ -32,6 +33,36 @@ class CheckInService {
     return lookupMimeType(filePath);
   }
 
+  /// Get Current Location
+  Future<Position?> _getCurrentLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print("🔴 Location services are disabled.");
+        return null;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("🔴 Location permissions are denied.");
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print("🔴 Location permissions are permanently denied.");
+        return null;
+      }
+
+      return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } catch (e) {
+      print("🔴 Error getting location: $e");
+      return null;
+    }
+  }
+
   /// Perform Check-In with Image Upload
   Future<bool> performCheckIn(File imageFile) async {
     return await uploadImageAndPerformAction(imageFile, 'checkin', 'checkIn_image') == null;
@@ -50,6 +81,12 @@ class CheckInService {
       return "Employee ID is missing. Please login again.";
     }
 
+    // Get Current Location
+    Position? position = await _getCurrentLocation();
+    if (position == null) {
+      return "Unable to fetch location. Ensure GPS is enabled.";
+    }
+
     try {
       // Get File Details
       String fileExtension = getFileExtension(imageFile.path);
@@ -61,8 +98,8 @@ class CheckInService {
 
       // Attach Form Data
       request.fields['emp_id'] = empId;
-      request.fields['latitude'] = '28.5582006';
-      request.fields['longitude'] = '77.341035';
+      request.fields['latitude'] = position.latitude.toString();  // Dynamic GPS Data
+      request.fields['longitude'] = position.longitude.toString(); // Dynamic GPS Data
       request.fields['type'] = type;
 
       // Attach Image File with Proper MIME Type
@@ -93,8 +130,8 @@ class CheckInService {
           return message;
         }
       } else {
-        print("🔴 $type Request Failed: \${response.reasonPhrase}");
-        return "Server error: \${response.reasonPhrase}";
+        print("🔴 $type Request Failed: ${response.reasonPhrase}");
+        return "Server error: ${response.reasonPhrase}";
       }
     } catch (e) {
       print("🔴 Exception during $type: $e");

@@ -65,6 +65,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Submit BOD'),
       resizeToAvoidBottomInset: true, // ✅ Prevents keyboard overflow
+
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -94,15 +95,19 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : PrimaryButton(onPressed: handleApiCall, text: "Submit BOD"),
                   ],
                 ),
               ),
             ),
           );
         },
+      ),
+      // 🔽 Fixed Bottom Navigation Bar with Primary Button 🔽
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(10),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : PrimaryButton(onPressed: handleApiCall, text: "Submit BOD"),
       ),
     );
   }

@@ -19,22 +19,27 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
   String? selectedCheckinImage;
   String? selectedCheckoutImage;
 
-  void _updateDate(DateTime newDate, String firstInTime, String lastOutTime, String? checkinImage, String? checkoutImage) {
+  void _updateDate(DateTime? newDate, String firstInTime, String lastOutTime, String? checkinImage, String? checkoutImage) {
+    print('======================>$checkinImage');
+    if (newDate == null) return; // ✅ Prevent updating with null values.
+
     setState(() {
       selectedDate = newDate;
       selectedFirstIn = firstInTime.isNotEmpty ? firstInTime : "N/A";
       selectedLastOut = lastOutTime.isNotEmpty ? lastOutTime : "N/A";
-      selectedCheckinImage = checkinImage;
-      selectedCheckoutImage = checkoutImage;
+      selectedCheckinImage = checkinImage ?? "";
+      selectedCheckoutImage = checkoutImage ?? "";
     });
 
-    /// ✅ Pass selectedDate, times, and images to parent widget
+    print('updTE Dte');
+    /// ✅ Pass updated values to parent
     widget.onDateSelected(selectedDate, selectedFirstIn, selectedLastOut, selectedCheckinImage, selectedCheckoutImage);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell( // ✅ Better tap effect
+      borderRadius: BorderRadius.circular(8),
       onTap: () => showDatePickerBottomSheet(context, _updateDate),
       child: AnimatedContainer(
         duration: UIStyles.animationDuration,

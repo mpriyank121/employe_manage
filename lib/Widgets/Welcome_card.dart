@@ -18,6 +18,7 @@ class WelcomeCard extends StatelessWidget {
   final String selectedLastOut;
   final String? checkInImage;
   final String? checkOutImage;
+  final DateTime? selectedDate;
 
   const WelcomeCard({
     Key? key,
@@ -34,6 +35,7 @@ class WelcomeCard extends StatelessWidget {
     this.workedTime = "",
     this.selectedFirstIn = "N/A",
     this.selectedLastOut = "N/A",
+    this.selectedDate,
   }) : super(key: key);
 
   /// ✅ Convert time string (hh:mm a) to DateTime object
@@ -65,8 +67,11 @@ class WelcomeCard extends StatelessWidget {
     return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
 
+
   @override
   Widget build(BuildContext context) {
+    final bool isCheckedOut = checkOutTime != null;
+
     void _showImagePreview(BuildContext context, String imageUrl) {
       showDialog(
         context: context,
@@ -92,11 +97,17 @@ class WelcomeCard extends StatelessWidget {
         },
       );
     }
+    final bool hasValidDateData = selectedDate != null;
 
-    bool hasValidDateData = selectedFirstIn.isNotEmpty &&
-        selectedFirstIn != "N/A" &&
-        selectedLastOut.isNotEmpty &&
-        selectedLastOut != "N/A";
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime selected = DateTime(
+      (selectedDate ?? now).year,
+      (selectedDate ?? now).month,
+      (selectedDate ?? now).day,
+    );
+
+    final bool isToday = selected == today;
 
     return Container(
       padding: EdgeInsets.only(top: screenWidth * 0.03),
@@ -112,52 +123,73 @@ class WelcomeCard extends StatelessWidget {
         ),
       ),
       child: Column(
-        children: [
+      children: [
+        if (!isCheckedIn)
           Text(
-            isCheckedIn ? "Check in at ${DateFormat('hh:mm a').format(checkInTime)}" : "Let’s get to work!",
+            "Let’s get to work!",
             style: WelcomeCardConfig.welcomeText,
           ),
-          AppSpacing.small(context),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // ✅ Check-in Image
-              ImagePreviewWidget(imageUrl: checkInImage),
-              Text(
-                isCheckedIn ? formatTime(elapsedSeconds) : userName,
+        AppSpacing.small(context),
+    Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+    // ✅ Check-in Image
+    ImagePreviewWidget(imageUrl: checkInImage),
+
+    // 🔁 Dynamic Center Text
+      Builder(
+        builder: (context) {
+          if (isToday) {
+            if (isCheckedOut) {
+              return Text(
+                calculateWorkedTime(),
                 style: WelcomeCardConfig.nameText,
-              ),
+              );
+            } else if (isCheckedIn) {
+              return Text(
+                formatTime(elapsedSeconds),
+                style: WelcomeCardConfig.nameText,
+              );
+            } else {
+              return Text(
+                userName,
+                style: WelcomeCardConfig.nameText,
+              );
+            }
+          } else {
+            // For previous date
+            return Text(
+              calculateWorkedTime(),
+              style: WelcomeCardConfig.nameText,
+            );
+          }
+        },
+      ),
 
+      // ✅ Check-out Image
+    ImagePreviewWidget(imageUrl: checkOutImage),
+    ],
+    ),
+    if (isCheckedIn && isToday)
+    Text("Today", style: WelcomeCardConfig.welcomeText),
+    if (hasValidDateData)
+    Column(
+    children: [
 
-              // ✅ Check-out Image
-              ImagePreviewWidget(imageUrl: checkOutImage),
-            ],
-          ),
-
-          if (!isCheckedIn) Text(jobRole, style: WelcomeCardConfig.roleText),
-
-          if (isCheckedIn)
-            Text(
-              "Today",
-              style: WelcomeCardConfig.welcomeText,
-            ),
-
-          if (hasValidDateData)
-            Column(
-              children: [
-
-                Text("Total Worked Time: ${calculateWorkedTime()}", style: WelcomeCardConfig.welcomeText),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text("Check-in: $selectedFirstIn", style: WelcomeCardConfig.welcomeText),
-                    Text("Check-out: $selectedLastOut", style: WelcomeCardConfig.welcomeText),
-                  ],
-                ),
-              ],
-            ),
+    Text(jobRole, style: WelcomeCardConfig.roleText),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          if (selectedFirstIn != "N/A" && selectedFirstIn.isNotEmpty)
+            Text("Check-in: $selectedFirstIn", style: WelcomeCardConfig.welcomeText),
+          if (selectedLastOut != "N/A" && selectedLastOut.isNotEmpty)
+            Text("Check-out: $selectedLastOut", style: WelcomeCardConfig.welcomeText),
         ],
       ),
-    );
+
+    ],
+    ),
+    ],
+    ));
   }
 }

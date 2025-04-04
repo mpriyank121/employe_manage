@@ -54,17 +54,24 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
 
   /// ✅ Update Month & Year Navigation
   void _changeMonth(int step) {
-    setState(() {
-      selectedMonth += step;
-      if (selectedMonth > 12) {
-        selectedMonth = 1;
-        selectedYear++;
-      } else if (selectedMonth < 1) {
-        selectedMonth = 12;
-        selectedYear--;
-      }
-      _focusedDay = DateTime(selectedYear, selectedMonth, 1);
-    });
+    if((DateTime.now().year>=selectedYear&& step == -1 ||
+        DateTime.now().year>selectedYear&& step == 1) ||
+        (DateTime.now().month>selectedMonth &&DateTime.now().year==selectedYear))
+    {
+      setState(() {
+        selectedMonth += step;
+        if (selectedMonth > 12) {
+          selectedMonth = 1;
+          selectedYear++;
+        } else if (selectedMonth < 1) {
+          selectedMonth = 12;
+          if (selectedYear > 2000)
+            selectedYear--;
+        }
+
+        _focusedDay = DateTime(selectedYear, selectedMonth, 1);
+      });
+    }
   }
 
   /// ✅ Get Color Based on Attendance Status
@@ -109,6 +116,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   ),
                 ),
                 IconButton(
+
                   onPressed: () => _changeMonth(1),
                   icon: SvgPicture.asset('assets/images/chevron-up.svg'),
                 ),
@@ -124,7 +132,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
               decoration: BoxDecoration(color: Colors.white),
               padding: const EdgeInsets.all(8.0),
               child: TableCalendar(
-                firstDay: DateTime(2025, 1, 1),
+                firstDay: DateTime(2000, 1, 1),
                 lastDay: DateTime(2025, 12, 31),
                 focusedDay: _focusedDay,
                 selectedDayPredicate: (day) => isSameDay(_selectedDay, day),

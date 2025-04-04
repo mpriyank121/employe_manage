@@ -2,6 +2,7 @@ import 'package:employe_manage/Widgets/Request_leave_form.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../API/Controllers/leave_controller.dart';
 import '../Widgets/App_bar.dart';
 import '../API/Controllers/holiday_controller.dart';
 import '../Widgets/leave_tab_view.dart';
@@ -20,16 +21,19 @@ class _leavepageState extends State<leavepage> {
   int selectedMonth = DateTime.now().month; // ✅ Initialize selectedMonth
 
   final HolidayController controller = Get.put(HolidayController());
+  final LeaveController leaveController = Get.put(LeaveController());
 
-  void onYearChanged(int newYear) {
-    setState(() {
-      selectedYear = newYear;
-    });
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    leaveController.fetchLeaveData(selectedYear,selectedMonth,false);
   }
 
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: CustomAppBar(title: 'Leave Details'),
       body: Padding(
@@ -37,36 +41,43 @@ class _leavepageState extends State<leavepage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            /// **Year Selector**
+            /// **📅 Year & Month Selector**
             YearMonthSelector(
-              initialYear: DateTime.now().year,
-              initialMonth: DateTime.now().month,
+              initialYear: selectedYear,
+              initialMonth: selectedMonth,
               onDateChanged: (year, month) {
-                print("📆 Selected Date: $month/$year");
-
-                setState(() {  // ✅ Update both selectedYear & selectedMonth
+                setState(() {
                   selectedYear = year;
                   selectedMonth = month;
                 });
+                leaveController.fetchLeaveData(year, month, false);
               },
             ),
 
             SizedBox(height: screenHeight * 0.02),
-            LeaveTabView(heightFactor: 0.3,
-            selectedMonth: selectedMonth,
-              selectedYear: selectedYear,
 
+            /// **📜 Leave Data for Selected Month**
+            Expanded(
+              child: LeaveTabView(
+                heightFactor: 0.8, // Adjusted height for better display
+                selectedYear: selectedYear,
+                selectedMonth: selectedMonth,
+              ),
             ),
-            /// **Holiday This Month Button**
 
-            PrimaryButton( onPressed: (){
-              Navigator.push(
+            SizedBox(height: screenHeight * 0.02),
+
+            /// **➕ Request Leave Button**
+            PrimaryButton(
+              onPressed: () {
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RequestLeavePage()));
-            },
-              icon: Icon(Icons.add, color: Colors.white),  // Set icon color to white
+                  MaterialPageRoute(builder: (context) => RequestLeavePage()),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white), // Set icon color to white
               text: "Request Leave",
-            )
+            ),
           ],
         ),
       ),

@@ -69,7 +69,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         padding: const EdgeInsets.all(8.0),
         child: TableCalendar(
         firstDay: DateTime(2000),
-        lastDay: DateTime(2050),
+        lastDay: DateTime.now(),
         focusedDay: _focusedDay,
         selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
         onDaySelected: (selectedDay, focusedDay) {

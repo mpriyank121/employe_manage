@@ -1,4 +1,5 @@
 import 'package:employe_manage/Screens/attendence.dart';
+import 'package:employe_manage/Screens/ticket_listing.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
@@ -30,7 +31,7 @@ class _CategoryPageState extends State<CategoryPage> {
     {'title': 'Assets', 'icon': 'assets/images/wired-flat-146-trolley 1.png', 'route': () => Assetspage(title: 'assets',empId : '')},
     {'title': 'Holidays', 'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png', 'route': () => holidaypage(title: 'Holidays')},
     {'title': 'Leave', 'icon': 'assets/images/wired-flat-1725-exit-sign 1.png', 'route': () => leavepage(title: 'Leave')},
-    //{'title': 'Documents', 'icon': 'assets/images/wired-flat-56-document 1.png', 'route': ()=>documentpage(title: 'document',)},
+    {'title': 'Ticket Listing', 'icon': 'assets/images/wired-flat-56-document 1.png', 'route': ()=>TicketScreen()},
   ];
   @override
   Widget build(BuildContext context) {

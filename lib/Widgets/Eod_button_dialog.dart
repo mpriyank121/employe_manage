@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import '../API/Services/EOD_service.dart';
+import 'package:delta_to_html/delta_to_html.dart';
+
 
 class Eodbuttondialog extends StatefulWidget {
   @override
@@ -50,7 +52,8 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
   Future<void> handleApiCall() async {
     String taskTitle = _taskTitleController.text.trim();
-    String description = jsonEncode(_quillController.document.toDelta().toJson());
+    String description = DeltaToHTML.encodeJson(_quillController.document.toDelta().toJson());
+    print("$description");
 
     if (taskTitle.isEmpty || description.isEmpty) {
       Get.snackbar(
@@ -94,6 +97,7 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Submit BOD'),
       resizeToAvoidBottomInset: true, // ✅ Prevents keyboard overflow
+
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -123,9 +127,6 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : PrimaryButton(onPressed: handleApiCall, text: "Submit EOD"),
                   ],
                 ),
               ),
@@ -133,6 +134,16 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
           );
         },
       ),
+
+      // 🔽 Bottom Navigation Bar with Primary Button 🔽
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(10),
+
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : PrimaryButton(onPressed: handleApiCall, text: "Submit EOD"),
+      ),
     );
   }
+
 }

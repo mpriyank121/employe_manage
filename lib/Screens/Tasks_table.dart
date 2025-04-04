@@ -68,20 +68,27 @@ class _TaskScreenState extends State<TaskScreen> {
 
             // 🔹 Date Range Picker Button
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child:TextButton(
                   onPressed: () => _selectDateRange(context),
                   child: Text(
                     _startDate != null && _endDate != null
                         ? "📅 ${DateFormat('yyyy-MM-dd').format(_startDate!)} - ${DateFormat('yyyy-MM-dd').format(_endDate!)}"
                         : "Select Date Range",
                   ),
-                ),
-                Container(child:ElevatedButton(
-                  onPressed: _fetchAllTasksByDefault, // Reset date filter
-                  child: Text("Reset", style: TextStyle(color: Colors.blue)),
-                ))
+                ) ,),
+                PrimaryButton(
+                  widthFactor: 0.35,
+                  heightFactor: 0.055,
+                  onPressed: _fetchAllTasksByDefault,
+                  text: "Reset",// Reset date filter
+                )
 
               ],
             ),

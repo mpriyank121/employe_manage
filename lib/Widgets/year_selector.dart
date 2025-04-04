@@ -36,6 +36,8 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
 
   /// ✅ Change the month (updates year after 12 months)
   void changeMonth(int step) {
+
+
     setState(() {
       selectedMonth += step;
 
@@ -47,9 +49,9 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
         selectedYear++; // Move to next year
       }
     });
+    widget.onDateChanged(selectedYear, selectedMonth); // ✅ Always send 0 for month
 
-    widget.onDateChanged(selectedYear, 0); // ✅ Always send 0 for month
-  }
+   }
 
   @override
   Widget build(BuildContext context) {
