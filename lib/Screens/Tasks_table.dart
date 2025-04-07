@@ -20,13 +20,16 @@ class _TaskScreenState extends State<TaskScreen> {
     super.initState();
     _fetchAllTasksByDefault(); // ✅ Fetch all tasks on load
   }
-
   void _fetchAllTasksByDefault() {
+    final now = DateTime.now();
+    final fifteenDaysAgo = now.subtract(Duration(days: 15));
+
     setState(() {
-      _startDate = null;
-      _endDate = null;
+      _startDate = fifteenDaysAgo;
+      _endDate = now;
     });
   }
+
 
   Future<void> _selectDateRange(BuildContext context) async {
     DateTime now = DateTime.now();

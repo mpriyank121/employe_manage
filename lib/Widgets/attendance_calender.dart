@@ -1,14 +1,18 @@
 import 'package:employe_manage/Widgets/Report_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import '../API/Controllers/holiday_controller.dart';
 import '../API/Services/attendance_service.dart';
 
 class AttendanceCalendar extends StatefulWidget {
   final Function(DateTime, String, String, String?, String?)? onDateSelected;
+  final void Function(int year, int month)? onMonthChanged;
 
-  const AttendanceCalendar({super.key, this.onDateSelected}); // ✅ Updated Callback
+  const AttendanceCalendar({super.key, this.onDateSelected,this.onMonthChanged}); // ✅ Updated Callback
 
   @override
   _AttendanceCalendarState createState() => _AttendanceCalendarState();
@@ -30,20 +34,21 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
   /// ✅ Fetch Attendance Data
   Future<void> _loadAttendanceData() async {
     try {
-      List<Map<String, dynamic>> data = await AttendanceService.fetchAttendanceData();
+      List<Map<String, dynamic>> data = await AttendanceService.fetchAttendanceData(selectedYear, selectedMonth);
 
       if (mounted) {
         setState(() {
           attendanceData = {
             for (var record in data)
-              DateTime.tryParse(record['date'] ?? "") ?? DateTime.now(): {
+              DateTime.parse(record['date']).toLocal().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0): {
                 "status": record['status'] ?? "N",
                 "first_in": record['first_in'] ?? "N/A",
                 "last_out": record['last_out'] ?? "N/A",
-                "checkin_image": record['checkinImage'] ?? "",  // ✅ Added Check-in Image
-                "checkout_image": record['checkoutImage'] ?? "", // ✅ Added Check-out Image
+                "checkin_image": record['checkinImage'] ?? "",
+                "checkout_image": record['checkoutImage'] ?? "",
               }
           };
+
         });
       }
       print("✅ Attendance Data Loaded: $attendanceData");
@@ -54,23 +59,28 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
 
   /// ✅ Update Month & Year Navigation
   void _changeMonth(int step) {
-    if((DateTime.now().year>=selectedYear&& step == -1 ||
-        DateTime.now().year>selectedYear&& step == 1) ||
-        (DateTime.now().month>selectedMonth &&DateTime.now().year==selectedYear))
-    {
+    if ((DateTime.now().year >= selectedYear && step == -1 ||
+        DateTime.now().year > selectedYear && step == 1) ||
+        (DateTime.now().month > selectedMonth && DateTime.now().year == selectedYear)) {
+
       setState(() {
         selectedMonth += step;
+
         if (selectedMonth > 12) {
           selectedMonth = 1;
           selectedYear++;
         } else if (selectedMonth < 1) {
           selectedMonth = 12;
-          if (selectedYear > 2000)
-            selectedYear--;
+          if (selectedYear > 2000) selectedYear--;
         }
 
         _focusedDay = DateTime(selectedYear, selectedMonth, 1);
       });
+
+      /// 🔁 Notify parent to update leave/holiday info
+      widget.onMonthChanged?.call(selectedYear, selectedMonth);
+      Get.find<HolidayController>().fetchHolidaysByMonth(selectedMonth);
+
     }
   }
 
@@ -78,15 +88,16 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
   Color _getStatusColor(String status) {
     switch (status) {
       case "P":
-        return Color(0xFFECF8F4);
+        return Color(0xFFB2DFDB); // Softer teal-green (Present)
       case "A":
-        return Color(0x19C13C0B);
+        return Color(0xFFE57373); // Light red (Absent)
       case "W":
-        return Color(0x1933B2E9);
+        return Color(0xFF64B5F6); // Soft blue (Work/Leave)
       default:
         return Colors.transparent;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -116,10 +127,10 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   ),
                 ),
                 IconButton(
-
                   onPressed: () => _changeMonth(1),
                   icon: SvgPicture.asset('assets/images/chevron-up.svg'),
                 ),
+
               ],
             ),
           ),
@@ -135,12 +146,19 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 firstDay: DateTime(2000, 1, 1),
                 lastDay: DateTime(2025, 12, 31),
                 focusedDay: _focusedDay,
+                enabledDayPredicate: (day) {
+                  // Disable future dates
+                  return !day.isAfter(DateTime.now());
+                },
+
                 selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
+
                   });
+
 
                   DateTime normalizedDate = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
                   Map<String, String>? record = attendanceData[normalizedDate];
@@ -176,13 +194,15 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   defaultBuilder: (context, date, _) {
                     DateTime normalizedDate = DateTime(date.year, date.month, date.day);
                     String status = attendanceData[normalizedDate]?['status'] ?? "N";
-                    String checkinImage = attendanceData[normalizedDate]?['checkin_image'] ?? "";
-                    String checkoutImage = attendanceData[normalizedDate]?['checkout_image'] ?? "";
+                    //print("🔍 Looking for status on: $normalizedDate | Found: ${attendanceData.containsKey(normalizedDate)}");
+
 
                     return Column(
                       children: [
                         Container(
-                          margin: EdgeInsets.all(4),
+                          height: MediaQuery.of(context).size.width * 0.08, // 8% of screen width
+                          width: MediaQuery.of(context).size.width * 0.08,
+                          margin: EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: _getStatusColor(status),
@@ -194,14 +214,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                             ),
                           ),
                         ),
-                        if (checkinImage.isNotEmpty || checkoutImage.isNotEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (checkinImage.isNotEmpty) Icon(Icons.camera_alt, size: 12, color: Colors.green), // 📸 Check-in Icon
-                              if (checkoutImage.isNotEmpty) Icon(Icons.camera_alt, size: 12, color: Colors.blue), // 📸 Check-out Icon
-                            ],
-                          ),
+
                       ],
                     );
                   },

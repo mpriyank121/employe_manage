@@ -79,13 +79,10 @@ class _TicketListWidgetState extends State<TicketListWidget> {
 
         return CustomListTile(
           heightFactor: 0.2,
-          title: Text(
-            ticket['ticket_title'] ?? 'No Title',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildTicketDetail("Title", ticket['ticket_title']),
               _buildTicketDetail("Category", ticket['ticket_cat']),
               _buildTicketDetail("Assigned By", ticket['assigned_by']),
               _buildTicketDetail("Assigned To", ticket['assigned_to']),

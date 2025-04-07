@@ -113,4 +113,31 @@ class ApiEodService {
       throw Exception("Unexpected response: $e");
     }
   }
+  static Future<bool> isEodSubmitted() async {
+    String? empId = await getEmployeeId();
+
+    if (empId == null || empId.isEmpty) {
+      throw Exception("Employee ID not found");
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/EOD.php'),
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: {'emp_id': empId, 'type': 'updateEOD'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("📡 EOD Status Response: $data");
+        return data['found'] == true; // ✅ true means EOD submitted
+      } else {
+        throw Exception("Failed to fetch EOD status");
+      }
+    } catch (e) {
+      print("🚨 Error checking EOD status: $e");
+      throw Exception("Error checking EOD status: $e");
+    }
+  }
+
 }

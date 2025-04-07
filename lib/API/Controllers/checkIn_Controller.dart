@@ -3,45 +3,94 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
+
 class CheckInController extends GetxController {
   var isCheckedIn = false.obs;
-  var elapsedSeconds = 0.obs;
   var checkInTime = Rxn<DateTime>();
   var checkOutTime = Rxn<DateTime>();
+  var firstIn = ''.obs; // <-- fetched from API
   var inImg = "".obs;
   var outImg = "".obs;
   var workedTime = "".obs;
-  Timer? _timer;
+
+
+  Timer? _liveTimer;
 
   @override
   void onInit() {
     super.onInit();
-    loadSessionData(); // ✅ Load check-in status when app starts
+    loadSessionData(); // ✅ SharedPref session data
   }
 
-  /// ✅ Load Check-In / Check-Out from SharedPreferences
+  /// ✅ Call this when API returns firstIn
+  RxInt elapsedSeconds = 0.obs;
+  Timer? _timer;
+
+  void setFirstInAndStartTimer(String firstInTime) {
+    try {
+      final now = DateTime.now();
+      final parsed = DateFormat('hh:mm a').parse(firstInTime); // from server
+      final checkInTime = DateTime(now.year, now.month, now.day, parsed.hour, parsed.minute);
+      this.checkInTime.value = checkInTime;
+
+      final diff = now.difference(checkInTime);
+      elapsedSeconds.value = diff.inSeconds;
+
+      startTimer(); // ⏱ Start timer
+      isCheckedIn.value = true;
+    } catch (e) {
+      print("❌ Error parsing check-in time: $e");
+    }
+  }
+
+  void startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      elapsedSeconds.value += 1;
+    });
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+    elapsedSeconds.value = 0;
+  }
+
+
+
+  /// ✅ Live timer from server time
+  void startLiveElapsedTimeFromServer() {
+    _liveTimer?.cancel(); // Avoid duplicate timers
+
+    _liveTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      try {
+        DateTime serverCheckInTime = DateTime.parse(firstIn.value);
+        Duration diff = DateTime.now().difference(serverCheckInTime);
+        workedTime.value = formatTime(diff.inSeconds);
+      } catch (e) {
+        print("❌ Error parsing check-in time: $e");
+      }
+    });
+  }
+
   Future<void> loadSessionData() async {
     final prefs = await SharedPreferences.getInstance();
     String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
     String? storedCheckIn = prefs.getString('checkIn_$todayDate');
     String? storedCheckOut = prefs.getString('checkOut_$todayDate');
 
     if (storedCheckIn != null) {
       checkInTime.value = DateTime.parse(storedCheckIn);
       isCheckedIn.value = storedCheckOut == null;
-      // outImg.value =
 
       if (storedCheckOut != null) {
         checkOutTime.value = DateTime.parse(storedCheckOut);
         calculateWorkedTime();
       } else {
-        resumeTimer(); // ✅ Resume tracking elapsed time if still checked in
+        resumeTimer(); // local timer if needed
       }
     }
   }
 
-  /// ✅ Handle Check-In
   Future<void> checkIn() async {
     final prefs = await SharedPreferences.getInstance();
     String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -50,13 +99,12 @@ class CheckInController extends GetxController {
     checkInTime.value = DateTime.now();
     await prefs.setString('checkIn_$todayDate', checkInTime.value!.toIso8601String());
 
-    await prefs.remove('checkOut_$todayDate'); // Clear old check-out
+    await prefs.remove('checkOut_$todayDate');
     checkOutTime.value = null;
     workedTime.value = "";
-    resumeTimer(); // ✅ Continue elapsed time tracking
+    resumeTimer();
   }
 
-  /// ✅ Handle Check-Out
   Future<void> checkOut() async {
     if (isCheckedIn.value) {
       final prefs = await SharedPreferences.getInstance();
@@ -69,33 +117,19 @@ class CheckInController extends GetxController {
       isCheckedIn.value = false;
       elapsedSeconds.value = 0;
       _timer?.cancel();
+      _liveTimer?.cancel();
     }
   }
 
-  /// ✅ Resume Timer if the app was closed or user logs out
   void resumeTimer() {
     if (checkInTime.value != null) {
       Duration elapsed = DateTime.now().difference(checkInTime.value!);
       elapsedSeconds.value = elapsed.inSeconds;
-
       startTimer();
     }
   }
 
-  /// ✅ Start Timer
-  void startTimer() {
-    _timer?.cancel(); // Avoid duplicate timers
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!isCheckedIn.value) {
-        timer.cancel();
-      } else {
-        elapsedSeconds.value++;
-        workedTime.value = formatTime(elapsedSeconds.value);
-      }
-    });
-  }
 
-  /// ✅ Calculate Worked Time
   void calculateWorkedTime() {
     if (checkInTime.value != null && checkOutTime.value != null) {
       Duration difference = checkOutTime.value!.difference(checkInTime.value!);
@@ -103,7 +137,6 @@ class CheckInController extends GetxController {
     }
   }
 
-  /// ✅ Convert seconds to HH:MM:SS format
   String formatTime(int seconds) {
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;

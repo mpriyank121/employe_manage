@@ -66,5 +66,22 @@ class HolidayController extends GetxController {
   void updateYear(int newYear) {
     selectedYear.value = newYear;
     fetchHolidays();
+    fetchHolidaysByMonth(DateTime.now().month); // Initialize current month view
+
   }
+  /// 🔁 Fetch holidays for a specific month (uses already loaded allHolidays list)
+  void fetchHolidaysByMonth(int month) {
+    if (allHolidays.isEmpty) {
+      print("⚠️ No holiday data available to filter. Make sure fetchHolidays() has run.");
+      return;
+    }
+
+    monthHolidays.value = allHolidays.where((holiday) {
+      DateTime holidayDate = DateFormat("yyyy-MM-dd").parse(holiday.holiday_date);
+      return holidayDate.month == month && holidayDate.year == selectedYear.value;
+    }).toList();
+
+    print("📅 Holidays updated for month: $month | Found: ${monthHolidays.length}");
+  }
+
 }

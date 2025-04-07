@@ -47,7 +47,25 @@ class _AssetspageState extends State<Assetspage> {
 
               return
                 CustomListTile(
-                  leading: Image.network(asset['Image'], width: 50, height: 50, fit: BoxFit.cover),
+                  leading:GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => Dialog(
+                          child: InteractiveViewer(
+                            child: Image.network(asset['Image']),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Image.network(
+                      asset['Image'],
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
                   title: Text(asset['asset_name'] ?? 'No Asset Name'),
                   subtitle: Text('Assigned By: ${asset['assigned_by'] ?? 'Unknown'}'),
                   trailing: Text('#${asset['unique_serial_no']}'),

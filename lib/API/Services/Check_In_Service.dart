@@ -34,11 +34,12 @@ class CheckInService {
   }
 
   /// Get Current Location
-  Future<Position?> _getCurrentLocation() async {
+  Future<Position?> getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         print("🔴 Location services are disabled.");
+        showLocationErrorDialog();
         return null;
       }
 
@@ -47,12 +48,14 @@ class CheckInService {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           print("🔴 Location permissions are denied.");
+          showLocationErrorDialog();
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         print("🔴 Location permissions are permanently denied.");
+        showLocationErrorDialog();
         return null;
       }
 
@@ -82,7 +85,7 @@ class CheckInService {
     }
 
     // Get Current Location
-    Position? position = await _getCurrentLocation();
+    Position? position = await getCurrentLocation();
     if (position == null) {
       return "Unable to fetch location. Ensure GPS is enabled.";
     }
@@ -151,4 +154,12 @@ class CheckInService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString("${type}_image_$date");
   }
+
+  /// Show dialog if location is not enabled (must be implemented in UI file)
+  void showLocationErrorDialog() {
+    print('Show loaction');
+    // This method should be implemented in your UI file.
+    // Call it from the UI using a callback if needed.
+  }
 }
+

@@ -30,8 +30,9 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+
     );
     if (picked != null) {
       setState(() {
@@ -109,6 +110,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                         value: selectedLeaveType,
                         items: leaveTypes.map((type) {
                           return DropdownMenuItem(
+
                             value: type['id'],
                             child: Text(type['name']!),
                           );
@@ -120,7 +122,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                           print("🛑 Selected Leave Type ID: $value");
                         },
                         decoration: InputDecoration(
-                          labelText: "Select Leave Type",
+                          hintText: "Select Leave Type",
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,

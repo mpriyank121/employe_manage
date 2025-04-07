@@ -25,13 +25,17 @@ class LeaveContainer extends StatelessWidget {
       width: width,
       padding: padding ?? LeaveContainerConfig.defaultPadding,
       decoration: ShapeDecoration(
-        color: LeaveContainerConfig.backgroundColor, // ✅ Use Background Color
+        color: LeaveContainerConfig.backgroundColor,
         shape: RoundedRectangleBorder(
-
           borderRadius: BorderRadius.circular(borderRadius ?? LeaveContainerConfig.defaultBorderRadius),
+          side: const BorderSide(
+            color: Colors.grey, // ✅ Grey border
+            width: 1.0,         // You can adjust width if needed
+          ),
         ),
       ),
       child: child,
     );
   }
+
 }

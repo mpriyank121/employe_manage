@@ -20,8 +20,29 @@ class _AttendancePageState extends State<AttendancePage> {
   final AttendanceController controller = Get.put(AttendanceController());
   final HolidayController controllers = Get.put(HolidayController());
 
+
   int selectedYear = DateTime.now().year;
   int selectedMonth = DateTime.now().month;
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchAttendance();
+    controllers.fetchHolidays();
+    controllers.fetchHolidaysByMonth(DateTime.now().month); // Initialize current month view
+  }
+  void onMonthChanged(int year, int month) {
+    setState(() {
+      selectedYear = year;
+      selectedMonth = month;
+    });
+
+    controller.fetchAttendanceByMonth(year, month);
+
+    // ✅ Update selected year and fetch holidays again
+    controllers.selectedYear.value = year;
+    controllers.fetchHolidaysByMonth(month);
+  }
+
 
   void changeYear(int step) {
     setState(() {
@@ -34,7 +55,6 @@ class _AttendancePageState extends State<AttendancePage> {
       selectedYear = newYear;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -45,10 +65,12 @@ class _AttendancePageState extends State<AttendancePage> {
         title: 'Attendance',
         showBackButton: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ✅ Leave Cards Section
                 Obx(() {
@@ -61,50 +83,57 @@ class _AttendancePageState extends State<AttendancePage> {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Obx(() => Row(
                         children: [
                           LeaveCard(
                             title: "Present",
-                            count: controller.present.value.toString(),
+                            count: controller.countData.value['present_count']?.toString() ?? '0',
                           ),
                           LeaveCard(
                             title: "Absent",
-                            count: controller.absent.value.toString(),
+                            count: controller.countData.value['absent_count']?.toString() ?? '0',
                             backgroundColor: Color(0x19C13C0B),
                             borderColor: Color(0xFFC13C0B),
                           ),
                           LeaveCard(
                             title: "Leave",
-                            count: controller.halfday.value.toString(),
+                            count: controller.countData.value['leave_count']?.toString() ?? '0',
                             backgroundColor: Color(0x1933B2E9),
                             borderColor: Color(0xFF33B2E9),
                           ),
                         ],
-                      ),
+                      )),
                     ),
                   );
                 }),
-                // Calendar Section
+
+                const SizedBox(height: 10),
+
+                // 📅 Calendar Section
                 Container(
                   height: screenHeight * 0.6,
-                  child: ClipRRect(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    child: AttendanceCalendar(),
+                    color: Colors.grey[100],
+                  ),
+                  child: AttendanceCalendar(
+                    onMonthChanged: onMonthChanged,
                   ),
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                const SizedBox(height: 20),
+
+                // 📢 "Holidays This Month" Title
+                Center(
                   child: Container(
                     width: screenWidth * 0.7,
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
+                    child: const Text(
                       "Holidays This Month",
                       style: TextStyle(
                         fontSize: 16,
@@ -116,20 +145,23 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                 ),
 
-                /// **Holiday Section**
+                const SizedBox(height: 10),
+
+                // 🎉 Holiday List
                 SizedBox(
                   height: screenHeight * 0.3,
                   child: Obx(() => HolidayList(
-                    holidays: controllers.monthHolidays.toList(),
+                    holidays: controllers.monthHolidays,
                     isLoading: controllers.isLoading.value,
                     phoneNumber: controllers.phoneNumber.value,
                   )),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
+
 }

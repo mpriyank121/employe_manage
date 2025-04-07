@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../Services/attendance_service.dart';
 import '../Services/user_service.dart';
 import '../models/attendence_model.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +16,13 @@ class AttendanceController extends GetxController {
 
   var checkInImage = RxnString();
   var checkOutImage = RxnString();
+  var countData = <String, dynamic>{
+    'present_count': 0,
+    'absent_count': 0,
+    'halfday_count': 0,
+    'week_off_count': 0,
+  }.obs;
+
 
 
   @override
@@ -26,7 +34,7 @@ class AttendanceController extends GetxController {
   Future<void> fetchAttendance() async {
     isLoading.value = true;
     try {
-      AttendanceData? attendanceData = await _userService.fetchAttendanceData();
+      AttendanceData? attendanceData = await _userService.fetchAttendanceData(startDate: '', endDate: '');
       if (attendanceData != null) {
         present.value = attendanceData.present;
         absent.value = attendanceData.absent;
@@ -35,6 +43,23 @@ class AttendanceController extends GetxController {
       }
     } catch (error) {
       print("❌ Error fetching attendance: $error");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  Future<void> fetchAttendanceByMonth(int year, int month) async {
+    isLoading.value = true;
+    try {
+      Map<String, dynamic> attendanceData =
+      await AttendanceService.fetchAttendanceDataByMonth(year, month);
+      print("attendanceData['countData']:${attendanceData['countData']}");
+
+      countData.value = attendanceData['countData'];
+      print("📆 Fetched Attendance for $month/$year: $attendanceData");
+
+      // Update UI if needed
+    } catch (error) {
+      print("❌ Error fetching monthly attendance: $error");
     } finally {
       isLoading.value = false;
     }
@@ -69,4 +94,6 @@ class AttendanceController extends GetxController {
 
     print("🔹 Check-In Disabled for $selectedDate: ${isCheckInDisabled.value}");
   }
+
+
 }

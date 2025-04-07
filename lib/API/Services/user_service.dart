@@ -98,7 +98,7 @@ class UserService {
       return [];
     }
   }
-  Future<AttendanceData?> fetchAttendanceData() async {
+  Future<AttendanceData?> fetchAttendanceData({required String startDate, required String endDate}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? phone = prefs.getString('phone');

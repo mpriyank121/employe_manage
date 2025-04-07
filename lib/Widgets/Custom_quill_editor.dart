@@ -69,7 +69,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                   showAlignmentButtons: false,
                   showFontFamily: false,
                   showLink: true,
-                  showQuote: true,
+                  showQuote: false,
                   showInlineCode: false,
                   showStrikeThrough: false,
                   showFontSize: false,
@@ -83,6 +83,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                   showSearchButton: false,
                   showRedo: false,
                   showUndo: false,
+
                 ),
               ),
               Divider(color: Colors.grey), // Separator

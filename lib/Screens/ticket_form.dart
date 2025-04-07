@@ -4,6 +4,7 @@ import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Services/apply_ticket_service.dart';
 import '../API/Services/get_department_service.dart';
 import '../API/Services/ticket_category_service.dart';
@@ -41,6 +42,7 @@ class _TicketFormState extends State<TicketForm> {
   bool isLoadingEmployees = false;
   bool isLoadingCategories = true;
   bool isLoadingSubCategories = false;
+  String empId = '';
 
   final TextEditingController _taskTitleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -51,6 +53,7 @@ class _TicketFormState extends State<TicketForm> {
     super.initState();
     fetchDepartments();
     fetchTicketCategories();
+    loadEmpId();
   }
 
   Future<void> fetchDepartments() async {
@@ -67,6 +70,14 @@ class _TicketFormState extends State<TicketForm> {
       categories = fetchedCategories;
       isLoadingCategories = false;
     });
+  }
+  Future<void> loadEmpId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      empId = prefs.getString('emp_id') ?? '';
+    });
+
+    print("👤 Logged-in Emp ID: $empId");
   }
 
   Future<void> fetchEmployees() async {
@@ -292,7 +303,7 @@ class _TicketFormState extends State<TicketForm> {
                   String description = _quillController.document.toPlainText().trim();
 
                   await applyTicket(
-                    empId: '229',
+                    empId: empId,
                     departments: selectedDepartments,
                     employeeOptions: selectedEmployees, // ✅ Correct Key Format
                     priority: priorityMap[selectedPriority] ?? '',

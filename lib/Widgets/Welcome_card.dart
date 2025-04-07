@@ -56,7 +56,7 @@ class WelcomeCard extends StatelessWidget {
       Duration difference = lastOutTime.difference(firstInTime);
       return formatTime(difference.inSeconds);
     }
-    return "N/A";
+    return userName;
   }
 
   /// ✅ Format time as HH:MM:SS

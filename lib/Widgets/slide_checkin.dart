@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../API/Services/Check_In_Service.dart';
 import '../API/Services/employee_status_service.dart';
 import '../API/Services/image_picker_service.dart';
+import 'camera_preview_screen.dart';
+import 'location_error_dialog.dart';
+
 
 class SlideCheckIn extends StatefulWidget {
   final double screenWidth;
@@ -14,7 +18,9 @@ class SlideCheckIn extends StatefulWidget {
   final VoidCallback onCheckOut;
   final String? firstIn;  // ✅ From API response
   final String? lastOut;
-  final bool isEnabled;// ✅ From API response
+  final bool isEnabled;
+
+  final String text;// ✅ From API response
 
   const SlideCheckIn({
     Key? key,
@@ -23,6 +29,7 @@ class SlideCheckIn extends StatefulWidget {
     required this.isCheckedIn,
     required this.onCheckIn,
     required this.onCheckOut,
+    required this.text,
     this.firstIn,
     this.lastOut,
     required this.isEnabled,
@@ -34,7 +41,7 @@ class SlideCheckIn extends StatefulWidget {
 
 class _SlideCheckInState extends State<SlideCheckIn> {
   final CheckInService _checkInService = CheckInService();
-  final ImagePickerService _imagePickerService = ImagePickerService();
+  final CustomCameraService _imagePickerService = CustomCameraService();
 
   double _position = 0.0;
   bool _isChecking = false;
@@ -47,13 +54,32 @@ class _SlideCheckInState extends State<SlideCheckIn> {
     super.initState();
     _loadCheckInState();
   }
+  Future<void> _showEodBodWarning(String message) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Check-out Blocked"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   /// ✅ Fetches check-in status and updates the UI
   Future<void> _loadCheckInState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final empId = prefs.getString('emp_id') ?? '';
+
     try {
       print("Fetching check-in status...");  // ✅ Debugging
       final CheckStatus checkStatus = CheckStatus();
-      final response = await checkStatus.getCheckInStatus('229');
+      final response = await checkStatus.getCheckInStatus(empId);
 
       if (response != null) {
         print("API Response: $response");  // ✅ Debugging API data
@@ -77,9 +103,33 @@ class _SlideCheckInState extends State<SlideCheckIn> {
 
   /// ✅ Handles Check-In Action
   Future<void> _handleCheckIn() async {
-    if (_isCheckInDisabled) return;  // ✅ Prevent action if disabled
-    File? image = await _imagePickerService.captureImage();
-    if (image == null) return;
+    if (_isCheckInDisabled) return;
+    final position = await _checkInService.getCurrentLocation();
+
+    if (position == null) {
+      // 🚫 Location not available — show dialog and return early
+      showLocationErrorDialog(context);
+      return;
+    }
+
+    final cameras = await availableCameras();
+    final frontCamera = cameras.firstWhere(
+          (cam) => cam.lensDirection == CameraLensDirection.front,
+    );
+
+    final XFile? capturedImage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CameraPreviewScreen(camera: frontCamera),
+      ),
+    );
+
+    if (capturedImage == null) {
+      print("❌ Check-in cancelled. No image captured.");
+      return;
+    }
+
+    final File image = File(capturedImage.path);
 
     setState(() {
       _isChecking = true;
@@ -95,7 +145,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
       });
 
       widget.onCheckIn();
-      await _loadCheckInState();  // ✅ Ensure state is refreshed
+      await _loadCheckInState(); // 🔁 Refresh
     }
 
     setState(() => _isChecking = false);
@@ -103,27 +153,51 @@ class _SlideCheckInState extends State<SlideCheckIn> {
 
   /// ✅ Handles Check-Out Action
   Future<void> _handleCheckOut() async {
-    if (_isCheckInDisabled) return;  // ✅ Prevent action if disabled
-    File? image = await _imagePickerService.captureImage();
-    if (image == null) return;
+    final position = await _checkInService.getCurrentLocation();
+
+    if (position == null) {
+      // 🚫 Location not available — show dialog and return early
+      print('hhhhhhhhhh');
+      showLocationErrorDialog(context);
+      return;
+    }
+
+
+    final cameras = await availableCameras();
+    final frontCamera = cameras.firstWhere(
+          (cam) => cam.lensDirection == CameraLensDirection.front,
+    );
+
+    final XFile? capturedImage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CameraPreviewScreen(camera: frontCamera),
+      ),
+    );
+
+    if (capturedImage == null) {
+      print("❌ Check-out cancelled. No image captured.");
+      return;
+    }
+
+    final File image = File(capturedImage.path);
 
     setState(() {
       _isChecking = true;
       _selectedImage = image;
     });
-
     bool success = await _checkInService.performCheckOut(image);
     if (success) {
       print("✅ Check-out successful!");
-
       setState(() {
         _isCheckedIn = false;
       });
-
       widget.onCheckOut();
-      await _loadCheckInState();  // ✅ Ensure state is refreshed
-    }
+      await _loadCheckInState();
+    } else {
+      await _showEodBodWarning("Please update today's BOD and EOD tasks."); // or custom message
 
+    }
     setState(() => _isChecking = false);
   }
 
@@ -160,7 +234,9 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                 child: Text(
                   _isCheckInDisabled
                       ? 'Check-In Completed'
-                      : (_isCheckedIn ? 'Slide to Check Out' : 'Slide to Check In'),
+                      : (_isCheckedIn && widget.firstIn != null
+                      ? widget.text
+                      : widget.text),
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 15,
@@ -191,9 +267,9 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                     if (!widget.isEnabled) return;
                     if (_position >= widget.screenWidth * 0.7) {
                       _position = widget.screenWidth * 0.75;
-                      if (_isCheckedIn) {
+                      if (_isCheckedIn || widget.text == 'Slide To CheckOut') {
                         await _handleCheckOut();
-                      } else {
+                      } else if(widget.text == 'Slide To CheckIn'){
                         await _handleCheckIn();
                       }
                       setState(() => _position = 0);

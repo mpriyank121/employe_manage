@@ -67,31 +67,18 @@ class _WelcomePageState extends State<WelcomePage> {
     }
   }
   Future<void> _loadInitialAttendance() async {
-    var attendanceData = await AttendanceService.fetchAttendanceData();
+    var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
     print("📦 All Attendance Data: $attendanceData");
 
     String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     var todayAttendance = await controller.getAttendanceByDate(formattedDate, attendanceData);
+    if (todayAttendance != null && todayAttendance['first_in'] != null) {
+      checkInController.setFirstInAndStartTimer(todayAttendance['first_in']!);
+    }
+    print('First in raw value: ${todayAttendance['first_in']}');
 
     if (todayAttendance == null || todayAttendance.isEmpty) {
-      // checkInImage.value = todayAttendance['checkIn_image'];
-      // checkOutImage.value = todayAttendance['checkOut_image'];
-      // print("⚠️ No attendance data found for today. Using defaults.");
-    //   todayAttendance = {
-    //     'first_in': "N/A",
-    //     'last_out': "N/A",
-    //     'checkIn_image': checkInImage.value ?? "",
-    //     'checkOut_image': checkOutImage.value ?? "",
-    //   };
-    // } else {
-    //   print("✅ Fetched Today Attendance: $todayAttendance");
-    //
-    //   todayAttendance = {
-    //     'first_in': todayAttendance['first_in'] ?? "N/A",
-    //     'last_out': todayAttendance['last_out'] ?? "N/A",
-    //     'checkIn_image': todayAttendance['checkIn_image'] ?? checkInImage.value ?? "",
-    //     'checkOut_image': todayAttendance['checkOut_image'] ?? checkOutImage.value ?? "",
-    //   };
+
     }
 print('to:::$todayAttendance');
     print("🖼️ Final Images -> CheckIn: ${todayAttendance['checkIn_image']} | CheckOut: ${todayAttendance['checkOut_image']}");
@@ -153,7 +140,7 @@ print('to:::$todayAttendance');
               checkInImage.value = checkInImages;
               checkOutImage.value = checkOutImages;
             });
-            var attendanceData = await AttendanceService.fetchAttendanceData();
+            var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
             print("✅ Attendance Data Fetched: ${attendanceData.length} records");
 
             // ✅ Convert DateTime to String before passing
@@ -240,6 +227,7 @@ print('to:::$todayAttendance');
         height: screenHeight * 0.13,
         padding: EdgeInsets.all(10),
         child: Obx(() => SlideCheckIn(
+          text: selectedFirstIn.value == 'N/A'?'Slide To CheckIn':selectedLastOut.value!='N/A'?'Completed':'Slide To CheckOut',
           screenWidth: screenWidth,
           screenHeight: screenHeight,
           isEnabled: !isTodayAttendanceComplete.value, // 👈 Pass this to gray it out

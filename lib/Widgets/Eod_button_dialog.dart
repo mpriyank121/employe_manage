@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/Custom_quill_editor.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import '../API/Services/EOD_service.dart';
 import 'package:delta_to_html/delta_to_html.dart';
-
 
 class Eodbuttondialog extends StatefulWidget {
   @override
