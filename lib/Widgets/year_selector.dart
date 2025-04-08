@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../Configuration/app_colors.dart';
 
+
 class YearMonthSelector extends StatefulWidget {
   final int initialYear;
   final int initialMonth;
   final Function(int, int) onDateChanged;
+  final bool showMonth; // ✅ NEW
 
   const YearMonthSelector({
     super.key,
     required this.initialYear,
     required this.initialMonth,
     required this.onDateChanged,
+    this.showMonth = true, // ✅ default true
   });
 
   @override
@@ -34,24 +37,29 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
     selectedMonth = widget.initialMonth;
   }
 
-  /// ✅ Change the month (updates year after 12 months)
   void changeMonth(int step) {
-
+    if (!widget.showMonth) return;
 
     setState(() {
       selectedMonth += step;
 
       if (selectedMonth < 1) {
         selectedMonth = 12;
-        selectedYear--; // Move to previous year
+        selectedYear--;
       } else if (selectedMonth > 12) {
         selectedMonth = 1;
-        selectedYear++; // Move to next year
+        selectedYear++;
       }
     });
-    widget.onDateChanged(selectedYear, selectedMonth); // ✅ Always send 0 for month
+    widget.onDateChanged(selectedYear, selectedMonth);
+  }
 
-   }
+  void changeYear(int step) {
+    setState(() {
+      selectedYear += step;
+    });
+    widget.onDateChanged(selectedYear, selectedMonth);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,15 +76,15 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          /// Left Arrow (Previous Month)
           IconButton(
-            onPressed: () => changeMonth(-1),
+            onPressed: () =>
+            widget.showMonth ? changeMonth(-1) : changeYear(-1),
             icon: SvgPicture.asset('assets/images/chevron-u.svg'),
           ),
-
-          /// Year & Month Display
           Text(
-            "${months[selectedMonth - 1]} $selectedYear", // Example: "Mar 2024"
+            widget.showMonth
+                ? "${months[selectedMonth - 1]} $selectedYear"
+                : "$selectedYear",
             style: const TextStyle(
               color: Color(0xFFF25922),
               fontSize: 20,
@@ -84,10 +92,9 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
               fontWeight: FontWeight.w600,
             ),
           ),
-
-          /// Right Arrow (Next Month)
           IconButton(
-            onPressed: () => changeMonth(1),
+            onPressed: () =>
+            widget.showMonth ? changeMonth(1) : changeYear(1),
             icon: SvgPicture.asset('assets/images/chevron-up.svg'),
           ),
         ],
@@ -95,3 +102,4 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
     );
   }
 }
+

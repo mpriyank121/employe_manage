@@ -10,8 +10,9 @@ class HolidayController extends GetxController {
   /// ✅ Reactive state variables
   var selectedYear = DateTime.now().year.obs;
   var phoneNumber = RxnString(null);
-  var allHolidays = <Holiday>[].obs; // ✅ Stores full year's holidays
-  var monthHolidays = <Holiday>[].obs; // ✅ Stores only current month's holidays
+  var filteredHolidays = <Holiday>[].obs;
+  var allHolidays = <Holiday>[].obs; // ✅ Global cache
+  var monthHolidays = <Holiday>[].obs;
   var isLoading = false.obs;
 
   @override
@@ -20,68 +21,99 @@ class HolidayController extends GetxController {
     _loadPhoneNumber();
   }
 
-  /// ✅ Fetch phone number and holidays
+  /// ✅ Load phone number from SharedPreferences
   Future<void> _loadPhoneNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? phone = prefs.getString('phone');
 
     if (phone != null) {
       phoneNumber.value = phone;
-      fetchHolidays();
+      await fetchHolidaysForYear(selectedYear.value); // fetch current year on init
     } else {
       print("❌ Phone number not found in SharedPreferences");
     }
   }
 
-  /// ✅ Fetch holidays from API
-  Future<void> fetchHolidays() async {
-    if (phoneNumber.value == null) return;
+  /// ✅ Filter from cached holidays by selected year
+  void filterHolidaysBySelectedYear() {
+    final year = selectedYear.value;
+    filteredHolidays.value = allHolidays.where((holiday) {
+      DateTime holidayDate = DateTime.parse(holiday.holiday_date);
+      return holidayDate.year == year;
+    }).toList();
+  }
 
+  /// ✅ Called when year changes in selector
+  void updateYear(int newYear) async {
+    selectedYear.value = newYear;
     isLoading.value = true;
 
     try {
-      List<Holiday> fetchedHolidays = await _userService.fetchHolidays(phoneNumber.value!);
+      final phone = phoneNumber.value ?? await _getPhoneFromPrefs();
+      if (phone == null) return;
 
-      // ✅ Store full year's holidays
-      allHolidays.value = fetchedHolidays.where((holiday) {
-        return DateTime.parse(holiday.holiday_date).year == selectedYear.value;
-      }).toList();
+      phoneNumber.value = phone;
 
-      // ✅ Filter for the current month
-      int currentMonth = DateTime.now().month;
-      monthHolidays.value = allHolidays.where((holiday) {
-        DateTime holidayDate = DateFormat("yyyy-MM-dd").parse(holiday.holiday_date);
-        return holidayDate.month == currentMonth;
+      final holidays = await _userService.fetchHolidays(phone); // Optional: send year if needed
+      allHolidays.value = holidays;
+      filteredHolidays.value = holidays.where((h) {
+        final date = DateTime.parse(h.holiday_date);
+        return date.year == newYear;
       }).toList();
-    } catch (error) {
-      print("❌ Error fetching holidays: $error");
+    } catch (e) {
+      print("❌ Error: $e");
       allHolidays.clear();
-      monthHolidays.clear();
+      filteredHolidays.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// ✅ Update year and fetch holidays again
-  void updateYear(int newYear) {
-    selectedYear.value = newYear;
-    fetchHolidays();
-    fetchHolidaysByMonth(DateTime.now().month); // Initialize current month view
-
+  Future<String?> _getPhoneFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('phone');
   }
-  /// 🔁 Fetch holidays for a specific month (uses already loaded allHolidays list)
+
+
+  /// ✅ Fetch holidays from API for specific year only
+  Future<void> fetchHolidaysForYear(int year) async {
+    if (phoneNumber.value == null) return;
+    isLoading.value = true;
+
+    try {
+      List<Holiday> fetched = await _userService.fetchHolidays(phoneNumber.value!);
+
+      // Extract only the holidays of that year
+      List<Holiday> yearHolidays = fetched.where((h) {
+        final date = DateTime.parse(h.holiday_date);
+        return date.year == year;
+      }).toList();
+
+      // Add to global cache
+      allHolidays.addAll(yearHolidays);
+
+      // Update filtered view
+      filteredHolidays.value = yearHolidays;
+    } catch (e) {
+      print("❌ Error fetching holidays: $e");
+      filteredHolidays.clear(); // show empty if API fails
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// ✅ Filter holidays by month (optional use)
   void fetchHolidaysByMonth(int month) {
     if (allHolidays.isEmpty) {
-      print("⚠️ No holiday data available to filter. Make sure fetchHolidays() has run.");
+      print("⚠️ No holiday data available to filter.");
       return;
     }
 
     monthHolidays.value = allHolidays.where((holiday) {
-      DateTime holidayDate = DateFormat("yyyy-MM-dd").parse(holiday.holiday_date);
-      return holidayDate.month == month && holidayDate.year == selectedYear.value;
+      final date = DateFormat("yyyy-MM-dd").parse(holiday.holiday_date);
+      return date.year == selectedYear.value && date.month == month;
     }).toList();
 
-    print("📅 Holidays updated for month: $month | Found: ${monthHolidays.length}");
+    print("📅 Holidays for month $month | Found: ${monthHolidays.length}");
   }
-
 }

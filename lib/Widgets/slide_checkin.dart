@@ -14,8 +14,9 @@ class SlideCheckIn extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;
   final bool isCheckedIn;
-  final VoidCallback onCheckIn;
-  final VoidCallback onCheckOut;
+
+  final Future<void> Function() onCheckIn;
+  final Future<void> Function() onCheckOut;
   final String? firstIn;  // ✅ From API response
   final String? lastOut;
   final bool isEnabled;
@@ -255,6 +256,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
                     if (!widget.isEnabled) return;
+
                     setState(() {
                       _position += details.delta.dx;
                       if (_position < 0) _position = 0;
@@ -265,33 +267,51 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                   },
                   onHorizontalDragEnd: (details) async {
                     if (!widget.isEnabled) return;
+
                     if (_position >= widget.screenWidth * 0.7) {
-                      _position = widget.screenWidth * 0.75;
-                      if (_isCheckedIn || widget.text == 'Slide To CheckOut') {
-                        await _handleCheckOut();
-                      } else if(widget.text == 'Slide To CheckIn'){
-                        await _handleCheckIn();
+                      setState(() {
+                        _position = widget.screenWidth * 0.75;
+                        _isChecking = true;
+                      });
+
+                      try {
+                        if (widget.text == 'Slide To CheckIn') {
+                          await _handleCheckIn(); // ✅ Triggers camera, location, then onCheckIn
+                        } else if (widget.text == 'Slide To CheckOut') {
+                          await _handleCheckOut(); // ✅ Triggers camera, location, then onCheckOut
+                        }
+
+                        // No action needed for 'Completed' as it should be disabled
+                      } finally {
+                        setState(() {
+                          _isChecking = false;
+                          _position = 0;
+                        });
                       }
-                      setState(() => _position = 0);
                     } else {
-                      setState(() => _position = 0);
+                      setState(() {
+                        _position = 0;
+                      });
                     }
                   },
                   child: Container(
                     width: widget.screenWidth * 0.12,
                     height: widget.screenHeight * 0.06,
                     decoration: ShapeDecoration(
-                      color: widget.isEnabled? _isCheckedIn ? Colors.red : const Color(0xFF3CAB88):Colors.grey,
+                      color: widget.isEnabled
+                          ? (widget.text == 'Slide To CheckOut' ? Colors.red : const Color(0xFF3CAB88))
+                          : Colors.grey,
                       shape: const OvalBorder(),
                     ),
                     child: _isChecking
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : Icon(
-                      _isCheckedIn ? Icons.arrow_forward : Icons.arrow_forward,
+                        : const Icon(
+                      Icons.arrow_forward,
                       color: Colors.white,
                     ),
                   ),
                 ),
+
               ),
           ],
         ),

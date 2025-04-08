@@ -5,9 +5,8 @@ import '../Widgets/App_bar.dart';
 import '../Widgets/year_selector.dart';
 import 'package:employe_manage/Widgets/holiday_list.dart';
 
-
 class holidaypage extends StatelessWidget {
-  final String title;  // ✅ Add title parameter
+  final String title;
 
   holidaypage({Key? key, required this.title}) : super(key: key);
 
@@ -16,24 +15,24 @@ class holidaypage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "Holiday List"),  // ✅ Pass title here
+      appBar: CustomAppBar(title: "Holiday List"),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          /// ✅ Year Selector Widget
+          /// ✅ Year Selector
           YearMonthSelector(
             initialYear: DateTime.now().year,
             initialMonth: DateTime.now().month,
-            onDateChanged: (year, month) {
-              print("📆 Selected Date: $month/$year");
+            showMonth: false,
+            onDateChanged: (year, _) {
+              controller.updateYear(year); // ✅ Update and fetch holidays
+// 👈 only filter locally
             },
           ),
 
-
-          /// ✅ Holiday List Widget
+          /// ✅ Holiday List
           Expanded(
             child: Obx(() => HolidayList(
-              holidays: controller.allHolidays.toList(),
+              holidays: controller.filteredHolidays,
               isLoading: controller.isLoading.value,
               phoneNumber: controller.phoneNumber.value,
             )),

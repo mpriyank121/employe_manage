@@ -1,5 +1,6 @@
 import 'package:employe_manage/Screens/ticket_listing.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
+import 'package:employe_manage/Widgets/Ticket_form_custom_container.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -145,12 +146,12 @@ class _TicketFormState extends State<TicketForm> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(
+                    CustomContainer(child:TextFormField(
                       decoration: InputDecoration(labelText: 'Ticket Title *'),
                       onChanged: (value) => setState(() => title = value),
                       validator: (value) => value!.isEmpty ? 'Enter a title' : null,
-                    ),
-                    DropdownButtonFormField<String>(
+                    ), ),
+                    CustomContainer(child:DropdownButtonFormField<String>(
                       decoration: InputDecoration(labelText: 'Priority'),
                       value: selectedPriority,
                       items: priorityMap.keys.map((String priorityLabel) {
@@ -165,7 +166,7 @@ class _TicketFormState extends State<TicketForm> {
                         });
                       },
                     ),
-
+                    ),
                     isLoadingDepartments
                         ? Center(child: CircularProgressIndicator())
                         : MultiSelectDialogField(

@@ -12,7 +12,7 @@ class AttendanceCalendar extends StatefulWidget {
   final Function(DateTime, String, String, String?, String?)? onDateSelected;
   final void Function(int year, int month)? onMonthChanged;
 
-  const AttendanceCalendar({super.key, this.onDateSelected,this.onMonthChanged}); // ✅ Updated Callback
+  const AttendanceCalendar({super.key, this.onDateSelected, this.onMonthChanged});
 
   @override
   _AttendanceCalendarState createState() => _AttendanceCalendarState();
@@ -31,6 +31,9 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
     _loadAttendanceData();
   }
 
+  /// ✅ Helper to normalize date (removes time component)
+  DateTime _normalizeDate(DateTime date) => DateTime(date.year, date.month, date.day);
+
   /// ✅ Fetch Attendance Data
   Future<void> _loadAttendanceData() async {
     try {
@@ -40,7 +43,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
         setState(() {
           attendanceData = {
             for (var record in data)
-              DateTime.parse(record['date']).toLocal().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0): {
+              _normalizeDate(DateTime.parse(record['date'])): {
                 "status": record['status'] ?? "N",
                 "first_in": record['first_in'] ?? "N/A",
                 "last_out": record['last_out'] ?? "N/A",
@@ -48,7 +51,6 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 "checkout_image": record['checkoutImage'] ?? "",
               }
           };
-
         });
       }
       print("✅ Attendance Data Loaded: $attendanceData");
@@ -57,47 +59,45 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
     }
   }
 
-  /// ✅ Update Month & Year Navigation
+  /// ✅ Month Navigation (restrict future)
   void _changeMonth(int step) {
-    if ((DateTime.now().year >= selectedYear && step == -1 ||
-        DateTime.now().year > selectedYear && step == 1) ||
-        (DateTime.now().month > selectedMonth && DateTime.now().year == selectedYear)) {
+    int newMonth = selectedMonth + step;
+    int newYear = selectedYear;
 
-      setState(() {
-        selectedMonth += step;
-
-        if (selectedMonth > 12) {
-          selectedMonth = 1;
-          selectedYear++;
-        } else if (selectedMonth < 1) {
-          selectedMonth = 12;
-          if (selectedYear > 2000) selectedYear--;
-        }
-
-        _focusedDay = DateTime(selectedYear, selectedMonth, 1);
-      });
-
-      /// 🔁 Notify parent to update leave/holiday info
-      widget.onMonthChanged?.call(selectedYear, selectedMonth);
-      Get.find<HolidayController>().fetchHolidaysByMonth(selectedMonth);
-
+    if (newMonth > 12) {
+      newMonth = 1;
+      newYear++;
+    } else if (newMonth < 1) {
+      newMonth = 12;
+      newYear--;
     }
+
+    DateTime newFocusedDay = DateTime(newYear, newMonth);
+    if (newFocusedDay.isAfter(DateTime.now())) return;
+
+    setState(() {
+      selectedMonth = newMonth;
+      selectedYear = newYear;
+      _focusedDay = newFocusedDay;
+    });
+
+    widget.onMonthChanged?.call(selectedYear, selectedMonth);
+    Get.find<HolidayController>().fetchHolidaysByMonth(selectedMonth);
   }
 
   /// ✅ Get Color Based on Attendance Status
   Color _getStatusColor(String status) {
     switch (status) {
       case "P":
-        return Color(0xFFB2DFDB); // Softer teal-green (Present)
+        return Color(0xFFB2DFDB); // Present
       case "A":
-        return Color(0xFFE57373); // Light red (Absent)
+        return Color(0xFFE57373); // Absent
       case "W":
-        return Color(0xFF64B5F6); // Soft blue (Work/Leave)
+        return Color(0xFF64B5F6); // Work/Leave
       default:
         return Colors.transparent;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,6 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   onPressed: () => _changeMonth(1),
                   icon: SvgPicture.asset('assets/images/chevron-up.svg'),
                 ),
-
               ],
             ),
           ),
@@ -146,35 +145,27 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 firstDay: DateTime(2000, 1, 1),
                 lastDay: DateTime(2025, 12, 31),
                 focusedDay: _focusedDay,
-                enabledDayPredicate: (day) {
-                  // Disable future dates
-                  return !day.isAfter(DateTime.now());
-                },
-
+                enabledDayPredicate: (day) => !day.isAfter(DateTime.now()),
                 selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
-
                   });
 
-
-                  DateTime normalizedDate = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+                  DateTime normalizedDate = _normalizeDate(selectedDay);
                   Map<String, String>? record = attendanceData[normalizedDate];
 
                   String firstIn = (record?["first_in"]?.trim().isNotEmpty == true) ? record!["first_in"]! : "N/A";
                   String lastOut = (record?["last_out"]?.trim().isNotEmpty == true) ? record!["last_out"]! : "N/A";
-                  String checkinImage = record?["checkin_image"] ?? ""; // ✅ Extracted Check-in Image
-                  String checkoutImage = record?["checkout_image"] ?? ""; // ✅ Extracted Check-out Image
+                  String checkinImage = record?["checkin_image"] ?? "";
+                  String checkoutImage = record?["checkout_image"] ?? "";
 
-                  // ✅ Pass Data to Callback
                   widget.onDateSelected?.call(selectedDay, firstIn, lastOut, checkinImage, checkoutImage);
-
                   Navigator.pop(context);
                 },
                 calendarFormat: CalendarFormat.month,
-                headerVisible: false, // 🔹 Hide default header
+                headerVisible: false,
 
                 calendarStyle: CalendarStyle(
                   outsideDaysVisible: true,
@@ -194,30 +185,25 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   defaultBuilder: (context, date, _) {
                     DateTime normalizedDate = DateTime(date.year, date.month, date.day);
                     String status = attendanceData[normalizedDate]?['status'] ?? "N";
-                    //print("🔍 Looking for status on: $normalizedDate | Found: ${attendanceData.containsKey(normalizedDate)}");
 
-
-                    return Column(
-                      children: [
-                        Container(
-                          height: MediaQuery.of(context).size.width * 0.08, // 8% of screen width
-                          width: MediaQuery.of(context).size.width * 0.08,
-                          margin: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _getStatusColor(status),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "${date.day}",
-                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                            ),
-                          ),
+                    return Container(
+                      margin: const EdgeInsets.all(6.0),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(status),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${date.day}',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-
-                      ],
+                      ),
                     );
                   },
+
+
                 ),
               ),
             ),

@@ -27,7 +27,6 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     controller.fetchAttendance();
-    controllers.fetchHolidays();
     controllers.fetchHolidaysByMonth(DateTime.now().month); // Initialize current month view
   }
   void onMonthChanged(int year, int month) {
@@ -112,7 +111,6 @@ class _AttendancePageState extends State<AttendancePage> {
 
                 // 📅 Calendar Section
                 Container(
-                  height: screenHeight * 0.6,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.grey[100],

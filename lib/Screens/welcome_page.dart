@@ -160,8 +160,6 @@ print('to:::$todayAttendance');
             'checkOut_image': null
             };
             }
-
-            print("📝 Updating Attendance State");
             _updateAttendance(date, {
             'first_in': attendance['first_in'] ?? "N/A",
             'last_out': attendance['last_out'] ?? "N/A",
@@ -230,7 +228,12 @@ print('to:::$todayAttendance');
           text: selectedFirstIn.value == 'N/A'?'Slide To CheckIn':selectedLastOut.value!='N/A'?'Completed':'Slide To CheckOut',
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          isEnabled: !isTodayAttendanceComplete.value, // 👈 Pass this to gray it out
+          isEnabled: selectedDate.value.day == DateTime.now().day &&
+              selectedDate.value.month == DateTime.now().month &&
+              selectedDate.value.year == DateTime.now().year &&
+              !isTodayAttendanceComplete.value,
+
+          // 👈 Modify this line
           isCheckedIn: checkInController.isCheckedIn.value,
           onCheckIn: ()async {
            await checkInController.checkIn();         // ✅ Mark check-in
