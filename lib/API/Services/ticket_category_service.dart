@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Configuration/app_constants.dart';
+
 // Fetch Ticket Categories
 Future<List<Map<String, String>>> getTicketCategories() async {
   try {
     final response = await http.post(
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/ticket.php'),
+      Uri.parse('$baseUrl/ticket.php'),
       headers: {"Content-Type": "application/x-www-form-urlencoded"},
       body: {'type': 'get_ticket_Cat'},
     );
@@ -42,7 +44,7 @@ Future<List<Map<String, String>>> getSubCategoriesByCategory(List<String> catego
   try {
     final req = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/ticket.php'),
+      Uri.parse('$baseUrl/ticket.php'),
     );
 
     req.fields['type'] = "get_ticket_subCat";

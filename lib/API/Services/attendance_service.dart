@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Configuration/app_constants.dart';
+
 class AttendanceService {
   static Future<List<Map<String, dynamic>>> fetchAttendanceData(int? year, int? month) async {
     print("📡 Sending API Request...");
@@ -19,7 +21,7 @@ class AttendanceService {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/attendance_info.php'),
+      Uri.parse('$baseUrl/attendance_info.php'),
     );
 
     request.fields.addAll({
@@ -57,6 +59,11 @@ class AttendanceService {
           String lastOut = record['last_out']?.toString().trim() ?? record['first_out']?.toString().trim() ?? "N/A";
           String checkInImage = record['checkinImage']?.toString()?.trim() ?? "";
           String checkOutImage = record['checkoutImage']?.toString()?.trim() ?? "";
+          String checkInLocation = record['checkInLocation']?.toString()?.trim() ?? "";
+          String checkOutLocation = record['checkOutLocation']?.toString()?.trim() ?? "";
+
+
+
 
           formattedData.add({
             "date": record['attendence_date'].toString(),
@@ -65,6 +72,8 @@ class AttendanceService {
             "last_out": lastOut,
             "checkinImage": checkInImage,
             "checkoutImage": checkOutImage,
+            "checkInLocation":checkInLocation,
+            "checkOutLocation":checkOutLocation
           });
         }
       }
@@ -92,7 +101,7 @@ class AttendanceService {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/attendance_info.php'),
+      Uri.parse('$baseUrl/attendance_info.php'),
     );
 
     request.fields.addAll({
@@ -138,6 +147,8 @@ class AttendanceService {
             "last_out": lastOut,
             "checkinImage": checkInImage,
             "checkoutImage": checkOutImage,
+            "checkInLocation": record['checkInLocation']?.toString()?.trim() ?? "N/A",
+            "checkOutLocation": record['checkOutLocation']?.toString()?.trim() ?? "N/A",
           });
         }
       }

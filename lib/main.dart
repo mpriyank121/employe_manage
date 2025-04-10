@@ -7,12 +7,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
 import 'Screens/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
+
 
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp, // Lock to portrait
+  ]);
   Get.put(AttendanceController()); // ✅ Register Controller Before Running the App
 
-  WidgetsFlutterBinding.ensureInitialized();
+
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
   runApp(MyApp(isLoggedIn: isLoggedIn));

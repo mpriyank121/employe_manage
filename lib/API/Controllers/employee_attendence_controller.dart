@@ -41,6 +41,7 @@ class AttendanceController extends GetxController {
         halfday.value = attendanceData.halfday;
         week_off.value = attendanceData.week_off;
       }
+      print('fetch');
     } catch (error) {
       print("❌ Error fetching attendance: $error");
     } finally {
@@ -74,7 +75,9 @@ class AttendanceController extends GetxController {
           'first_in': record['first_in'],
           'last_out': record['last_out'] == "N/A" ? null : record['last_out'],
           'checkIn_image':record['checkinImage'],
-          'checkOut_image' : record['checkoutImage']
+          'checkOut_image' : record['checkoutImage'],
+          'checkInLocation' :record['checkInLocation'],
+          'checkOutLocation':record['checkOutLocation']
         };
       }
     }

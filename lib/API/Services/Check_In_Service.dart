@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:employe_manage/Configuration/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
@@ -9,18 +10,22 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 
 class CheckInService {
-  final String _baseUrl = 'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/checkIn.php';
+  final String _baseUrl = '$baseUrl/checkIn.php';
+  String? _cachedEmpId; // cache empId
 
   /// Save Employee ID
   Future<void> saveEmpId(String empId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString("emp_id", empId);
+    _cachedEmpId = empId; // cache it
   }
 
   /// Retrieve Employee ID
   Future<String?> _getEmpId() async {
+    if (_cachedEmpId != null) return _cachedEmpId;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("emp_id");
+    _cachedEmpId = prefs.getString("emp_id");
+    return _cachedEmpId;
   }
 
   /// Get File Extension
@@ -59,7 +64,10 @@ class CheckInService {
         return null;
       }
 
-      return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      return await Geolocator.getCurrentPosition(
+        forceAndroidLocationManager: true,
+        desiredAccuracy: LocationAccuracy.best,
+      ).timeout(const Duration(seconds: 10));
     } catch (e) {
       print("🔴 Error getting location: $e");
       return null;
@@ -67,56 +75,53 @@ class CheckInService {
   }
 
   /// Perform Check-In with Image Upload
-  Future<bool> performCheckIn(File imageFile) async {
+  Future<bool> performCheckIn(File? imageFile) async {
     return await uploadImageAndPerformAction(imageFile, 'checkin', 'checkIn_image') == null;
   }
 
   /// Perform Check-Out with Image Upload
-  Future<bool> performCheckOut(File imageFile) async {
+  Future<bool> performCheckOut(File? imageFile) async {
     return await uploadImageAndPerformAction(imageFile, 'checkout', 'checkOut_image') == null;
   }
 
   /// Upload Image and Perform Check-In/Check-Out
-  Future<String?> uploadImageAndPerformAction(File imageFile, String type, String imageKey) async {
-    String? empId = await _getEmpId();
-    if (empId == null) {
-      print("🔴 Employee ID is missing. Cannot $type.");
-      return "Employee ID is missing. Please login again.";
-    }
+  Future<String?> uploadImageAndPerformAction(File? imageFile, String type, String imageKey) async {
+    final empIdFuture = _getEmpId();
+    final locationFuture = getCurrentLocation();
 
-    // Get Current Location
-    Position? position = await getCurrentLocation();
-    if (position == null) {
-      return "Unable to fetch location. Ensure GPS is enabled.";
+    final empId = await empIdFuture;
+    final position = await locationFuture;
+
+    if (empId == null || position == null) {
+      return "Missing employee ID or location.";
     }
 
     try {
-      // Get File Details
-      String fileExtension = getFileExtension(imageFile.path);
-      String? mimeType = getMimeType(imageFile.path) ?? 'image/jpeg';
-      print("📂 File Extension: $fileExtension | MIME Type: $mimeType");
+      String? mimeType;
+      if (imageFile != null) {
+        mimeType = getMimeType(imageFile.path) ?? 'image/jpeg';
+        print("📂 MIME Type: $mimeType");
+      }
 
-      // Create Multipart Request
       var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
 
-      // Attach Form Data
       request.fields['emp_id'] = empId;
-      request.fields['latitude'] = position.latitude.toString();  // Dynamic GPS Data
-      request.fields['longitude'] = position.longitude.toString(); // Dynamic GPS Data
+      request.fields['latitude'] = position.latitude.toString();
+      request.fields['longitude'] = position.longitude.toString();
       request.fields['type'] = type;
 
-      // Attach Image File with Proper MIME Type
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          imageKey,
-          imageFile.path,
-          filename: basename(imageFile.path),
-          contentType: mimeType != null ? MediaType.parse(mimeType) : null,
-        ),
-      );
+      if (imageFile != null && imageFile.path.isNotEmpty) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            imageKey,
+            imageFile.path,
+            filename: basename(imageFile.path),
+            contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+          ),
+        );
+      }
 
-      // Send Request
-      var response = await request.send();
+      var response = await request.send().timeout(const Duration(seconds: 15));
       var responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
@@ -126,7 +131,7 @@ class CheckInService {
 
         if (success) {
           print("✅ $type Success: $message");
-          await _saveImage(imageFile.path, type);
+          if (imageFile != null) await _saveImage(imageFile.path, type);
           return null;
         } else {
           print("🔴 $type Failed: $message");
@@ -157,9 +162,47 @@ class CheckInService {
 
   /// Show dialog if location is not enabled (must be implemented in UI file)
   void showLocationErrorDialog() {
-    print('Show loaction');
-    // This method should be implemented in your UI file.
-    // Call it from the UI using a callback if needed.
+    print('Show Location');
+  }
+
+  /// Check if employee is within allowed radius
+  Future<String?> checkEmployeeRadius() async {
+    final empIdFuture = _getEmpId();
+    final locationFuture = getCurrentLocation();
+
+    final empId = await empIdFuture;
+    final position = await locationFuture;
+
+    if (empId == null || position == null) {
+      return "Unable to fetch required info for radius check.";
+    }
+
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/checkIn.php'),
+      );
+
+      request.fields.addAll({
+        'type': 'checkEmployeeRadius',
+        'emp_id': empId,
+        'longitude': position.longitude.toString(),
+        'latitude': position.latitude.toString(),
+      });
+
+      http.StreamedResponse response = await request.send().timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        print("✅ Radius Check Success: $responseBody");
+        return responseBody;
+      } else {
+        print("🔴 Radius Check Failed: ${response.reasonPhrase}");
+        return "Server error: ${response.reasonPhrase}";
+      }
+    } catch (e) {
+      print("🔴 Exception during radius check: $e");
+      return "Unexpected error occurred. Please try again.";
+    }
   }
 }
-

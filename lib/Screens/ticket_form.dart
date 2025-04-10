@@ -146,141 +146,179 @@ class _TicketFormState extends State<TicketForm> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    CustomContainer(child:TextFormField(
-                      decoration: InputDecoration(labelText: 'Ticket Title *'),
-                      onChanged: (value) => setState(() => title = value),
-                      validator: (value) => value!.isEmpty ? 'Enter a title' : null,
-                    ), ),
-                    CustomContainer(child:DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: 'Priority'),
-                      value: selectedPriority,
-                      items: priorityMap.keys.map((String priorityLabel) {
-                        return DropdownMenuItem(
-                          value: priorityLabel,
-                          child: Text(priorityLabel),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPriority = value!;
-                        });
-                      },
-                    ),
-                    ),
-                    isLoadingDepartments
-                        ? Center(child: CircularProgressIndicator())
-                        : MultiSelectDialogField(
-                      items: departments
-                          .map((dept) => MultiSelectItem(dept['id']!, dept['department']!))
-                          .toList(),
-                      title: Text('Departments'),
-                      selectedItemsTextStyle: TextStyle(color: Colors.blue),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                      buttonText: Text('Departments'),
-                      onConfirm: (values) async {
-                        setState(() {
-                          selectedDepartments = List<String>.from(values);
-                          employees = [];
-                        });
-                        await fetchEmployees();
-                      },
-                      initialValue: selectedDepartments,
-                    ),
-                    SizedBox(height: 10),
-                    isLoadingEmployees
-                        ? Center(child: CircularProgressIndicator())
-                        : employees.isEmpty
-                        ? Text("No employees found for the selected department.", style: TextStyle(color: Colors.red))
-                        : MultiSelectDialogField(
-                      items: employees.map((emp) => MultiSelectItem(emp['empid']!, emp['name']!)).toList(),
-                      title: Text('Employees'),
-                      selectedItemsTextStyle: TextStyle(color: Colors.blue),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                      buttonText: Text('Employees'),
-                      onConfirm: (values) {
-                        setState(() {
-                          selectedEmployees = values.map((e) => e.toString()).toList();
-                        });
-
-                        print("Selected Employees: $selectedEmployees"); // ✅ Debugging Output
-                      },
-                      initialValue: selectedEmployees,
+                    CustomContainer(
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Ticket Title *',
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) => setState(() => title = value),
+                        validator: (value) => value!.isEmpty ? 'Enter a title' : null,
+                      ),
                     ),
 
-
-                    isLoadingCategories
-                        ? Center(child: CircularProgressIndicator())
-                        : DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: 'Ticket Categories'),
-                      value: selectedCategory.isEmpty ? null : selectedCategory.first,
-                      items: categories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category['id']!,
-                          child: Text(category['category_name']!),
-                        );
-                      }).toList(),
-                      onChanged: (value) async {
-                        setState(() {
-                          selectedCategory = [value!];
-                          subcategories = [];
-                          selectedSubCategory = [];
-                        });
-                        await fetchSubCategories();
-                      },
-                    ),
-                    if (selectedCategory.isNotEmpty && selectedCategory.first == '1')
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Order ID'),
+                    CustomContainer(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Priority',
+                          border: InputBorder.none,
+                        ),
+                        value: selectedPriority,
+                        items: priorityMap.keys.map((String priorityLabel) {
+                          return DropdownMenuItem(
+                            value: priorityLabel,
+                            child: Text(priorityLabel),
+                          );
+                        }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            orderId = value;
+                            selectedPriority = value!;
                           });
                         },
-                        initialValue: orderId, // ✅ Ensures persistence
                       ),
-                    if (selectedCategory.isNotEmpty && selectedCategory.first == '3')
-                      TextFormField(
-                        controller: _dateController,
-                        decoration: InputDecoration(
-                          labelText: 'Select Date',
-                          suffixIcon: Icon(Icons.calendar_today),
-                        ),
-                        readOnly: true,
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
+                    ),
 
-                          if (pickedDate != null) {
-                            setState(() {
-                              attendanceDate = "${pickedDate.toLocal()}".split(' ')[0]; // ✅ Format date properly
-                              _dateController.text = attendanceDate!; // ✅ Update text field
-                            });
-                          }
+                    isLoadingDepartments
+                        ? const Center(child: CircularProgressIndicator())
+                        : CustomContainer(
+                      child: MultiSelectDialogField(
+                        items: departments
+                            .map((dept) => MultiSelectItem(dept['id']!, dept['department']!))
+                            .toList(),
+                        title: const Text('Departments'),
+                        selectedItemsTextStyle: const TextStyle(color: Colors.blue),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                        buttonText: const Text('Departments'),
+                        onConfirm: (values) async {
+                          setState(() {
+                            selectedDepartments = List<String>.from(values);
+                            employees = [];
+                          });
+                          await fetchEmployees();
+                        },
+                        initialValue: selectedDepartments,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    isLoadingEmployees
+                        ? const Center(child: CircularProgressIndicator())
+                        : employees.isEmpty
+                        ? const SizedBox()
+                        : CustomContainer(
+                      child: MultiSelectDialogField(
+                        items: employees.map((emp) => MultiSelectItem(emp['empid']!, emp['name']!)).toList(),
+                        title: const Text('Employees'),
+                        selectedItemsTextStyle: const TextStyle(color: Colors.blue),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                        buttonText: const Text('Employees'),
+                        onConfirm: (values) {
+                          setState(() {
+                            selectedEmployees = values.map((e) => e.toString()).toList();
+                          });
+
+                          print("Selected Employees: $selectedEmployees"); // ✅ Debugging Output
+                        },
+                        initialValue: selectedEmployees,
+                      ),
+                    ),
+
+                    isLoadingCategories
+                        ? const Center(child: CircularProgressIndicator())
+                        : CustomContainer(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Ticket Categories',
+                          border: InputBorder.none,
+                        ),
+                        value: selectedCategory.isEmpty ? null : selectedCategory.first,
+                        items: categories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category['id']!,
+                            child: Text(category['category_name']!),
+                          );
+                        }).toList(),
+                        onChanged: (value) async {
+                          setState(() {
+                            selectedCategory = [value!];
+                            subcategories = [];
+                            selectedSubCategory = [];
+                          });
+                          await fetchSubCategories();
                         },
                       ),
-                    isLoadingSubCategories
-                        ? Center(child: CircularProgressIndicator())
-                        : subcategories.isEmpty
-                        ? Container()
-                        : DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: 'Ticket Subcategories'),
-                      value: selectedSubCategory.isEmpty ? null : selectedSubCategory.first,
-                      items: subcategories.map((subcat) {
-                        return DropdownMenuItem<String>(
-                          value: subcat['id']!,
-                          child: Text(subcat['category_name']!),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedSubCategory = [value!];
-                        });
-                      },
                     ),
+
+                    if (selectedCategory.isNotEmpty && selectedCategory.first == '1')
+                      CustomContainer(
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            labelText: 'Order ID',
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              orderId = value;
+                            });
+                          },
+                          initialValue: orderId,
+                        ),
+                      ),
+
+                    if (selectedCategory.isNotEmpty && selectedCategory.first == '3')
+                      CustomContainer(
+                        child: TextFormField(
+                          controller: _dateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Select Date',
+                            suffixIcon: Icon(Icons.calendar_today),
+                            border: InputBorder.none,
+                          ),
+                          readOnly: true,
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+
+                            if (pickedDate != null) {
+                              setState(() {
+                                attendanceDate = "${pickedDate.toLocal()}".split(' ')[0];
+                                _dateController.text = attendanceDate!;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+
+                    isLoadingSubCategories
+                        ? const Center(child: CircularProgressIndicator())
+                        : subcategories.isEmpty
+                        ? const SizedBox()
+                        : CustomContainer(
+                      child: DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Ticket Subcategories',
+                          border: InputBorder.none,
+                        ),
+                        value: selectedSubCategory.isEmpty ? null : selectedSubCategory.first,
+                        items: subcategories.map((subcat) {
+                          return DropdownMenuItem<String>(
+                            value: subcat['id']!,
+                            child: Text(subcat['category_name']!),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedSubCategory = [value!];
+                          });
+                        },
+                      ),
+                    ),
+
                     SizedBox(height: 10),
                     CustomQuillEditor(
                       controller: _quillController,
@@ -317,8 +355,8 @@ class _TicketFormState extends State<TicketForm> {
                     startDate: '',
                   );
                 }
+                Navigator.pop(context);
 
-                print("Selected Employees: $selectedEmployees"); // ✅ Debugging Output
 
               },
               text: "Submit",

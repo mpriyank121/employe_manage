@@ -38,11 +38,14 @@ class _WelcomePageState extends State<WelcomePage> {
   var totalWorkedTime = "".obs;
   var selectedFirstIn = "N/A".obs;
   var selectedLastOut = "N/A".obs;
+  var checkInLocation = RxnString();
+  var checkOutLocation = RxnString();
   var checkInImage = RxnString();
   var checkOutImage = RxnString();
   var selectedDate = DateTime.now().obs;
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
+  var showCam = false.obs;
 
   @override
   void initState() {
@@ -57,6 +60,7 @@ class _WelcomePageState extends State<WelcomePage> {
       userName.value = userData['name'] ?? "Unknown";
       jobRole.value = userData['designation'] ?? "Unknown";
       employeeType.value = userData['emp_type'] ?? "Unknown";
+      showCam.value = userData['show_cam'] ?? false;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('emp_type', employeeType.value);
       await prefs.setString('username', userName.value);
@@ -94,6 +98,8 @@ print('to:::$todayAttendance');
       selectedLastOut.value = attendance['last_out'] ?? "N/A";
       checkInImage.value = attendance['checkIn_image'];
       checkOutImage.value = attendance['checkOut_image'];
+      checkInLocation.value=attendance['checkInLocation'];
+      checkOutLocation.value=attendance['checkOutLocation'];
       selectedYear = newSelectedDate.year;
       selectedMonth = newSelectedDate.month;
       isTodayAttendanceComplete.value =
@@ -133,7 +139,9 @@ print('to:::$todayAttendance');
               child: Column(
                 children: [
                   DatePickerDropdown(
-                  onDateSelected: (date, firstIn, lastOut, checkInImages, checkOutImages) async {
+                  onDateSelected: (date, firstIn, lastOut, checkInImages, checkOutImages,
+                      checkInLocation,
+                      checkOutLocation,) async {
             print("🔹 Selected Date: $date");
             print("🔹 Initial Values -> First In: $firstIn, Last Out: $lastOut, Check-In Image: $checkInImage, Check-Out Image: $checkOutImage");
             setState(() {
@@ -157,14 +165,19 @@ print('to:::$todayAttendance');
             'first_in': "N/A",
             'last_out': "N/A",
             'checkIn_image': null,
-            'checkOut_image': null
+            'checkOut_image': null,
+              'checkInLocation': "N/A",     // ✅ added
+              'checkOutLocation': "N/A",
+
             };
             }
             _updateAttendance(date, {
             'first_in': attendance['first_in'] ?? "N/A",
             'last_out': attendance['last_out'] ?? "N/A",
-            'checkIn_image': checkInImages,
-            'checkOut_image': checkOutImages,
+              'checkOutLocation': attendance['checkOutLocation'],
+              'checkInLocation': attendance['checkInLocation'],
+             'checkIn_image': checkInImages,
+             'checkOut_image': checkOutImages,
             });
             },
             ),
@@ -183,6 +196,8 @@ print('to:::$todayAttendance');
                     selectedFirstIn: selectedFirstIn.value,
                     selectedLastOut: selectedLastOut.value,
                     checkInImage: checkInImage.value,
+                    checkOutLocation: checkOutLocation.value,
+                    checkInLocation: checkInLocation.value,
                     checkOutImage: checkOutImage.value,
                     selectedDate: selectedDate.value,
                   )),
@@ -225,6 +240,7 @@ print('to:::$todayAttendance');
         height: screenHeight * 0.13,
         padding: EdgeInsets.all(10),
         child: Obx(() => SlideCheckIn(
+          showCam : showCam.value,
           text: selectedFirstIn.value == 'N/A'?'Slide To CheckIn':selectedLastOut.value!='N/A'?'Completed':'Slide To CheckOut',
           screenWidth: screenWidth,
           screenHeight: screenHeight,

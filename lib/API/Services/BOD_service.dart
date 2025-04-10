@@ -3,17 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class ApiBodService {
-  // ✅ Function to get Employee ID
+  // ✅ Get Employee ID from SharedPreferences
   static Future<String?> getEmployeeId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('emp_id'); // Retrieve emp_id from SharedPreferences
+    return prefs.getString('emp_id');
   }
 
-  // ✅ Fetch today's BOD ID
-  // ✅ Fetch today's BOD ID and save in SharedPreferences
+  // ✅ Fetch today's BOD ID from API and store in SharedPreferences
   static Future<String?> fetchBodId() async {
     String? empId = await getEmployeeId();
-
     if (empId == null || empId.isEmpty) {
       print("❌ Error: Employee ID not found!");
       throw Exception("Employee ID not found! Please log in again.");
@@ -30,18 +28,20 @@ class ApiBodService {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
+        print('bod:$data');
 
         if (data['found'] == false) {
           print("ℹ️ No BOD found for today.");
           return null;
         }
 
-        if (data.containsKey('bodId') && data['bodId'] != null) {
-          String bodId = data['bodId'].toString();
+        if (data.containsKey('bodID') && data['bodID'] != null) {
+          String bodId = data['bodID'].toString();
+          print("checkhere$bodId");
 
-          // ✅ Save BOD ID in SharedPreferences
+          // ✅ Save BOD ID in SharedPreferences with consistent key
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('bod_id', bodId);
+          await prefs.setString('bod_id', bodId); // Consistent key
 
           print("✅ Saved BOD ID in SharedPreferences: $bodId");
           return bodId;
@@ -54,37 +54,37 @@ class ApiBodService {
     }
   }
 
-// ✅ Retrieve BOD ID from SharedPreferences
+  // ✅ Retrieve BOD ID from SharedPreferences
   static Future<String?> getBodIdFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('bod_id');
+    return prefs.getString('bod_id'); // Consistent key
   }
 
-  // ✅ Function to send or update BOD data
+  // ✅ Send or update BOD data
   static Future<String?> sendData({
     required String taskTitle,
     required String description,
-    String? bodId, // ✅ Correct parameter declaration
+    String? bodId, // If present, updates; else adds new
   }) async {
-    String? empId = await getEmployeeId();
-    if (empId == null || empId.isEmpty) {
-      throw Exception("Employee ID not found! Please log in again.");
-    }
-
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/BOD.php'),
-    );
-
-    request.fields.addAll({
-      'emp_id': empId,
-      'type': bodId?.isNotEmpty == true ? 'updateBOD' : 'addBOD', // ✅ Fixed condition
-      'task_title': taskTitle,
-      'description': description,
-      if (bodId?.isNotEmpty == true) 'bodID': bodId!, // ✅ Added proper null check
-    });
-
     try {
+      String? empId = await getEmployeeId();
+      if (empId == null || empId.isEmpty) {
+        throw Exception("Employee ID not found! Please log in again.");
+      }
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/BOD.php'),
+      );
+
+      request.fields.addAll({
+        'emp_id': empId,
+        'type': bodId != null && bodId.isNotEmpty ? 'updateBOD' : 'addBOD',
+        'task_title': taskTitle,
+        'description': description,
+        if (bodId != null && bodId.isNotEmpty) 'bodID': bodId,
+      });
+
       http.StreamedResponse response = await request.send();
       String responseBody = await response.stream.bytesToString();
 
@@ -93,26 +93,25 @@ class ApiBodService {
       if (response.statusCode == 200) {
         var data = json.decode(responseBody);
 
-        if (data.containsKey('bodId')) {
-          String newBodId = data['bodId'].toString();
-          print("✅ BOD ID Received: $newBodId");
+        if (data.containsKey('bodID')) {
+          String newBodId = data['bodID'].toString();
 
-          // ✅ Save new BOD ID in SharedPreferences
+
+          // ✅ Save new or updated bodId
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('bod_id', newBodId);
 
-          return newBodId; // ✅ Corrected return statement
+          return newBodId;
         } else {
-          print("⚠️ Warning: No BOD ID in response.");
-          throw Exception("No BOD ID returned from API.");
+          print("⚠️ No bodId found in response");
+          return null;
         }
       } else {
-        throw Exception("Failed: ${response.reasonPhrase}");
+        throw Exception("Failed to send BOD: ${response.reasonPhrase}");
       }
     } catch (e) {
-      print("🚨 Exception in sendData: $e");
-      throw Exception("Unexpected response: $e");
+      print("🚨 Exception: $e");
+      throw Exception("Error while sending BOD: $e");
     }
   }
-
 }

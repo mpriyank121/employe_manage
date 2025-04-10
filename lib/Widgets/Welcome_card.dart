@@ -18,6 +18,8 @@ class WelcomeCard extends StatelessWidget {
   final String selectedLastOut;
   final String? checkInImage;
   final String? checkOutImage;
+  final String? checkOutLocation;
+  final String? checkInLocation;
   final DateTime? selectedDate;
 
   const WelcomeCard({
@@ -31,12 +33,15 @@ class WelcomeCard extends StatelessWidget {
     required this.checkInTime,
     required this.checkOutImage,
     required this.checkInImage,
+    required this.checkOutLocation,
+    required this.checkInLocation,
     this.checkOutTime,
     this.workedTime = "",
     this.selectedFirstIn = "N/A",
     this.selectedLastOut = "N/A",
     this.selectedDate,
   }) : super(key: key);
+
 
   /// ✅ Convert time string (hh:mm a) to DateTime object
   DateTime? parseTime(String time) {
@@ -71,7 +76,6 @@ class WelcomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isCheckedOut = checkOutTime != null;
-
     void _showImagePreview(BuildContext context, String imageUrl) {
       showDialog(
         context: context,
@@ -130,47 +134,65 @@ class WelcomeCard extends StatelessWidget {
             style: WelcomeCardConfig.welcomeText,
           ),
         AppSpacing.small(context),
-    Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-    // ✅ Check-in Image
-    ImagePreviewWidget(imageUrl: checkInImage),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // ✅ Check-in Image Slot (fixed width)
+            SizedBox(
+              width: 60, // same width as your image preview
+              height: 60,
+              child: (checkInImage != null)
+                  ? ImagePreviewWidget(
+                imageUrl: checkInImage,
+                checkInLocation: checkInLocation,
+              )
+                  : const SizedBox.shrink(),
+            ),
 
-    // 🔁 Dynamic Center Text
-      Builder(
-        builder: (context) {
-          if (isToday) {
-            if (isCheckedOut) {
-              return Text(
-                calculateWorkedTime(),
-                style: WelcomeCardConfig.nameText,
-              );
-            } else if (isCheckedIn) {
-              return Text(
-                formatTime(elapsedSeconds),
-                style: WelcomeCardConfig.nameText,
-              );
-            } else {
-              return Text(
-                userName,
-                style: WelcomeCardConfig.nameText,
-              );
-            }
-          } else {
-            // For previous date
-            return Text(
-              calculateWorkedTime(),
-              style: WelcomeCardConfig.nameText,
-            );
-          }
-        },
-      ),
+            // 🔁 Dynamic Center Text
+            Builder(
+              builder: (context) {
+                if (isToday) {
+                  if (isCheckedOut) {
+                    return Text(
+                      calculateWorkedTime(),
+                      style: WelcomeCardConfig.nameText,
+                    );
+                  } else if (isCheckedIn) {
+                    return Text(
+                      formatTime(elapsedSeconds),
+                      style: WelcomeCardConfig.nameText,
+                    );
+                  } else {
+                    return Text(
+                      userName,
+                      style: WelcomeCardConfig.nameText,
+                    );
+                  }
+                } else {
+                  return Text(
+                    calculateWorkedTime(),
+                    style: WelcomeCardConfig.nameText,
+                  );
+                }
+              },
+            ),
 
-      // ✅ Check-out Image
-    ImagePreviewWidget(imageUrl: checkOutImage),
-    ],
-    ),
-    if (isCheckedIn && isToday)
+            // ✅ Check-out Image Slot (fixed width)
+            SizedBox(
+              width: 60, // same width as your image preview
+              height: 60,
+              child: (checkOutImage != null)
+                  ? ImagePreviewWidget(
+                imageUrl: checkOutImage,
+                checkOutLocation: checkOutLocation,
+              )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+
+        if (isCheckedIn && isToday)
     Text("Today", style: WelcomeCardConfig.welcomeText),
     if (hasValidDateData)
     Column(

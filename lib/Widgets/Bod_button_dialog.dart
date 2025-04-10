@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../API/Services/BOD_service.dart';
+import '../API/Services/Task_service.dart';
 import 'Custom_quill_editor.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
@@ -16,6 +17,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
   final QuillController _quillController = QuillController.basic();
   bool _isLoading = false;
   String? _bodResponse;
+  String? _bodId; // 🔽 Store bodId fetched from TaskService
 
   @override
   void initState() {
@@ -26,12 +28,32 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
   Future<void> checkBODStatus() async {
     setState(() => _isLoading = true);
     try {
-      String? bodId = await ApiBodService.fetchBodId();
-      if (bodId != null) {
-        setState(() => _bodResponse = "✅ BOD already submitted for today!\nBOD ID: $bodId");
-        Get.snackbar("Info", "BOD already submitted!",
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+      final empId = await ApiBodService.getEmployeeId();
+      if (empId == null) {
+        setState(() => _bodResponse = "❌ Employee ID not found.");
+        return;
       }
+
+      final today = DateTime.now();
+      final tasks = await TaskService.fetchTaskList(empId, startDate: today, endDate: today);
+
+      final todayBOD = tasks.firstWhere(
+            (task) => task['bod_id'] != null && task['bod_id'].toString().isNotEmpty,
+        orElse: () => null,
+      );
+
+      if (todayBOD != null) {
+        _bodId = todayBOD['bod_id'].toString();
+        _taskTitleController.text = todayBOD['task_title'] ?? '';
+        _quillController.document = Document()..insert(0, todayBOD['description'] ?? '');
+        setState(() {
+        });
+        } else {
+        setState(() => _bodResponse = "⚠️ No BOD submitted yet for today.");
+      }
+    } catch (e) {
+      print("❌ Error checking BOD status: $e");
+      setState(() => _bodResponse = "❌ Failed to fetch BOD status.");
     } finally {
       setState(() => _isLoading = false);
     }
@@ -46,16 +68,19 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
     setState(() => _isLoading = true);
     try {
-      String? response = await ApiBodService.sendData(
+      final response = await ApiBodService.sendData(
         taskTitle: _taskTitleController.text.trim(),
-        description: _quillController.document.toPlainText().trim(), // ✅ Fetch content
+        description: _quillController.document.toPlainText().trim(),
+        bodId: _bodId, // 🔽 If available, this triggers update
       );
 
       if (response != null) {
-        Get.snackbar("Success", "BOD Submitted!",
+        Get.snackbar("Success", _bodId != null ? "BOD Updated!" : "BOD Submitted!",
             snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
       }
-    } finally {
+      Navigator.pop(context);
+    } catch (e) {
+      } finally {
       setState(() => _isLoading = false);
     }
   }
@@ -64,8 +89,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'Submit BOD'),
-      resizeToAvoidBottomInset: true, // ✅ Prevents keyboard overflow
-
+      resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -102,14 +126,15 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
           );
         },
       ),
-      // 🔽 Fixed Bottom Navigation Bar with Primary Button 🔽
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(10),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : PrimaryButton(onPressed: handleApiCall, text: "Submit BOD"),
+            : PrimaryButton(
+          onPressed: handleApiCall,
+          text: _bodId != null ? "Update BOD" : "Submit BOD",
+        ),
       ),
     );
   }
-
 }

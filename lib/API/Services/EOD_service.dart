@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -6,7 +7,7 @@ class ApiEodService {
   // ✅ Function to get Employee ID
   static Future<String?> getEmployeeId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('emp_id'); // Retrieve emp_id from SharedPreferences
+    return prefs.getString('emp_id');
   }
 
   // ✅ Fetch today's EOD ID and save in SharedPreferences
@@ -20,7 +21,7 @@ class ApiEodService {
 
     try {
       final response = await http.post(
-        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/EOD.php'),
+        Uri.parse('$baseUrl/EOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: {'emp_id': empId, 'type': 'updateEOD'},
       );
@@ -29,16 +30,16 @@ class ApiEodService {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
+        print("🧪 Full Response (fetchEodId): $data");
 
         if (data['found'] == false) {
           print("ℹ️ No EOD found for today.");
           return null;
         }
 
-        if (data.containsKey('eodId') && data['eodId'] != null) {
-          String eodId = data['eodId'].toString();
+        if (data.containsKey('eodId') || data.containsKey('eodID')) {
+          String eodId = data['eodId']?.toString() ?? data['eodID'].toString();
 
-          // ✅ Save EOD ID in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('eod_id', eodId);
 
@@ -63,7 +64,7 @@ class ApiEodService {
   static Future<String?> sendEodData({
     required String taskTitle,
     required String description,
-    String? eodId, // ✅ Correct parameter declaration
+    String? eodId,
   }) async {
     String? empId = await getEmployeeId();
     if (empId == null || empId.isEmpty) {
@@ -72,15 +73,15 @@ class ApiEodService {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/EOD.php'),
+      Uri.parse('$baseUrl/EOD.php'),
     );
 
     request.fields.addAll({
       'emp_id': empId,
-      'type': eodId?.isNotEmpty == true ? 'updateEOD' : 'addEOD', // ✅ Fixed condition
+      'type': eodId?.isNotEmpty == true ? 'updateEOD' : 'addEOD',
       'task_title': taskTitle,
       'description': description,
-      if (eodId?.isNotEmpty == true) 'eodID': eodId!, // ✅ Added proper null check
+      if (eodId?.isNotEmpty == true) 'eodID': eodId!,
     });
 
     try {
@@ -91,28 +92,34 @@ class ApiEodService {
 
       if (response.statusCode == 200) {
         var data = json.decode(responseBody);
+        print("🧪 Full Response (sendEodData): $data");
 
-        if (data.containsKey('eodId')) {
-          String newEodId = data['eodId'].toString();
+        if (data['status'] == 'success' || data['message'] == 'EOD updated') {
+          print("✅ EOD updated successfully.");
+          return eodId ?? "updated";
+        }
+
+        if (data.containsKey('eodId') || data.containsKey('eodID')) {
+          String newEodId = data['eodId']?.toString() ?? data['eodID'].toString();
           print("✅ EOD ID Received: $newEodId");
 
-          // ✅ Save new EOD ID in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('eod_id', newEodId);
 
-          return newEodId; // ✅ Corrected return statement
-        } else {
-          print("⚠️ Warning: No EOD ID in response.");
-          throw Exception("No EOD ID returned from API.");
+          return newEodId;
         }
+
+        throw Exception("Unexpected API response: $data");
       } else {
-        throw Exception("Failed: \${response.reasonPhrase}");
+        print("❌ HTTP Error ${response.statusCode}: ${response.reasonPhrase}");
+        throw Exception("Failed: ${response.reasonPhrase}");
       }
     } catch (e) {
       print("🚨 Exception in sendEodData: $e");
       throw Exception("Unexpected response: $e");
     }
   }
+
   static Future<bool> isEodSubmitted() async {
     String? empId = await getEmployeeId();
 
@@ -122,7 +129,7 @@ class ApiEodService {
 
     try {
       final response = await http.post(
-        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/EOD.php'),
+        Uri.parse('$baseUrl/EOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: {'emp_id': empId, 'type': 'updateEOD'},
       );
@@ -130,7 +137,7 @@ class ApiEodService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print("📡 EOD Status Response: $data");
-        return data['found'] == true; // ✅ true means EOD submitted
+        return data['found'] == true;
       } else {
         throw Exception("Failed to fetch EOD status");
       }
@@ -139,5 +146,4 @@ class ApiEodService {
       throw Exception("Error checking EOD status: $e");
     }
   }
-
 }

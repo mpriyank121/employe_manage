@@ -4,7 +4,7 @@ import '../Configuration/ui_styles.dart';
 import 'bottom_sheet_helper.dart';
 
 class DatePickerDropdown extends StatefulWidget {
-  final Function(DateTime, String, String, String?, String?) onDateSelected;
+  final Function(DateTime, String, String, String?, String?, String?, String?) onDateSelected;
 
   const DatePickerDropdown({Key? key, required this.onDateSelected}) : super(key: key);
 
@@ -16,10 +16,22 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
   DateTime selectedDate = DateTime.now();
   String selectedFirstIn = "N/A";
   String selectedLastOut = "N/A";
-  String? selectedCheckinImage;
-  String? selectedCheckoutImage;
+  String? checkInImage;
+  String? checkOutImage;
+  String? checkInLocation;
+  String? checkOutLocation;
+  String? selectedCheckInLocation;
+  String? selectedCheckOutLocation;
 
-  void _updateDate(DateTime? newDate, String firstInTime, String lastOutTime, String? checkinImage, String? checkoutImage) {
+  void _updateDate(
+      DateTime newDate,
+      String firstInTime,
+      String lastOutTime,
+      String? checkinImage,
+      String? checkoutImage,
+      String? checkInLocation,
+      String? checkOutLocation,
+      ) {
     print('======================>$checkinImage');
     if (newDate == null) return; // ✅ Prevent updating with null values.
 
@@ -27,13 +39,19 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
       selectedDate = newDate;
       selectedFirstIn = firstInTime.isNotEmpty ? firstInTime : "N/A";
       selectedLastOut = lastOutTime.isNotEmpty ? lastOutTime : "N/A";
-      selectedCheckinImage = checkinImage ?? "";
-      selectedCheckoutImage = checkoutImage ?? "";
+      checkInImage = checkinImage ?? "";
+      checkOutImage = checkoutImage ?? "";
+      selectedCheckInLocation = checkInLocation ?? "";
+      selectedCheckOutLocation = checkOutLocation ?? "";
+
     });
 
     print('updTE Dte');
     /// ✅ Pass updated values to parent
-    widget.onDateSelected(selectedDate, selectedFirstIn, selectedLastOut, selectedCheckinImage, selectedCheckoutImage);
+    widget.onDateSelected(selectedDate, selectedFirstIn, selectedLastOut, checkInImage, checkOutImage,
+        selectedCheckInLocation,
+        selectedCheckOutLocation
+       );
   }
 
   @override

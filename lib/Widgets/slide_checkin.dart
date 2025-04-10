@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class SlideCheckIn extends StatefulWidget {
   final String? firstIn;  // ✅ From API response
   final String? lastOut;
   final bool isEnabled;
+  final bool showCam;
 
   final String text;// ✅ From API response
 
@@ -34,6 +36,7 @@ class SlideCheckIn extends StatefulWidget {
     this.firstIn,
     this.lastOut,
     required this.isEnabled,
+    required this.showCam,
   }) : super(key: key);
 
   @override
@@ -54,7 +57,15 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   void initState() {
     super.initState();
     _loadCheckInState();
+    _initializeCameras();
+
   }
+  List<CameraDescription>? _cameras;
+
+  Future<void> _initializeCameras() async {
+    _cameras = await availableCameras();
+  }
+
   Future<void> _showEodBodWarning(String message) async {
     await showDialog(
       context: context,
@@ -105,48 +116,66 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   /// ✅ Handles Check-In Action
   Future<void> _handleCheckIn() async {
     if (_isCheckInDisabled) return;
-    final position = await _checkInService.getCurrentLocation();
 
+    // 🚀 Run location and radius check in parallel
+    final positionFuture = _checkInService.getCurrentLocation();
+    final radiusFuture = _checkInService.checkEmployeeRadius();
+
+    final position = await positionFuture;
     if (position == null) {
-      // 🚫 Location not available — show dialog and return early
       showLocationErrorDialog(context);
       return;
     }
 
-    final cameras = await availableCameras();
-    final frontCamera = cameras.firstWhere(
-          (cam) => cam.lensDirection == CameraLensDirection.front,
-    );
+    final response = await radiusFuture;
+    if (response == null) return;
 
-    final XFile? capturedImage = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CameraPreviewScreen(camera: frontCamera),
-      ),
-    );
-
-    if (capturedImage == null) {
-      print("❌ Check-in cancelled. No image captured.");
+    final data = jsonDecode(response);
+    if (!(data['success'] ?? false)) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Outside Office Area"),
+          content: Text(data['message'] ?? "You are outside the allowed radius."),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+        ),
+      );
       return;
     }
 
-    final File image = File(capturedImage.path);
+    File? image;
+    if (widget.showCam && _cameras != null) {
+      final frontCamera = _cameras!.firstWhere(
+            (cam) => cam.lensDirection == CameraLensDirection.front,
+        orElse: () => _cameras!.first,
+      );
+
+      final XFile? capturedImage = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CameraPreviewScreen(camera: frontCamera),
+        ),
+      );
+
+      if (capturedImage == null) {
+        print("❌ Check-in cancelled. No image captured.");
+        return;
+      }
+
+      image = File(capturedImage.path);
+    }
 
     setState(() {
       _isChecking = true;
       _selectedImage = image;
     });
 
-    bool success = await _checkInService.performCheckIn(image);
+    final success = await _checkInService.performCheckIn(image);
     if (success) {
       print("✅ Check-in successful!");
-
-      setState(() {
-        _isCheckedIn = true;
-      });
-
+      // setState(() => _isCheckedIn = true);
       widget.onCheckIn();
-      await _loadCheckInState(); // 🔁 Refresh
+       _loadCheckInState();
     }
 
     setState(() => _isChecking = false);
@@ -154,51 +183,70 @@ class _SlideCheckInState extends State<SlideCheckIn> {
 
   /// ✅ Handles Check-Out Action
   Future<void> _handleCheckOut() async {
-    final position = await _checkInService.getCurrentLocation();
+    // 🚀 Run location and radius check in parallel
+    final positionFuture = _checkInService.getCurrentLocation();
+    final radiusFuture = _checkInService.checkEmployeeRadius();
 
+    final position = await positionFuture;
     if (position == null) {
-      // 🚫 Location not available — show dialog and return early
-      print('hhhhhhhhhh');
       showLocationErrorDialog(context);
       return;
     }
 
+    final response = await radiusFuture;
+    if (response == null) return;
 
-    final cameras = await availableCameras();
-    final frontCamera = cameras.firstWhere(
-          (cam) => cam.lensDirection == CameraLensDirection.front,
-    );
-
-    final XFile? capturedImage = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CameraPreviewScreen(camera: frontCamera),
-      ),
-    );
-
-    if (capturedImage == null) {
-      print("❌ Check-out cancelled. No image captured.");
+    final data = jsonDecode(response);
+    if (!(data['success'] ?? false)) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Outside Office Area"),
+          content: Text(data['message'] ?? "You are outside the allowed radius."),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+        ),
+      );
       return;
     }
 
-    final File image = File(capturedImage.path);
+    File? image;
+    if (widget.showCam && _cameras != null) {
+      final frontCamera = _cameras!.firstWhere(
+            (cam) => cam.lensDirection == CameraLensDirection.front,
+        orElse: () => _cameras!.first,
+      );
+
+      final XFile? capturedImage = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CameraPreviewScreen(camera: frontCamera),
+        ),
+      );
+
+      if (capturedImage == null) {
+        print("❌ Check-out cancelled. No image captured.");
+        return;
+      }
+
+      image = File(capturedImage.path);
+    }
 
     setState(() {
       _isChecking = true;
       _selectedImage = image;
     });
-    bool success = await _checkInService.performCheckOut(image);
+
+    final success = await _checkInService.performCheckOut(image);
+
     if (success) {
       print("✅ Check-out successful!");
-      setState(() {
-        _isCheckedIn = false;
-      });
+      setState(() => _isCheckedIn = false);
       widget.onCheckOut();
       await _loadCheckInState();
     } else {
-      await _showEodBodWarning("Please update today's BOD and EOD tasks."); // or custom message
-
+      await _showEodBodWarning("Please update today's BOD and EOD tasks.");
     }
+
     setState(() => _isChecking = false);
   }
 

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Configuration/app_constants.dart';
+
 Future<void> applyTicket({
   required String empId,
   required List<String> departments,
@@ -16,7 +18,7 @@ Future<void> applyTicket({
 }) async {
   var request = http.MultipartRequest(
     'POST',
-    Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/ticket.php'),
+    Uri.parse('$baseUrl/ticket.php'),
   );
 
   request.fields.addAll({

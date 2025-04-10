@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Configuration/app_constants.dart';
+
 class AssetService {
-  final String apiUrl = 'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//asset_info.php';
+  final String apiUrl = '$baseUrl//asset_info.php';
 
   /// Fetches assets dynamically for a given employee ID
   Future<List<Map<String, dynamic>>> fetchAssets(String empId) async {

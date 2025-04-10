@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Configuration/app_constants.dart';
+
 // Fetch Departments
 Future<List<Map<String, String>>> getDepartment() async {
   try {
     final response = await http.post(
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/ticket.php'),
+      Uri.parse('$baseUrl/ticket.php'),
       headers: {"Content-Type": "application/x-www-form-urlencoded"},
       body: {'type': 'get_department'},
     );
@@ -44,7 +46,7 @@ Future<List<Map<String, String>>> getEmployeesByDepartment(List<String> departme
     // Add department IDs dynamically (department_ids[])
     //
     final req =  http.MultipartRequest('POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/ticket.php'),
+      Uri.parse('$baseUrl/ticket.php'),
     );
     req.fields['type'] = "get_employee";
     req.fields['emp_id'] = "empId";

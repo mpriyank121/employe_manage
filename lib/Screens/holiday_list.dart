@@ -5,12 +5,24 @@ import '../Widgets/App_bar.dart';
 import '../Widgets/year_selector.dart';
 import 'package:employe_manage/Widgets/holiday_list.dart';
 
-class holidaypage extends StatelessWidget {
+class holidaypage extends StatefulWidget {
   final String title;
 
-  holidaypage({Key? key, required this.title}) : super(key: key);
+  const holidaypage({Key? key, required this.title}) : super(key: key);
 
+  @override
+  _holidaypageState createState() => _holidaypageState();
+}
+
+class _holidaypageState extends State<holidaypage> {
   final HolidayController controller = Get.put(HolidayController());
+
+  @override
+  void initState() {
+    super.initState();
+    // 🔁 Optionally fetch or filter on load
+    controller.updateYear(DateTime.now().year);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +36,7 @@ class holidaypage extends StatelessWidget {
             initialMonth: DateTime.now().month,
             showMonth: false,
             onDateChanged: (year, _) {
-              controller.updateYear(year); // ✅ Update and fetch holidays
-// 👈 only filter locally
+              controller.updateYear(year); // Only filters locally
             },
           ),
 

@@ -1,20 +1,20 @@
 import 'package:employe_manage/Configuration/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
 class CustomQuillEditor extends StatefulWidget {
   final QuillController controller;
   final TextEditingController taskTitleController;
   final bool showTaskFields;
-  final bool showDescriptionField; // New parameter to toggle fields
+  final bool showDescriptionField;
 
   const CustomQuillEditor({
     Key? key,
     required this.controller,
     required this.taskTitleController,
-    this.showTaskFields = true, // Default: Show fields
-    this.showDescriptionField = true, // Default: Show description label
-
+    this.showTaskFields = true,
+    this.showDescriptionField = true,
   }) : super(key: key);
 
   @override
@@ -23,6 +23,7 @@ class CustomQuillEditor extends StatefulWidget {
 
 class _CustomQuillEditorState extends State<CustomQuillEditor> {
   final FocusNode _editorFocusNode = FocusNode();
+  final ScrollController _editorScrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,6 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // ✅ Show task title fields only if showTaskFields is true
         if (widget.showTaskFields) ...[
           Text("Today's To-do Heading", style: fontStyles.headingStyle),
           TextField(
@@ -49,7 +49,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
 
         if (widget.showDescriptionField)
           Text("To-do's description", style: fontStyles.headingStyle),
-        // ✅ Quill Editor with Toolbar
+
         Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
@@ -60,15 +60,24 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
               QuillSimpleToolbar(
                 controller: widget.controller,
                 config: QuillSimpleToolbarConfig(
+                  embedButtons: FlutterQuillEmbeds.toolbarButtons(
+
+                    videoButtonOptions: QuillToolbarVideoButtonOptions(
+
+
+                    )
+                  ),
                   showBoldButton: true,
                   showItalicButton: true,
-                  showUnderLineButton: true,
+                  showUnderLineButton: false,
                   showListBullets: true,
                   showListNumbers: true,
+                  showLink: false,
+                  showListCheck: true,
+                  showClipboardPaste: false,
                   showIndent: false,
                   showAlignmentButtons: false,
                   showFontFamily: false,
-                  showLink: true,
                   showQuote: false,
                   showInlineCode: false,
                   showStrikeThrough: false,
@@ -76,23 +85,31 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                   showBackgroundColorButton: false,
                   showColorButton: false,
                   showCodeBlock: false,
-                  showListCheck: true,
                   showDirection: false,
                   showClearFormat: false,
                   showHeaderStyle: false,
                   showSearchButton: false,
                   showRedo: false,
                   showUndo: false,
+                    showSubscript:false,
+                  showSuperscript: false
+
 
                 ),
               ),
-              Divider(color: Colors.grey), // Separator
+              const Divider(color: Colors.grey),
               Container(
-                height: screenHeight * 0.2,
+                height: screenHeight * 0.4,
                 padding: const EdgeInsets.all(12),
-                child: QuillEditor.basic(
+                child: QuillEditor(
                   controller: widget.controller,
                   focusNode: _editorFocusNode,
+                  scrollController: _editorScrollController,
+
+                  config: QuillEditorConfig(
+                    placeholder: 'Description',
+                    embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                  ),
                 ),
               ),
             ],
@@ -105,6 +122,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
   @override
   void dispose() {
     _editorFocusNode.dispose();
+    _editorScrollController.dispose();
     super.dispose();
   }
 }

@@ -1,11 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/Custom_quill_editor.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:get/get.dart';
+import '../API/Services/Task_service.dart';
 import '../API/Services/EOD_service.dart';
-import 'package:delta_to_html/delta_to_html.dart';
 
 class Eodbuttondialog extends StatefulWidget {
   @override
@@ -18,6 +18,7 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
   bool _isLoading = false;
   String? _eodResponse;
+  String? _eodId;
 
   @override
   void initState() {
@@ -28,21 +29,33 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
   Future<void> checkEODStatus() async {
     setState(() => _isLoading = true);
     try {
-      String? eodId = await ApiEodService.fetchEodId();
+      final empId = await ApiEodService.getEmployeeId();
+      if (empId == null) {
+        setState(() => _eodResponse = "❌ Employee ID not found.");
+        return;
+      }
 
-      if (eodId != null) {
+      final today = DateTime.now();
+      final tasks = await TaskService.fetchTaskList(empId, startDate: today, endDate: today);
+
+      final todayEOD = tasks.firstWhere(
+            (task) => task['eod_id'] != null && task['eod_id'].toString().isNotEmpty,
+        orElse: () => null,
+      );
+
+      if (todayEOD != null) {
+        _eodId = todayEOD['eod_id'].toString();
+        _taskTitleController.text = todayEOD['task_title'] ?? '';
+        _quillController.document = Document()..insert(0, todayEOD['description'] ?? '');
+
         setState(() {
-          _eodResponse = "✅ EOD already submitted for today!\nEOD ID: $eodId";
         });
-        Get.snackbar(
-          "Info", "EOD already submitted!",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+      } else {
+        setState(() => _eodResponse = "⚠️ No EOD submitted yet for today.");
       }
     } catch (e) {
-      print("🚨 API Error: $e");
+      print("❌ Error checking EOD status: $e");
+      setState(() => _eodResponse = "❌ Failed to fetch EOD status.");
     } finally {
       setState(() => _isLoading = false);
     }
@@ -50,16 +63,11 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
   Future<void> handleApiCall() async {
     String taskTitle = _taskTitleController.text.trim();
-    String description = DeltaToHTML.encodeJson(_quillController.document.toDelta().toJson());
-    print("$description");
+    String description = _quillController.document.toPlainText().trim();
 
     if (taskTitle.isEmpty || description.isEmpty) {
-      Get.snackbar(
-        "Error", "All fields are required!",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "All fields are required!",
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
@@ -68,23 +76,18 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
       String? response = await ApiEodService.sendEodData(
         taskTitle: taskTitle,
         description: description,
+        eodId: _eodId, // If present, will update
       );
 
       if (response != null) {
-        Get.snackbar(
-          "Success", "EOD Submitted!",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+        Get.snackbar("Success", _eodId != null ? "EOD Updated!" : "EOD Submitted!",
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+        Navigator.pop(context);
       }
     } catch (e) {
-      Get.snackbar(
-        "Already", "Updated",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      print("🚨 Exception: $e");
+      Get.snackbar("Error", "Something went wrong!",
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -93,9 +96,8 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Submit BOD'),
-      resizeToAvoidBottomInset: true, // ✅ Prevents keyboard overflow
-
+      appBar: CustomAppBar(title: 'Submit EOD'),
+      resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -132,16 +134,15 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
           );
         },
       ),
-
-      // 🔽 Bottom Navigation Bar with Primary Button 🔽
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(10),
-
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : PrimaryButton(onPressed: handleApiCall, text: "Submit EOD"),
+            : PrimaryButton(
+          onPressed: handleApiCall,
+          text: _eodId != null ? "Update EOD" : "Submit EOD",
+        ),
       ),
     );
   }
-
 }

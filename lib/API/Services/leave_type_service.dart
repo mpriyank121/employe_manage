@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Configuration/app_constants.dart';
+
 class LeaveTypeService {
   static const String apiUrl =
-      'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//leave_info.php';
+      '$baseUrl//leave_info.php';
 
   /// Fetches available leave types dynamically
   static Future<List<Map<String, String>>> fetchLeaveTypes() async {
