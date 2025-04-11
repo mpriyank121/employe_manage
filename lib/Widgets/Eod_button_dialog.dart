@@ -67,7 +67,7 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
     if (taskTitle.isEmpty || description.isEmpty) {
       Get.snackbar("Error", "All fields are required!",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,);
       return;
     }
 
@@ -81,13 +81,13 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
       if (response != null) {
         Get.snackbar("Success", _eodId != null ? "EOD Updated!" : "EOD Submitted!",
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+            snackPosition: SnackPosition.BOTTOM,);
+
         Navigator.pop(context);
       }
     } catch (e) {
       print("🚨 Exception: $e");
-      Get.snackbar("Error", "Something went wrong!",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar("Error", "Something went wrong!", snackPosition: SnackPosition.BOTTOM);
     } finally {
       setState(() => _isLoading = false);
     }

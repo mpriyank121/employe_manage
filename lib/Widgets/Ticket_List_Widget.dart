@@ -20,7 +20,7 @@ class _TicketListWidgetState extends State<TicketListWidget> {
   bool isLoadingMore = false;
   bool hasMore = true;
   int currentPage = 1;
-  final int limit = 10;
+  final int limit = 15;
   String? errorMessage;
 
   late ScrollController _scrollController;
@@ -124,7 +124,6 @@ class _TicketListWidgetState extends State<TicketListWidget> {
         var ticket = tickets[index];
 
         return CustomListTile(
-          heightFactor: 0.22,
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

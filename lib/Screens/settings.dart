@@ -1,81 +1,32 @@
-import 'package:employe_manage/Screens/ticket_form.dart';
-import 'package:employe_manage/Widgets/CustomListTile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:employe_manage/Widgets/CustomListTile.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
-import '../Widgets/primary_button.dart';
+import 'package:employe_manage/Widgets/primary_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../API/Controllers/user_data_controller.dart';
 import '/Configuration/style.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home: const settingpage(title: ''),
-    );
-  }
-}
-
-class settingpage extends StatefulWidget {
+class settingpage extends StatelessWidget {
   const settingpage({super.key, required this.title});
   final String title;
 
   @override
-  State<settingpage> createState() => _settingpageState();
-}
-
-class _settingpageState extends State<settingpage> {
-  String userName = "Loading...";
-  String jobRole = "Loading...";
-  String employeeType = "Loading...";
-
-  @override
-
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-  Future<void> _loadUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-  print("Fetching Data");
-    setState(() {
-      userName = prefs.getString('username') ?? 'Guest';
-      jobRole = prefs.getString('jobRole') ?? 'Unknown Role';
-      employeeType = prefs.getString('emp_type') ?? 'Unknown type';
-
-      print("Fetched all data");
-    });
-  }
-
-  /// ✅ Logout Function
-  Future<void> _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    print('🚪 User Logged Out: SharedPreferences cleared.');
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final UserController userController = Get.find<UserController>();
+
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Settings',
         leading: IconButton(
           icon: SvgPicture.asset('assets/images/bc 3.svg'),
           onPressed: () {},
-        ),        actions: [],
+        ),
+        actions: [],
       ),
       body: Column(
         children: [
-          // ✅ User Profile Info
-          ListTile(
+          Obx(() => ListTile(
             leading: CircleAvatar(
               radius: 24,
               backgroundImage: AssetImage('assets/images/Ellipse.jpg'),
@@ -83,10 +34,10 @@ class _settingpageState extends State<settingpage> {
             ),
             title: Row(
               children: [
-                Text(userName, style: fontStyles.headingStyle), // ✅ Dynamic Username
+                Text(userController.userName.value, style: fontStyles.headingStyle),
                 SizedBox(width: 10),
                 Text(
-                  employeeType,
+                  userController.employeeType.value,
                   style: TextStyle(
                     color: Color(0xFFF25922),
                     fontSize: 14,
@@ -98,25 +49,16 @@ class _settingpageState extends State<settingpage> {
                 ),
               ],
             ),
-            subtitle: Text(jobRole, style: fontStyles.subTextStyle), // ✅ Dynamic Job Role
-          ),
-
-          // ✅ Menu Options
-          Column(
-            children: [
-              // ✅ Logout Button
-              PrimaryButton(
-                textColor: Color(0xFFCD0909), // ✅ Custom text color
-
-                text: 'Log Out',
-                widthFactor: 0.9,
-                heightFactor: 0.05,
-                buttonColor: Color(0x19CD0909),
-                onPressed: _logout,
-                icon: SvgPicture.asset('assets/images/ant-design_logout-outlined.svg'),
-
-              ),
-            ],
+            subtitle: Text(userController.jobRole.value, style: fontStyles.subTextStyle),
+          )),
+          PrimaryButton(
+            textColor: Color(0xFFCD0909),
+            text: 'Log Out',
+            widthFactor: 0.9,
+            heightFactor: 0.05,
+            buttonColor: Color(0x19CD0909),
+            onPressed: userController.logout,
+            icon: SvgPicture.asset('assets/images/ant-design_logout-outlined.svg'),
           ),
         ],
       ),

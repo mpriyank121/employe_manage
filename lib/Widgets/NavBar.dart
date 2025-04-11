@@ -1,9 +1,16 @@
-import 'package:employe_manage/Screens/Tasks_table.dart';
+import 'package:employe_manage/API/Controllers/task_controller.dart';
+import 'package:employe_manage/Screens/Task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:employe_manage/Screens/Categories.dart';
 import 'package:employe_manage/Screens/settings.dart';
 import 'package:employe_manage/Screens/welcome_page.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import '../API/Controllers/user_data_controller.dart';
+import '../API/Controllers/welcome_page_controller.dart';
+import '../Configuration/app_colors.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -23,10 +30,17 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   // Function to handle tab switching
-  void _onItemTapped(int index) {
+  Future<void> _onItemTapped(int index) async {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 0) {
+      Get.find<WelcomeController>().reloadWelcomeData();
+    } else if (index == 2) {
+      Get.find<TaskController>().refreshTaskData();
+    } else if (index == 3) {
+      Get.find<UserController>().loadUserData();
+    }
   }
 
   @override
@@ -39,45 +53,94 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.orangeAccent,
+        selectedItemColor: AppColors.secondary,
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              "assets/images/solar_home-2-linear.svg",
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 0 ? Colors.orangeAccent : Colors.grey,
+            icon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  "assets/images/solar_home-2-linear.svg",
+                  width: 24,
+                  height: 24,
+                  color: _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
+                ),
+                Text(
+                  "Home",
+                  style: TextStyle(
+                    color: _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
+                    fontSize: 12,
+                  ),
+                )
+              ],
             ),
-            label: "Home",
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              "assets/images/category-1-svgrepo-com 1.svg",
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 1 ? Colors.orangeAccent : Colors.grey,
+            icon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  "assets/images/category-1-svgrepo-com 1.svg",
+                  width: 24,
+                  height: 24,
+                  color: _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
+                ),
+                Text(
+                  "Categories",
+                  style: TextStyle(
+                    color: _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
+                    fontSize: 12,
+                  ),
+                )
+              ],
             ),
-            label: "Categories",
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              "assets/images/task-square.svg",
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 2 ? Colors.orangeAccent : Colors.grey,
+            icon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  "assets/images/task-square.svg",
+                  width: 24,
+                  height: 24,
+                  color: _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
+                ),
+                Text(
+                  "Tasks",
+                  style: TextStyle(
+                    color: _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
+                    fontSize: 12,
+                  ),
+                )
+              ],
             ),
-            label: "Tasks",
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              "assets/images/settings-02.svg",
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 3 ? Colors.orangeAccent : Colors.grey,
+            icon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  "assets/images/settings-02.svg",
+                  width: 24,
+                  height: 24,
+                  color: _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
+                ),
+                Text(
+                  "Settings",
+                  style: TextStyle(
+                    color: _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
+                    fontSize: 12,
+                  ),
+                )
+              ],
             ),
-            label: "Settings",
+            label: '',
           ),
+
 
         ],
       ),

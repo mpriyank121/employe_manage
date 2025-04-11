@@ -2,7 +2,11 @@ import 'package:employe_manage/Configuration/style.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:intl/intl.dart';
+import '../API/Controllers/leave_controller.dart';
 import '../API/Services/leave_type_service.dart';
 import 'Leave_container.dart';
 
@@ -18,6 +22,10 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
   String? selectedLeaveType;
   List<Map<String, String>> leaveTypes = [];
   bool isLoading = false;
+  int selectedYear = DateTime.now().year;
+  int selectedMonth = DateTime.now().month;
+  final LeaveController leaveController = Get.put(LeaveController());
+
 
   @override
   void initState() {
@@ -64,9 +72,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     bool success = await LeaveTypeService.applyLeave(
       type: "apply_leave",
@@ -76,13 +82,25 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
       note: aboutController.text,
     );
 
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? "Leave Applied Successfully!" : "Failed to Apply Leave")),
-    );
+    if (success) {
+      Get.snackbar(
+        "Success",
+        "Leave Applied Successfully!",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      leaveController.fetchLeaveData(selectedYear,selectedMonth,false);
+
+      // ✅ Navigate back
+      Navigator.pop(context);
+    } else {
+      Get.snackbar(
+        "Error",
+        "Failed to Apply Leave",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   @override

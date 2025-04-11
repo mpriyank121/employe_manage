@@ -5,6 +5,8 @@ import 'package:flutter_quill/flutter_quill.dart%20';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
+import 'API/Controllers/task_controller.dart';
+import 'API/Controllers/user_data_controller.dart';
 import 'Screens/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +18,11 @@ void main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp, // Lock to portrait
   ]);
-  Get.put(AttendanceController()); // ✅ Register Controller Before Running the App
+  Get.put(AttendanceController());
+  Get.put(UserController());
+  Get.put(TaskController());
+// Register GetX controller
+// ✅ Register Controller Before Running the App
 
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,6 +38,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      theme: ThemeData(
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: Color(0xFFF25922), // 👈 Your desired global color
+        ),
+      ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

@@ -25,7 +25,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
   bool _hasError = false;
   bool _hasMore = true;
   int _page = 1;
-  final int _limit = 10;
+  final int _limit = 15;
   final ScrollController _scrollController = ScrollController();
   double _averageRating = 0.0;
 
@@ -57,7 +57,6 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
     _averageRating = count > 0 ? totalRating / count : 0.0;
   }
-
   Future<void> fetchTasks({bool isRefreshing = false}) async {
     if (_isLoading || (!_hasMore && !isRefreshing)) return;
 
@@ -80,32 +79,42 @@ class _TaskListWidgetState extends State<TaskListWidget> {
         endDate: widget.endDate,
       );
 
-      if (widget.startDate != null && widget.endDate != null) {
-        DateFormat apiDateFormat = DateFormat('dd MMM, yyyy hh:mm a');
-        tasks = tasks.where((task) {
-          try {
-            DateTime taskDate = apiDateFormat.parse(task['date']);
-            return taskDate.isAfter(widget.startDate!.subtract(Duration(days: 1))) &&
-                taskDate.isBefore(widget.endDate!.add(Duration(days: 1)));
-          } catch (e) {
-            print("⚠️ Date Parse Error: $e");
-            return false;
-          }
-        }).toList();
-      }
+      final existingIds = _tasks.map((e) => e['id']).toSet(); // Avoid duplicates
+      final apiDateFormat = DateFormat('dd MMM, yyyy hh:mm a');
+
+      final filteredTasks = tasks.where((task) {
+        try {
+          DateTime taskDate = apiDateFormat.parse(task['date']);
+          bool isInRange = widget.startDate != null && widget.endDate != null
+              ? taskDate.isAfter(widget.startDate!.subtract(const Duration(days: 1))) &&
+              taskDate.isBefore(widget.endDate!.add(const Duration(days: 1)))
+              : true;
+          return isInRange && !existingIds.contains(task['id']);
+        } catch (e) {
+          print("⚠️ Date Parse Error: $e");
+          return false;
+        }
+      }).toList();
+
+      // Sort ascending
+      filteredTasks.sort((a, b) {
+        try {
+          DateTime dateB = apiDateFormat.parse(a['date']);
+          DateTime dateA = apiDateFormat.parse(b['date']);
+          return dateA.compareTo(dateB);
+        } catch (e) {
+          return 0;
+        }
+      });
 
       setState(() {
-        if (tasks.length < _limit) _hasMore = false;
-        if (isRefreshing) {
-          _tasks = tasks;
-          _page = 2;
-        } else {
-          _tasks.addAll(tasks);
-          _page++;
-        }
+        _tasks.addAll(filteredTasks);
+        if (filteredTasks.length < _limit) _hasMore = false;
+        _page++;
         _calculateAverageRating();
       });
     } catch (e) {
+      print("❌ Error fetching tasks: $e");
       setState(() => _hasError = true);
     } finally {
       setState(() => _isLoading = false);
@@ -114,7 +123,9 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
   void _scrollListener() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-      fetchTasks();
+      if (!_isLoading && _hasMore) {
+        fetchTasks();
+      }
     }
   }
 
@@ -158,7 +169,6 @@ class _TaskListWidgetState extends State<TaskListWidget> {
                 var task = _tasks[index];
 
                 return CustomListTile(
-                  heightFactor: 0.15,
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 void showLocationErrorDialog(BuildContext context) {
-  showDialog(
+  showCupertinoDialog(
     context: context,
     builder: (context) => AlertDialog(
       title: const Text("Location Required"),

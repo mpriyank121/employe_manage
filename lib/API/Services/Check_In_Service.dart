@@ -40,39 +40,50 @@ class CheckInService {
 
   /// Get Current Location
   Future<Position?> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print("🔴 Location services are disabled.");
-        showLocationErrorDialog();
+        print("📡 Location services are disabled.");
         return null;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          print("🔴 Location permissions are denied.");
-          showLocationErrorDialog();
+          print("📡 Location permission denied.");
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        print("🔴 Location permissions are permanently denied.");
-        showLocationErrorDialog();
+        print("📡 Location permission denied forever.");
         return null;
       }
 
-      return await Geolocator.getCurrentPosition(
-        forceAndroidLocationManager: true,
-        desiredAccuracy: LocationAccuracy.best,
-      ).timeout(const Duration(seconds: 10));
+      // Try last known location first for speed
+      Position? lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown != null) {
+        print("📍 Using last known position: $lastKnown");
+        return lastKnown;
+      }
+
+      // Then try getting current position with timeout
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 8));
+
+      print("📍 Got current location: $position");
+      return position;
     } catch (e) {
-      print("🔴 Error getting location: $e");
+      print("❌ Location error: $e");
       return null;
     }
   }
+
 
   /// Perform Check-In with Image Upload
   Future<bool> performCheckIn(File? imageFile) async {
@@ -110,7 +121,8 @@ class CheckInService {
       request.fields['longitude'] = position.longitude.toString();
       request.fields['type'] = type;
 
-      if (imageFile != null && imageFile.path.isNotEmpty) {
+            if (imageFile != null && imageFile.path.isNotEmpty && await imageFile.exists()) {
+        print("📤 Uploading image file: ${imageFile.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
             imageKey,
@@ -119,9 +131,12 @@ class CheckInService {
             contentType: mimeType != null ? MediaType.parse(mimeType) : null,
           ),
         );
+      } else if (imageFile != null) {
+        print("⚠️ Image file not found or invalid: ${imageFile.path}");
+        return "Image file does not exist.";
       }
 
-      var response = await request.send().timeout(const Duration(seconds: 15));
+      var response = await request.send();
       var responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
@@ -131,8 +146,10 @@ class CheckInService {
 
         if (success) {
           print("✅ $type Success: $message");
-          if (imageFile != null) await _saveImage(imageFile.path, type);
-          return null;
+          if (imageFile != null && imageFile.path.isNotEmpty) {
+          await _saveImage(imageFile.path, type);
+}
+
         } else {
           print("🔴 $type Failed: $message");
           return message;
@@ -205,4 +222,38 @@ class CheckInService {
       return "Unexpected error occurred. Please try again.";
     }
   }
+  /// Radius check using provided position (avoids duplicate location calls)
+Future<String?> checkEmployeeRadiusWithPosition(Position position) async {
+  final empId = await _getEmpId();
+  if (empId == null) return "Employee ID missing.";
+
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/checkIn.php'),
+    );
+
+    request.fields.addAll({
+      'type': 'checkEmployeeRadius',
+      'emp_id': empId,
+      'longitude': position.longitude.toString(),
+      'latitude': position.latitude.toString(),
+    });
+
+    http.StreamedResponse response = await request.send().timeout(const Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      print("✅ Radius Check Success: $responseBody");
+      return responseBody;
+    } else {
+      print("🔴 Radius Check Failed: ${response.reasonPhrase}");
+      return "Server error: ${response.reasonPhrase}";
+    }
+  } catch (e) {
+    print("🔴 Exception during radius check: $e");
+    return "Unexpected error occurred. Please try again.";
+  }
+}
+
 }

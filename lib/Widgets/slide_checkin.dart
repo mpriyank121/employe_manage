@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -8,6 +9,7 @@ import '../API/Services/Check_In_Service.dart';
 import '../API/Services/employee_status_service.dart';
 import '../API/Services/image_picker_service.dart';
 import 'camera_preview_screen.dart';
+import 'dialog_helper.dart';
 import 'location_error_dialog.dart';
 
 
@@ -67,7 +69,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   }
 
   Future<void> _showEodBodWarning(String message) async {
-    await showDialog(
+    await showCupertinoDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Check-out Blocked"),
@@ -132,14 +134,20 @@ class _SlideCheckInState extends State<SlideCheckIn> {
 
     final data = jsonDecode(response);
     if (!(data['success'] ?? false)) {
-      showDialog(
+      showCupertinoDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => CupertinoAlertDialog(
           title: const Text("Outside Office Area"),
           content: Text(data['message'] ?? "You are outside the allowed radius."),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+          actions: [
+            CupertinoDialogAction(
+              child: const Text("OK"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
         ),
       );
+
       return;
     }
 
@@ -163,6 +171,12 @@ class _SlideCheckInState extends State<SlideCheckIn> {
       }
 
       image = File(capturedImage.path);
+
+      // 🔍 Verify file existence to prevent sending empty/invalid path
+      if (!await image.exists()) {
+        print("⚠️ Captured image file does not exist: ${image.path}");
+        return;
+      }
     }
 
     setState(() {
@@ -171,84 +185,86 @@ class _SlideCheckInState extends State<SlideCheckIn> {
     });
 
     final success = await _checkInService.performCheckIn(image);
+
     if (success) {
       print("✅ Check-in successful!");
-      // setState(() => _isCheckedIn = true);
       widget.onCheckIn();
-       _loadCheckInState();
+      await _loadCheckInState();
     }
 
     setState(() => _isChecking = false);
   }
 
   /// ✅ Handles Check-Out Action
-  Future<void> _handleCheckOut() async {
-    // 🚀 Run location and radius check in parallel
-    final positionFuture = _checkInService.getCurrentLocation();
-    final radiusFuture = _checkInService.checkEmployeeRadius();
-
-    final position = await positionFuture;
-    if (position == null) {
-      showLocationErrorDialog(context);
-      return;
-    }
-
-    final response = await radiusFuture;
-    if (response == null) return;
-
-    final data = jsonDecode(response);
-    if (!(data['success'] ?? false)) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Outside Office Area"),
-          content: Text(data['message'] ?? "You are outside the allowed radius."),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
-        ),
-      );
-      return;
-    }
-
-    File? image;
-    if (widget.showCam && _cameras != null) {
-      final frontCamera = _cameras!.firstWhere(
-            (cam) => cam.lensDirection == CameraLensDirection.front,
-        orElse: () => _cameras!.first,
-      );
-
-      final XFile? capturedImage = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CameraPreviewScreen(camera: frontCamera),
-        ),
-      );
-
-      if (capturedImage == null) {
-        print("❌ Check-out cancelled. No image captured.");
-        return;
-      }
-
-      image = File(capturedImage.path);
-    }
-
-    setState(() {
-      _isChecking = true;
-      _selectedImage = image;
-    });
-
-    final success = await _checkInService.performCheckOut(image);
-
-    if (success) {
-      print("✅ Check-out successful!");
-      setState(() => _isCheckedIn = false);
-      widget.onCheckOut();
-      await _loadCheckInState();
-    } else {
-      await _showEodBodWarning("Please update today's BOD and EOD tasks.");
-    }
-
-    setState(() => _isChecking = false);
+  /// ✅ Handles Check-Out Action
+Future<void> _handleCheckOut() async {
+  // 🚀 Get current location once and use it everywhere
+  final position = await _checkInService.getCurrentLocation();
+  if (position == null) {
+    showLocationErrorDialog(context);
+    return;
   }
+
+  // ✅ Use location for radius check
+  final response = await _checkInService.checkEmployeeRadiusWithPosition(position);
+  if (response == null) return;
+
+  final data = jsonDecode(response);
+  if (!(data['success'] ?? false)) {
+    showCupertinoDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Outside Office Area"),
+        content: Text(data['message'] ?? "You are outside the allowed radius."),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+      ),
+    );
+    return;
+  }
+
+  // 📷 Handle optional image capture
+  File? image;
+  if (widget.showCam && _cameras != null) {
+    final frontCamera = _cameras!.firstWhere(
+      (cam) => cam.lensDirection == CameraLensDirection.front,
+      orElse: () => _cameras!.first,
+    );
+
+    final XFile? capturedImage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CameraPreviewScreen(camera: frontCamera),
+      ),
+    );
+
+    if (capturedImage == null) {
+      print("❌ Check-out cancelled. No image captured.");
+      return;
+    }
+
+    image = File(capturedImage.path);
+  }
+
+  setState(() {
+    _isChecking = true;
+    _selectedImage = image;
+  });
+
+  print("📷 Image for check-out: $image");
+
+  final success = await _checkInService.performCheckOut(image);
+
+  if (success) {
+    print("✅ Check-out successful!");
+    setState(() => _isCheckedIn = false);
+    widget.onCheckOut();
+    await _loadCheckInState();
+  } else {
+    await _showEodBodWarning("Please update today's BOD and EOD tasks.");
+  }
+
+  setState(() => _isChecking = false);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +284,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
               decoration: ShapeDecoration(
                 color: _isCheckInDisabled
                     ? Colors.grey.shade300
-                    : (_isCheckedIn ? const Color(0x19FF0000) : const Color(0x193CAB88)),
+                    : (_isCheckedIn ? const Color.fromARGB(24, 8, 8, 8) : const Color(0x193CAB88)),
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
                     width: 1,
@@ -319,7 +335,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                     if (_position >= widget.screenWidth * 0.7) {
                       setState(() {
                         _position = widget.screenWidth * 0.75;
-                        _isChecking = true;
+                        // _isChecking = true;
                       });
 
                       try {
@@ -332,7 +348,6 @@ class _SlideCheckInState extends State<SlideCheckIn> {
                         // No action needed for 'Completed' as it should be disabled
                       } finally {
                         setState(() {
-                          _isChecking = false;
                           _position = 0;
                         });
                       }

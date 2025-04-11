@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../API/Controllers/task_controller.dart';
 import '../API/Services/BOD_service.dart';
 import '../API/Services/Task_service.dart';
 import 'Custom_quill_editor.dart';
@@ -61,8 +62,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
   Future<void> handleApiCall() async {
     if (_taskTitleController.text.trim().isEmpty) {
-      Get.snackbar("Error", "Task title is required!",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar("Error", "Task title is required!", snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -76,8 +76,9 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
       if (response != null) {
         Get.snackbar("Success", _bodId != null ? "BOD Updated!" : "BOD Submitted!",
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+            snackPosition: SnackPosition.BOTTOM,);
       }
+
       Navigator.pop(context);
     } catch (e) {
       } finally {
@@ -132,6 +133,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
             ? const Center(child: CircularProgressIndicator())
             : PrimaryButton(
           onPressed: handleApiCall,
+
           text: _bodId != null ? "Update BOD" : "Submit BOD",
         ),
       ),

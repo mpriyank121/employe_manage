@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Controllers/checkIn_Controller.dart';
 import '../API/Controllers/employee_attendence_controller.dart';
+import '../API/Controllers/welcome_page_controller.dart';
 import '../API/Services/attendance_service.dart';
 import '../API/Services/user_service.dart';
 import '../Configuration/app_spacing.dart';
@@ -29,6 +30,8 @@ class _WelcomePageState extends State<WelcomePage> {
   final CheckInController checkInController = Get.put(CheckInController());
   final UserService userService = UserService();
   final AttendanceController controller = Get.find<AttendanceController>();
+  final WelcomeController welcomeController = Get.put(WelcomeController());
+
   var isTodayAttendanceComplete = false.obs;
 
 

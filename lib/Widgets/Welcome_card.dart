@@ -76,31 +76,7 @@ class WelcomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isCheckedOut = checkOutTime != null;
-    void _showImagePreview(BuildContext context, String imageUrl) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            child: InteractiveViewer(
-              panEnabled: true, // Enable dragging
-              minScale: 0.2,
-              maxScale: 2.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.broken_image, size: 10, color: Colors.grey);
-                  },
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    }
+
     final bool hasValidDateData = selectedDate != null;
 
     final DateTime now = DateTime.now();
