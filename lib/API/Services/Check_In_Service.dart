@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 
+import '../encryption/Encryption_helper.dart';
+
 class CheckInService {
   final String _baseUrl = '$baseUrl/checkIn.php';
   String? _cachedEmpId; // cache empId
@@ -116,10 +118,10 @@ class CheckInService {
 
       var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
 
-      request.fields['emp_id'] = empId;
-      request.fields['latitude'] = position.latitude.toString();
-      request.fields['longitude'] = position.longitude.toString();
-      request.fields['type'] = type;
+      request.fields['emp_id'] = EncryptionHelper.encryptString(empId);
+      request.fields['latitude'] = EncryptionHelper.encryptString(position.latitude.toString());
+      request.fields['longitude'] = EncryptionHelper.encryptString(position.longitude.toString());
+      request.fields['type'] = EncryptionHelper.encryptString(type);
 
             if (imageFile != null && imageFile.path.isNotEmpty && await imageFile.exists()) {
         print("📤 Uploading image file: ${imageFile.path}");
@@ -201,10 +203,10 @@ class CheckInService {
       );
 
       request.fields.addAll({
-        'type': 'checkEmployeeRadius',
-        'emp_id': empId,
-        'longitude': position.longitude.toString(),
-        'latitude': position.latitude.toString(),
+        'type': EncryptionHelper.encryptString('checkEmployeeRadius'),
+        'emp_id': EncryptionHelper.encryptString(empId),
+        'longitude': EncryptionHelper.encryptString(position.longitude.toString()),
+        'latitude': EncryptionHelper.encryptString(position.latitude.toString()),
       });
 
       http.StreamedResponse response = await request.send().timeout(const Duration(seconds: 15));
@@ -234,10 +236,10 @@ Future<String?> checkEmployeeRadiusWithPosition(Position position) async {
     );
 
     request.fields.addAll({
-      'type': 'checkEmployeeRadius',
-      'emp_id': empId,
-      'longitude': position.longitude.toString(),
-      'latitude': position.latitude.toString(),
+      'type': EncryptionHelper.encryptString('checkEmployeeRadius'),
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'longitude': EncryptionHelper.encryptString(position.longitude.toString()),
+      'latitude': EncryptionHelper.encryptString(position.latitude.toString()),
     });
 
     http.StreamedResponse response = await request.send().timeout(const Duration(seconds: 10));

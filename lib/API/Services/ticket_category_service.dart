@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 // Fetch Ticket Categories
 Future<List<Map<String, String>>> getTicketCategories() async {
@@ -9,7 +10,7 @@ Future<List<Map<String, String>>> getTicketCategories() async {
     final response = await http.post(
       Uri.parse('$baseUrl/ticket.php'),
       headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: {'type': 'get_ticket_Cat'},
+      body: {'type': EncryptionHelper.encryptString('get_ticket_Cat')},
     );
 
     if (response.statusCode == 200) {
@@ -47,10 +48,10 @@ Future<List<Map<String, String>>> getSubCategoriesByCategory(List<String> catego
       Uri.parse('$baseUrl/ticket.php'),
     );
 
-    req.fields['type'] = "get_ticket_subCat";
+    req.fields['type'] = EncryptionHelper.encryptString("get_ticket_subCat");
 
     for (String categoryId in categoryIds) {
-      req.fields['ticket_catID'] = categoryId;
+      req.fields['ticket_catID'] = EncryptionHelper.encryptString(categoryId);
     }
 
     var response = await req.send();

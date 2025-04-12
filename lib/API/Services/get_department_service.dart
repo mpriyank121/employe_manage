@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 // Fetch Departments
 Future<List<Map<String, String>>> getDepartment() async {
@@ -9,7 +10,7 @@ Future<List<Map<String, String>>> getDepartment() async {
     final response = await http.post(
       Uri.parse('$baseUrl/ticket.php'),
       headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: {'type': 'get_department'},
+      body: {'type': EncryptionHelper.encryptString('get_department')},
     );
 
     if (response.statusCode == 200) {
@@ -48,10 +49,10 @@ Future<List<Map<String, String>>> getEmployeesByDepartment(List<String> departme
     final req =  http.MultipartRequest('POST',
       Uri.parse('$baseUrl/ticket.php'),
     );
-    req.fields['type'] = "get_employee";
-    req.fields['emp_id'] = "empId";
+    req.fields['type'] = EncryptionHelper.encryptString("get_employee");
+    req.fields['emp_id'] = EncryptionHelper.encryptString("empId");
     for (int i = 0; i < departmentIds.length; i++) {
-      req.fields['department_ids[$i]'] = departmentIds[i];
+      req.fields['department_ids[$i]'] = EncryptionHelper.encryptString(departmentIds[i]);
     }
     var response = await req.send();
     var responseBody = await response.stream.bytesToString();

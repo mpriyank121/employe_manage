@@ -71,7 +71,7 @@ class _SlideCheckInState extends State<SlideCheckIn> {
   Future<void> _showEodBodWarning(String message) async {
     await showCupertinoDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: const Text("Check-out Blocked"),
         content: Text(message),
         actions: [
@@ -213,7 +213,7 @@ Future<void> _handleCheckOut() async {
   if (!(data['success'] ?? false)) {
     showCupertinoDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (_) => CupertinoAlertDialog(
         title: const Text("Outside Office Area"),
         content: Text(data['message'] ?? "You are outside the allowed radius."),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],

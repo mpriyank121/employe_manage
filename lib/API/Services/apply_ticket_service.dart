@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 Future<void> applyTicket({
   required String empId,
@@ -22,15 +23,15 @@ Future<void> applyTicket({
   );
 
   request.fields.addAll({
-    'type': 'apply_ticket',
-    'emp_id': empId,
-    'priority': priority,
-    'ticket_title': ticketTitle,
-    'description': description,
-    'ticket_cat': ticketCat,
-    'start_date': startDate,
-    'order_id' : orderId,
-    'attendance_date' : attendanceDate,
+    'type':EncryptionHelper.encryptString('apply_ticket') ,
+    'emp_id': EncryptionHelper.encryptString(empId),
+    'priority': EncryptionHelper.encryptString(priority),
+    'ticket_title': EncryptionHelper.encryptString(ticketTitle),
+    'description': EncryptionHelper.encryptString(description),
+    'ticket_cat': EncryptionHelper.encryptString(ticketCat),
+    'start_date': EncryptionHelper.encryptString(startDate),
+    'order_id' : EncryptionHelper.encryptString(orderId),
+    'attendance_date' : EncryptionHelper.encryptString(attendanceDate),
   });
 
   if (ticketSubCat != null) request.fields['ticket_sub_cat'] = ticketSubCat;

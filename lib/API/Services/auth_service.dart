@@ -45,8 +45,8 @@ class AuthService {
 
       var encryptedData = _encryptData({
         'phone': phone,
-        'otp': otp,  // ✅ OTP is not encrypted
-        'type': 'verify_otp',
+        'otp': EncryptionHelper.encryptString(otp),  // ✅ OTP is not encrypted
+        'type': ('verify_otp'),
       }, encryptOtp: false);
 
       var jsonResponse = await _apiClient.postRequest("/login.php", encryptedData);

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../Configuration/app_constants.dart';
 import 'package:employe_manage/API/models/holiday_model.dart';
+import '../encryption/Encryption_helper.dart';
 import '../models/attendence_model.dart'; // ✅ Use one consistent import path everywhere
 
 class UserService {
@@ -23,8 +24,8 @@ class UserService {
       );
 
       request.fields.addAll({
-        'phone': phone,
-        'type': 'user_info',
+        'phone': EncryptionHelper.encryptString(phone),
+        'type': EncryptionHelper.encryptString('user_info'),
       });
 
       http.StreamedResponse response = await request.send();
@@ -52,8 +53,8 @@ class UserService {
       );
 
       request.fields.addAll({
-        'phone': phone,
-        'type': 'user_info',
+        'phone': EncryptionHelper.encryptString(phone),
+        'type': EncryptionHelper.encryptString('user_info'),
       });
 
       http.StreamedResponse response = await request.send();
@@ -106,8 +107,8 @@ class UserService {
       var response = await http.post(
         Uri.parse("https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//emp_info.php"),
         body: {
-          'phone': phone,
-          'type': 'user_info',
+          'phone': EncryptionHelper.encryptString(phone!),
+          'type': EncryptionHelper.encryptString('user_info'),
         },
       );
 

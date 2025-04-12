@@ -1,3 +1,4 @@
+import 'package:employe_manage/API/encryption/Encryption_helper.dart';
 import 'package:employe_manage/Configuration/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +24,7 @@ class ApiEodService {
       final response = await http.post(
         Uri.parse('$baseUrl/EOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: {'emp_id': empId, 'type': 'updateEOD'},
+        body: {'emp_id': EncryptionHelper.encryptString(empId), 'type': EncryptionHelper.encryptString('updateEOD')},
       );
 
       print("📡 API Response (fetchEodId): ${response.body}");
@@ -77,11 +78,11 @@ class ApiEodService {
     );
 
     request.fields.addAll({
-      'emp_id': empId,
-      'type': eodId?.isNotEmpty == true ? 'updateEOD' : 'addEOD',
-      'task_title': taskTitle,
-      'description': description,
-      if (eodId?.isNotEmpty == true) 'eodID': eodId!,
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'type': EncryptionHelper.encryptString(eodId?.isNotEmpty == true ? 'updateEOD' : 'addEOD'),
+      'task_title': EncryptionHelper.encryptString(taskTitle),
+      'description': EncryptionHelper.encryptString(description),
+      if (eodId?.isNotEmpty == true) 'eodID': EncryptionHelper.encryptString(eodId!),
     });
 
     try {
@@ -131,7 +132,7 @@ class ApiEodService {
       final response = await http.post(
         Uri.parse('$baseUrl/EOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: {'emp_id': empId, 'type': 'updateEOD'},
+        body: {'emp_id': EncryptionHelper.encryptString(empId), 'type': EncryptionHelper.encryptString('updateEOD')},
       );
 
       if (response.statusCode == 200) {

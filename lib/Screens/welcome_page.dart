@@ -126,10 +126,7 @@ print('to:::$todayAttendance');
           icon: SvgPicture.asset('assets/images/bc 3.svg'),
           onPressed: () {},
         ),
-        trailing: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications),
-        ),
+
       ),
       body: Column(
         children: [

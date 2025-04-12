@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../../Configuration/app_constants.dart'; // For Date Formatting
+import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart'; // For Date Formatting
 
 
 class TaskService {
@@ -20,13 +21,13 @@ class TaskService {
       String formattedEndDate = endDate != null ? DateFormat('yyyy-MM-dd').format(endDate) : '';
 
       request.fields.addAll({
-        'type': 'get_task_data',
-        'emp_id': empId, // ✅ Dynamic Employee ID
-        'limit': limit.toString(),
-        'offset': offset.toString(),
+        'type': EncryptionHelper.encryptString('get_task_data'),
+        'emp_id': EncryptionHelper.encryptString(empId), // ✅ Dynamic Employee ID
+        'limit': (limit.toString()),
+        'offset': (offset.toString()),
 
-        if (formattedStartDate.isNotEmpty) 'start_date': formattedStartDate,
-        if (formattedEndDate.isNotEmpty) 'end_date': formattedEndDate,
+        if (formattedStartDate.isNotEmpty) 'start_date': EncryptionHelper.encryptString(formattedStartDate),
+        if (formattedEndDate.isNotEmpty) 'end_date': EncryptionHelper.encryptString(formattedEndDate),
 
       });
       

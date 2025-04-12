@@ -18,7 +18,7 @@ class ReasonViewButton extends StatelessWidget {
     final buttonColor = color ?? AppConfig.defaultButtonColor; // Default color
 
     return SizedBox(
-      height: 16,
+      height: 20,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(

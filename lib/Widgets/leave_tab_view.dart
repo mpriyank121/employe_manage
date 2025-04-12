@@ -91,37 +91,78 @@ class _LeaveTabViewState extends State<LeaveTabView> {
                       itemBuilder: (context, index) {
                         LeaveModel leave = entry.value[index];
 
-                        return CustomListTile(
-                          item: {
-                            "title": leave.leaveName ?? "Leave Request",
-                            "subtitle": "${_formatDate(leave.startDate)} - ${_formatDate(leave.endDate)}",
-                          },
-                          trailing: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              StatusWidget(status: leave.status),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (leave.comment != "NA" && leave.comment!.trim().isNotEmpty)
-                                    ReasonViewButton(
-                                      text: "View Comment",
-                                      color: Colors.grey,
-                                      onPressed: () => showCustomDialog(context, "Comment", leave.comment ?? "No comment available"),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  ReasonViewButton(
-                                    text: "View Reason",
-                                    color: Colors.grey,
-                                    onPressed: () => showCustomDialog(context, "Reason", leave.resson ?? "No reason provided"),
-                                  ),
-                                ],
+                        return  Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey, // Border color
+                                width: 1,         // Border width
                               ),
-                            ],
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Top section: Title + Dates + Status
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Title and Dates
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              leave.leaveName ?? "Leave Request",
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              "${_formatDate(leave.startDate)} - ${_formatDate(leave.endDate)}",
+                                              style: const TextStyle(color: Colors.grey),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Status badge
+                                      StatusWidget(status: leave.status),
+                                    ],
+                                  ),
+                                ),
+
+                                // Divider
+                                const Divider(height: 1, color: Color(0xFFE0E0E0)),
+
+                                // Buttons section
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      if (leave.comment != "NA" && leave.comment!.trim().isNotEmpty)
+                                        ReasonViewButton(
+                                          text: "View Comment",
+                                          color: Color(0xFF3CAB88),
+                                          onPressed: () => showCustomDialog(context, "Comment", leave.comment ?? "No comment available"),
+                                        ),
+                                      const SizedBox(width: 8),
+                                      ReasonViewButton(
+                                        text: "View Reason",
+                                        color: Colors.red,
+                                        onPressed: () => showCustomDialog(context, "Reason", leave.resson ?? "No reason provided"),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
+
                       },
                     );
                   }).toList(),

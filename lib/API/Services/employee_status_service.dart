@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:employe_manage/API/encryption/Encryption_helper.dart';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
@@ -11,8 +12,8 @@ class CheckStatus {
     try {
       var request = http.MultipartRequest('POST', Uri.parse(_baseUrl));
       request.fields.addAll({
-        'type': 'emp_today_attendance',
-        'emp_id': empId,
+        'type': EncryptionHelper.encryptString('emp_today_attendance'),
+        'emp_id': EncryptionHelper.encryptString(empId),
       });
 
       http.StreamedResponse response = await request.send();

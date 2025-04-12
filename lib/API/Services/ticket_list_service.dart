@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 Future<List<dynamic>> fetchTickets({required String empId, int limit = 10, int page = 1}) async {
   try {
@@ -9,11 +10,11 @@ Future<List<dynamic>> fetchTickets({required String empId, int limit = 10, int p
     var request = http.MultipartRequest('POST', url);
 
     request.fields.addAll({
-      'type': 'ticketList',
-      'limit': limit.toString(),
-      'page': page.toString(),
-      'emp_id': empId,
-      'super_user': '0',
+      'type': EncryptionHelper.encryptString('ticketList'),
+      'limit': (limit.toString()),
+      'page': (page.toString()),
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'super_user': EncryptionHelper.encryptString('0'),
     });
 
     var response = await request.send();

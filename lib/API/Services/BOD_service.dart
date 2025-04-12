@@ -1,3 +1,4 @@
+import 'package:employe_manage/API/encryption/Encryption_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -21,7 +22,7 @@ class ApiBodService {
       final response = await http.post(
         Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/BOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: {'emp_id': empId, 'type': 'updateBOD'},
+        body: {'emp_id': EncryptionHelper.encryptString(empId), 'type': EncryptionHelper.encryptString('updateBOD')},
       );
 
       print("📡 API Response (fetchBodId): ${response.body}");
@@ -78,11 +79,11 @@ class ApiBodService {
       );
 
       request.fields.addAll({
-        'emp_id': empId,
-        'type': bodId != null && bodId.isNotEmpty ? 'updateBOD' : 'addBOD',
-        'task_title': taskTitle,
-        'description': description,
-        if (bodId != null && bodId.isNotEmpty) 'bodID': bodId,
+        'emp_id': EncryptionHelper.encryptString(empId),
+        'type':EncryptionHelper.encryptString( bodId != null && bodId.isNotEmpty ? 'updateBOD' : 'addBOD'),
+        'task_title': EncryptionHelper.encryptString(taskTitle),
+        'description': EncryptionHelper.encryptString(description),
+        if (bodId != null && bodId.isNotEmpty) 'bodID': EncryptionHelper.encryptString(bodId),
       });
 
       http.StreamedResponse response = await request.send();

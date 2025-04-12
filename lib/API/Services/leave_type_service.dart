@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 class LeaveTypeService {
   static const String apiUrl =
@@ -22,8 +23,8 @@ class LeaveTypeService {
 
     var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
     request.fields.addAll({
-      'emp_id': empId,
-      'type': 'get_leave_type',
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'type': EncryptionHelper.encryptString('get_leave_type'),
     });
 
     http.StreamedResponse response = await request.send();
@@ -70,12 +71,12 @@ class LeaveTypeService {
 
     var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
     request.fields.addAll({
-      'emp_id': "$empId",
-      'type': type,  // ✅ Action type
-      'leave_type': leaveId,    // ✅ Matching API response key "id"
-      'start_date': startDate,
-      'end_date': endDate,
-      'note': note,
+      'emp_id': EncryptionHelper.encryptString("$empId"),
+      'type': EncryptionHelper.encryptString(type),  // ✅ Action type
+      'leave_type': EncryptionHelper.encryptString(leaveId),    // ✅ Matching API response key "id"
+      'start_date': EncryptionHelper.encryptString(startDate),
+      'end_date': EncryptionHelper.encryptString(endDate),
+      'note': EncryptionHelper.encryptString(note),
     });
 
     http.StreamedResponse response = await request.send();

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 
 class AssetService {
   final String apiUrl = '$baseUrl//asset_info.php';
@@ -11,8 +12,8 @@ class AssetService {
     var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
     request.fields.addAll({
-      'emp_id': empId, // ✅ Dynamic Employee ID
-      'type': 'asset',
+      'emp_id': EncryptionHelper.encryptString(empId), // ✅ Dynamic Employee ID
+      'type': EncryptionHelper.encryptString('asset'),
     });
 
     http.StreamedResponse response = await request.send();

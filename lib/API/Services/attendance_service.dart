@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:employe_manage/API/encryption/Encryption_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,10 +26,10 @@ class AttendanceService {
     );
 
     request.fields.addAll({
-      'emp_id': empId,
-      'type': 'get_attendanceData',
-      'start_date': startDate,
-      'end_date': endDate,
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'type': EncryptionHelper.encryptString('get_attendanceData'),
+      'start_date': EncryptionHelper.encryptString(startDate),
+      'end_date': EncryptionHelper.encryptString(endDate),
     });
 
     http.StreamedResponse response = await request.send();
@@ -105,10 +106,10 @@ class AttendanceService {
     );
 
     request.fields.addAll({
-      'emp_id': empId,
-      'type': 'get_attendanceData',
-      'start_date': startDate,
-      'end_date': endDate,
+      'emp_id': EncryptionHelper.encryptString(empId),
+      'type': EncryptionHelper.encryptString('get_attendanceData'),
+      'start_date': EncryptionHelper.encryptString(startDate),
+      'end_date': EncryptionHelper.encryptString(endDate),
     });
 
     http.StreamedResponse response = await request.send();

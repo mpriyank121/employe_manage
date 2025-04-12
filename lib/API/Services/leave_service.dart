@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Configuration/app_constants.dart';
+import '../encryption/Encryption_helper.dart';
 import '../models/leave_model.dart';
 
 class LeaveService {
@@ -23,8 +24,8 @@ class LeaveService {
 
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
       request.fields.addAll({
-        'emp_id': empId,
-        'type': 'get_leave_data',
+        'emp_id': EncryptionHelper.encryptString(empId),
+        'type': EncryptionHelper.encryptString('get_leave_data'),
       });
 
       http.StreamedResponse response = await request.send();
