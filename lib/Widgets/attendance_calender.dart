@@ -100,11 +100,9 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
 
     widget.onMonthChanged?.call(selectedYear, selectedMonth);
     holidayController.fetchHolidaysByMonth(selectedMonth);
-    controller.fetchAttendance();
+    //controller.fetchAttendance();
     controller.fetchAttendanceByMonth(selectedYear, selectedMonth);
       _loadAttendanceData();
-
-    
 
 // ✅ FIXED
   }

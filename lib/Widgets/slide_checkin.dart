@@ -284,13 +284,17 @@ Future<void> _handleCheckOut() async {
               decoration: ShapeDecoration(
                 color: _isCheckInDisabled
                     ? Colors.grey.shade300
-                    : (_isCheckedIn ? const Color.fromARGB(24, 8, 8, 8) : const Color(0x193CAB88)),
+                    : widget.isEnabled
+                    ? (widget.text == 'Slide To CheckOut' ? Color(0xFFFFCDD2)	 : Color(0x193CAB88))
+                    : Color(0xFFE0E0E0)		,
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
                     width: 1,
                     color: _isCheckInDisabled ||!widget.isEnabled?
                          Colors.grey
-                        : (_isCheckedIn ? Colors.red : const Color(0xFF3CAB88)),
+                        : widget.isEnabled
+                        ? (widget.text == 'Slide To CheckOut' ? Colors.red : const Color(0xFF3CAB88))
+                        : Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(81),
                 ),
@@ -316,11 +320,10 @@ Future<void> _handleCheckOut() async {
 
               Positioned(
                 left: _position + widget.screenWidth * 0.02,
-                top: widget.screenHeight * 0.025,
+                top: widget.screenHeight * 0.028,
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
                     if (!widget.isEnabled) return;
-
                     setState(() {
                       _position += details.delta.dx;
                       if (_position < 0) _position = 0;

@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 void showLocationErrorDialog(BuildContext context) {
   showCupertinoDialog(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => CupertinoAlertDialog(
       title: const Text("Location Required"),
       content: const Text("Please enable GPS/location services to proceed."),
       actions: [

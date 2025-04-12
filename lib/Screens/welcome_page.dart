@@ -256,7 +256,8 @@ print('to:::$todayAttendance');
           isCheckedIn: checkInController.isCheckedIn.value,
           onCheckIn: ()async {
            await checkInController.checkIn();         // ✅ Mark check-in
-            _loadInitialAttendance(); // 🔁 Refresh attendance
+            _loadInitialAttendance();
+            // 🔁 Refresh attendance
           },
           onCheckOut: ()async {
            await checkInController.checkOut();        // ✅ Mark check-out

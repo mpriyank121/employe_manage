@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Configuration/app_constants.dart';
+
 class CheckStatus {
-  final String _baseUrl = 'https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/attendance_info.php';
+  final String _baseUrl = '$baseUrl/attendance_info.php';
 
   /// Fetch Check-In and Check-Out Status from API
   Future<Map<String, dynamic>?> getCheckInStatus(String empId) async {

@@ -43,8 +43,8 @@ class LeaveService {
 
           // Categorize leave data
           Map<String, List<LeaveModel>> categorizedData = {
-            'Approved': [],
             'Requested': [],
+            'Approved': [],
             'Rejected': [],
           };
 

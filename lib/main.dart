@@ -1,7 +1,7 @@
 import 'package:employe_manage/Screens/otp_page.dart';
 import 'package:employe_manage/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart%20';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
@@ -11,36 +11,30 @@ import 'Screens/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 
-
+import 'Widgets/Custom_Splash_Screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp, // Lock to portrait
+    DeviceOrientation.portraitUp,
   ]);
+
   Get.put(AttendanceController());
   Get.put(UserController());
   Get.put(TaskController());
-// Register GetX controller
-// ✅ Register Controller Before Running the App
 
-
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({super.key, this.isLoggedIn = false});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       theme: ThemeData(
-        progressIndicatorTheme: ProgressIndicatorThemeData(
-          color: Color(0xFFF25922), // 👈 Your desired global color
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: Color(0xFFF25922),
         ),
       ),
       localizationsDelegates: const [
@@ -50,10 +44,11 @@ class MyApp extends StatelessWidget {
         FlutterQuillLocalizations.delegate,
       ],
       debugShowCheckedModeBanner: false,
-      initialRoute: isLoggedIn ? '/home' : '/login',
+      initialRoute: '/', // 🔁 Start from SplashScreen always
       routes: {
+        '/': (context) =>  CustomSplashScreen(), // ✅ Now runs first
         '/login': (context) => LoginScreen(),
-        '/otp': (context) => OtpPage(phone: 'phone',),
+        '/otp': (context) =>  OtpPage(phone: 'phone'),
         '/home': (context) => MainScreen(),
       },
     );
