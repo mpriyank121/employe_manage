@@ -34,9 +34,9 @@ Future<void> applyTicket({
     'attendance_date' : EncryptionHelper.encryptString(attendanceDate),
   });
 
-  if (ticketSubCat != null) request.fields['ticket_sub_cat'] = ticketSubCat;
-  if (orderId != null) request.fields['order_id'] = orderId;
-  if (attendanceDate != null) request.fields['attendance_date'] = attendanceDate;
+  if (ticketSubCat != null) request.fields['ticket_sub_cat'] = EncryptionHelper.encryptString(ticketSubCat);
+  if (orderId != null) request.fields['order_id'] = EncryptionHelper.encryptString(orderId);
+  if (attendanceDate != null) request.fields['attendance_date'] = EncryptionHelper.encryptString(attendanceDate);
 
   for (var i = 0; i<departments.length;i++) {
     request.fields['departments[$i]'] = departments[i];

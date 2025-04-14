@@ -7,14 +7,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
 import 'API/Controllers/task_controller.dart';
 import 'API/Controllers/user_data_controller.dart';
+import 'API/Services/version_service.dart';
 import 'Screens/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 
 import 'Widgets/Custom_Splash_Screen.dart';
+import 'Widgets/manadatory_update_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final result = await VersionService.checkAppVersion('1.0.0');
+  if (result != null) {
+    final isUpdateAvailable = result['check'].toString() == " 1";
+    final isMandatory = result['mandatory'].toString() == " 1";
+    final message = result['message'] ?? 'A new update is available.';
+
+    Future.delayed(Duration.zero, () {
+      if (isMandatory) {
+        showMandatoryUpdateDialog(message); // 👈 No skip
+      } else if (isUpdateAvailable) {
+        showOptionalUpdateDialog(message);  // 👈 With skip
+      }
+    });
+  }
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

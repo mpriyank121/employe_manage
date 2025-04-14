@@ -117,7 +117,10 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                   child: AttendanceCalendar(
                     onMonthChanged: onMonthChanged,
+                    popOnDateTap: false, // <-- this controls the behavior inside the calendar
+
                   ),
+
                 ),
 
                 const SizedBox(height: 20),

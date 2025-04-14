@@ -147,6 +147,7 @@ print('to:::$todayAttendance');
             setState(() {
               checkInImage.value = checkInImages;
               checkOutImage.value = checkOutImages;
+
             });
             var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
             print("✅ Attendance Data Fetched: ${attendanceData.length} records");

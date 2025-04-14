@@ -9,7 +9,6 @@ import '../API/Services/Check_In_Service.dart';
 import '../API/Services/employee_status_service.dart';
 import '../API/Services/image_picker_service.dart';
 import 'camera_preview_screen.dart';
-import 'dialog_helper.dart';
 import 'location_error_dialog.dart';
 
 

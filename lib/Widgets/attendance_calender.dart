@@ -17,10 +17,13 @@ class AttendanceCalendar extends StatefulWidget {
       String?,
       String?
       )? onDateSelected;
+  final bool popOnDateTap;
+
 
   final void Function(int year, int month)? onMonthChanged;
 
-  const AttendanceCalendar({super.key, this.onDateSelected, this.onMonthChanged});
+  const AttendanceCalendar({super.key, this.onDateSelected, this.onMonthChanged, this.popOnDateTap = false, // 👈 default is false
+  });
 
   @override
   _AttendanceCalendarState createState() => _AttendanceCalendarState();
@@ -30,6 +33,7 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
   Map<DateTime, Map<String, String>> attendanceData = {};
   final HolidayController holidayController = Get.put(HolidayController());
   final AttendanceController controller = Get.put(AttendanceController());
+
 // ✅ FIXED
 
   DateTime _focusedDay = DateTime.now();
@@ -195,8 +199,10 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                   );
 
 
-                  Navigator.pop(context);
-                },
+
+                  if (widget.popOnDateTap) {
+                    Navigator.pop(context); // <-- this closes the dialog/screen
+                  }                },
                 calendarFormat: CalendarFormat.month,
                 headerVisible: false,
 

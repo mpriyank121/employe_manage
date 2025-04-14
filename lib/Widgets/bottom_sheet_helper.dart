@@ -23,7 +23,10 @@ void showDatePickerBottomSheet(
       height: MediaQuery.of(context).size.height * 0.9,
       padding: EdgeInsets.only(top: 20),
       child: AttendanceCalendar(
-        onDateSelected: onDateSelected, // ✅ Now properly typed
+        onDateSelected: onDateSelected,
+        popOnDateTap: true, // 👈 this ensures it auto-closes after tap
+
+        // ✅ Now properly typed
       ),
     ),
   );

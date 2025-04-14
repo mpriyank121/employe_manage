@@ -31,12 +31,14 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
     try {
       final empId = await ApiEodService.getEmployeeId();
       if (empId == null) {
-        setState(() => _eodResponse = "❌ Employee ID not found.");
         return;
       }
 
       final today = DateTime.now();
       final tasks = await TaskService.fetchTaskList(empId, startDate: today, endDate: today);
+      print("📋 Tasks fetched for $empId on $today:\n$tasks");
+
+
 
       final todayEOD = tasks.firstWhere(
             (task) => task['eod_id'] != null && task['eod_id'].toString().isNotEmpty,
@@ -45,17 +47,10 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
       if (todayEOD != null) {
         _eodId = todayEOD['eod_id'].toString();
-        _taskTitleController.text = todayEOD['task_title'] ?? '';
-        _quillController.document = Document()..insert(0, todayEOD['description'] ?? '');
+        _taskTitleController.text = todayEOD['eod'] ?? ''; // Show 'eod' in title field
+        _quillController.document = Document()..insert(0, todayEOD['eodDesc'] ?? ''); // Show 'eodDesc' in editor
 
-        setState(() {
-        });
-      } else {
-        setState(() => _eodResponse = "⚠️ No EOD submitted yet for today.");
       }
-    } catch (e) {
-      print("❌ Error checking EOD status: $e");
-      setState(() => _eodResponse = "❌ Failed to fetch EOD status.");
     } finally {
       setState(() => _isLoading = false);
     }
@@ -96,7 +91,7 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Submit EOD'),
+      appBar: CustomAppBar(title: 'What have you done today'),
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, constraints) {

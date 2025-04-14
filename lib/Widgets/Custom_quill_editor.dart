@@ -8,6 +8,7 @@ class CustomQuillEditor extends StatefulWidget {
   final TextEditingController taskTitleController;
   final bool showTaskFields;
   final bool showDescriptionField;
+  final FocusNode? focusNode; // 🔽 Add this
 
   const CustomQuillEditor({
     Key? key,
@@ -15,6 +16,8 @@ class CustomQuillEditor extends StatefulWidget {
     required this.taskTitleController,
     this.showTaskFields = true,
     this.showDescriptionField = true,
+    this.focusNode, // 🔽 Optional for safe use
+
   }) : super(key: key);
 
   @override
@@ -103,7 +106,7 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                 padding: const EdgeInsets.all(12),
                 child: QuillEditor(
                   controller: widget.controller,
-                  focusNode: _editorFocusNode,
+                  focusNode: widget.focusNode ?? _editorFocusNode,
                   scrollController: _editorScrollController,
 
                   config: QuillEditorConfig(

@@ -52,7 +52,7 @@ Future<List<Map<String, String>>> getEmployeesByDepartment(List<String> departme
     req.fields['type'] = EncryptionHelper.encryptString("get_employee");
     req.fields['emp_id'] = EncryptionHelper.encryptString("empId");
     for (int i = 0; i < departmentIds.length; i++) {
-      req.fields['department_ids[$i]'] = EncryptionHelper.encryptString(departmentIds[i]);
+      req.fields['department_ids[$i]'] = (departmentIds[i]);
     }
     var response = await req.send();
     var responseBody = await response.stream.bytesToString();

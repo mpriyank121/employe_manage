@@ -31,7 +31,6 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
     try {
       final empId = await ApiBodService.getEmployeeId();
       if (empId == null) {
-        setState(() => _bodResponse = "❌ Employee ID not found.");
         return;
       }
 
@@ -45,16 +44,11 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
       if (todayBOD != null) {
         _bodId = todayBOD['bod_id'].toString();
-        _taskTitleController.text = todayBOD['task_title'] ?? '';
-        _quillController.document = Document()..insert(0, todayBOD['description'] ?? '');
-        setState(() {
-        });
-        } else {
-        setState(() => _bodResponse = "⚠️ No BOD submitted yet for today.");
-      }
-    } catch (e) {
-      print("❌ Error checking BOD status: $e");
-      setState(() => _bodResponse = "❌ Failed to fetch BOD status.");
+
+        _taskTitleController.text = todayBOD['bod'] ?? '';
+        _quillController.document = Document()..insert(0, todayBOD['bodDesc'] ?? '');
+
+        }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -89,7 +83,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Submit BOD'),
+      appBar: CustomAppBar(title: 'What are you doing today'),
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, constraints) {

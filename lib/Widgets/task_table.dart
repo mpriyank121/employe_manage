@@ -1,4 +1,6 @@
 import 'package:employe_manage/Widgets/CustomListTile.dart';
+import 'package:employe_manage/Widgets/Reason_view_button.dart';
+import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import '../API/Services/Task_service.dart';
 import 'package:intl/intl.dart';
@@ -34,6 +36,54 @@ class _TaskListWidgetState extends State<TaskListWidget> {
     super.initState();
     fetchTasks();
     _scrollController.addListener(_scrollListener);
+  }
+  void _showDescriptionBottomSheet(Map<String, dynamic> task) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (context, scrollController) => SingleChildScrollView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const Text("BOD Task", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(task['bod'] ?? 'No BOD task'),
+                const SizedBox(height: 12),
+                const Text("BOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(task['bodDesc'] ?? 'No BOD description'),
+
+                const Divider(height: 30),
+
+                const Text("EOD Task", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(task['eod'] ?? 'No EOD task'),
+                const SizedBox(height: 12),
+                const Text("EOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(task['eodDesc'] ?? 'No EOD description'),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _calculateAverageRating() {
@@ -177,6 +227,12 @@ class _TaskListWidgetState extends State<TaskListWidget> {
                       _buildTaskDetail("EOD Task", task['eod']),
                       _buildTaskDetail("Hours", task['hours']),
                       _buildTaskDetail("Rating", task['rating']),
+                      ReasonViewButton(
+                        onPressed: () => _showDescriptionBottomSheet(task),
+                        text: "View EOD/BOD",
+                      ),
+
+
                     ],
                   ),
                 );
