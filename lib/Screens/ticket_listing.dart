@@ -3,18 +3,21 @@ import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Widgets/ticket_list_widget.dart';
+
+import '../Widgets/Ticket_List_Widget.dart';
 
 class TicketScreen extends StatefulWidget {
   const TicketScreen({Key? key}) : super(key: key);
 
   @override
-  State<TicketScreen> createState() => _TicketScreenState();
+  State<TicketScreen> createState() => TicketScreenState();
 }
 
-class _TicketScreenState extends State<TicketScreen> {
+class TicketScreenState extends State<TicketScreen> {
   String? empId;
   bool isLoading = true;
+  final GlobalKey<TicketListWidgetState> ticketListKey = GlobalKey();
+
 
   @override
   void initState() {
@@ -38,21 +41,27 @@ class _TicketScreenState extends State<TicketScreen> {
         title: "Ticket List",
         trailing: PrimaryButton(
           heightFactor: 0.04,
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => TicketForm()),
             );
+            if (result == true) {
+              ticketListKey.currentState?.loadTickets();
+            }
           },
           widthFactor: 0.3,
           text: 'Add Ticket',
         ),
+
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : empId == null
-          ? Center(child: Text("❌ Employee ID not found"))
-          : TicketListWidget(empId: empId!),
+          ? Center(child: Text(""))
+          : TicketListWidget(
+          key: ticketListKey,
+          empId: empId!),
     );
   }
 }

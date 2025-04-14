@@ -1,4 +1,5 @@
 import 'package:employe_manage/API/encryption/Encryption_helper.dart';
+import 'package:employe_manage/Configuration/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -20,7 +21,7 @@ class ApiBodService {
 
     try {
       final response = await http.post(
-        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/BOD.php'),
+        Uri.parse('$baseUrl/BOD.php'),
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: {'emp_id': EncryptionHelper.encryptString(empId), 'type': EncryptionHelper.encryptString('updateBOD')},
       );
@@ -75,7 +76,7 @@ class ApiBodService {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/BOD.php'),
+        Uri.parse('$baseUrl/BOD.php'),
       );
 
       request.fields.addAll({

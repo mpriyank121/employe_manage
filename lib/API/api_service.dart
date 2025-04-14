@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  final String baseUrl = "https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis/";
+  final String baseUrl = "https://apis.bookchor.com/webservices/bookchor.com/dashboard_apis/";
 
   /// ✅ Common POST request method
   Future<dynamic> postRequest(String endpoint, Map<String, String> body) async {

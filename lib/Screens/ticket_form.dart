@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Services/apply_ticket_service.dart';
 import '../API/Services/get_department_service.dart';
 import '../API/Services/ticket_category_service.dart';
+import '../Configuration/style.dart';
 import '../Widgets/Custom_quill_editor.dart';
 
 class TicketForm extends StatefulWidget {
@@ -17,9 +18,11 @@ class TicketForm extends StatefulWidget {
 }
 
 class _TicketFormState extends State<TicketForm> {
+
+
   final _formKey = GlobalKey<FormState>();
   String title = '';
-  String priority = 'High';
+  String priority = ' High';
   List<String> selectedDepartments = [];
   List<String> selectedEmployees = [];
   String description = '';
@@ -35,6 +38,7 @@ class _TicketFormState extends State<TicketForm> {
   };
 // Default selected priority
   String selectedPriority = 'High';
+  String selectedTicket = 'Order Related';
   List<Map<String, String>> departments = [];
   List<Map<String, String>> employees = [];
   List<Map<String, String>> categories = [];
@@ -121,6 +125,17 @@ class _TicketFormState extends State<TicketForm> {
     });
   }
 
+  Widget buildLabeledField(String label, Widget field) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: fontStyles.headingStyle),
+        CustomContainer(child: field),
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,22 +160,25 @@ class _TicketFormState extends State<TicketForm> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
+                    Text('Title', style: fontStyles.headingStyle,),
                     CustomContainer(
                       child: TextFormField(
                         decoration: const InputDecoration(
-                          labelText: 'Ticket Title *',
+                          hintText: ' Enter Title', // 👈 Optional hint inside the field
+
                           border: InputBorder.none,
                         ),
                         onChanged: (value) => setState(() => title = value),
                         validator: (value) => value!.isEmpty ? 'Enter a title' : null,
                       ),
                     ),
-
+                    Text('Priority', style: fontStyles.headingStyle,),
                     CustomContainer(
                       child: DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
-                          labelText: 'Priority',
                           border: InputBorder.none,
                         ),
                         value: selectedPriority,
@@ -177,10 +195,11 @@ class _TicketFormState extends State<TicketForm> {
                         },
                       ),
                     ),
-
+                    Text('Departments', style: fontStyles.headingStyle,),
                     isLoadingDepartments
                         ? const Center(child: CircularProgressIndicator())
-                        : CustomContainer(
+                        :
+                    CustomContainer(
                       child: MultiSelectDialogField(
                         items: departments
                             .map((dept) => MultiSelectItem(dept['id']!, dept['department']!))
@@ -226,13 +245,13 @@ class _TicketFormState extends State<TicketForm> {
 
                     isLoadingCategories
                         ? const Center(child: CircularProgressIndicator())
-                        : CustomContainer(
+                        :Text('Ticket Categories', style: fontStyles.headingStyle,),
+                    CustomContainer(
                       child: DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
-                          labelText: 'Ticket Categories',
+
                           border: InputBorder.none,
                         ),
-                        value: selectedCategory.isEmpty ? null : selectedCategory.first,
                         items: categories.map((category) {
                           return DropdownMenuItem<String>(
                             value: category['id']!,
@@ -254,7 +273,7 @@ class _TicketFormState extends State<TicketForm> {
                       CustomContainer(
                         child: TextFormField(
                           decoration: const InputDecoration(
-                            labelText: 'Order ID',
+                            hintText: 'Order ID',
                             border: InputBorder.none,
                           ),
                           onChanged: (value) {
@@ -301,7 +320,7 @@ class _TicketFormState extends State<TicketForm> {
                         : CustomContainer(
                       child: DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
-                          labelText: 'Ticket Subcategories',
+                          hintText: 'Ticket Subcategories',
                           border: InputBorder.none,
                         ),
                         value: selectedSubCategory.isEmpty ? null : selectedSubCategory.first,
@@ -355,9 +374,7 @@ class _TicketFormState extends State<TicketForm> {
                     startDate: '',
                   );
                 }
-                Navigator.pop(context);
-
-
+                Navigator.pop(context, true); // ✅ send result back
               },
               text: "Submit",
 

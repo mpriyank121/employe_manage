@@ -43,7 +43,6 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(PrimaryButtonConfig.borderRadius),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min, // ✅ Ensures compact button size
             children: [
 

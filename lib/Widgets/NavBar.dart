@@ -7,7 +7,6 @@ import 'package:employe_manage/Screens/settings.dart';
 import 'package:employe_manage/Screens/welcome_page.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
 import '../API/Controllers/user_data_controller.dart';
 import '../API/Controllers/welcome_page_controller.dart';
 import '../Configuration/app_colors.dart';
@@ -44,106 +43,81 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens, // Show selected screen
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: AppColors.secondary,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+          return false; // prevent closing the app
+        }
+        return true; // allow closing if already on Home tab
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: AppColors.secondary,
+          unselectedItemColor: Colors.grey,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          iconSize: 24,
+          items: [
+            BottomNavigationBarItem(
+              icon: AnimatedScale(
+                scale: _selectedIndex == 0 ? 1.2 : 1.0,
+                duration: Duration(milliseconds: 200),
+                child: SvgPicture.asset(
                   "assets/images/solar_home-2-linear.svg",
-                  width: 24,
-                  height: 24,
                   color: _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
                 ),
-                Text(
-                  "Home",
-                  style: TextStyle(
-                    color: _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
-                    fontSize: 12,
-                  ),
-                )
-              ],
+              ),
+              label: 'Home',
             ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
+            BottomNavigationBarItem(
+              icon: AnimatedScale(
+                scale: _selectedIndex == 1 ? 1.2 : 1.0,
+                duration: Duration(milliseconds: 200),
+                child: SvgPicture.asset(
                   "assets/images/category-1-svgrepo-com 1.svg",
-                  width: 24,
-                  height: 24,
                   color: _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
                 ),
-                Text(
-                  "Categories",
-                  style: TextStyle(
-                    color: _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
-                    fontSize: 12,
-                  ),
-                )
-              ],
+              ),
+              label: 'Categories',
             ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
+            BottomNavigationBarItem(
+              icon: AnimatedScale(
+                scale: _selectedIndex == 2 ? 1.2 : 1.0,
+                duration: Duration(milliseconds: 200),
+                child: SvgPicture.asset(
                   "assets/images/task-square.svg",
-                  width: 24,
-                  height: 24,
                   color: _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
                 ),
-                Text(
-                  "Tasks",
-                  style: TextStyle(
-                    color: _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
-                    fontSize: 12,
-                  ),
-                )
-              ],
+              ),
+              label: 'Tasks',
             ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
+            BottomNavigationBarItem(
+              icon: AnimatedScale(
+                scale: _selectedIndex == 3 ? 1.2 : 1.0,
+                duration: Duration(milliseconds: 200),
+                child: SvgPicture.asset(
                   "assets/images/settings-02.svg",
-                  width: 24,
-                  height: 24,
                   color: _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
                 ),
-                Text(
-                  "Settings",
-                  style: TextStyle(
-                    color: _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
-                    fontSize: 12,
-                  ),
-                )
-              ],
+              ),
+              label: 'Settings',
             ),
-            label: '',
-          ),
-
-
-        ],
+          ],
+        ),
       ),
     );
   }
+
 }

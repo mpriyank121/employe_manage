@@ -11,10 +11,10 @@ class TicketListWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TicketListWidgetState createState() => _TicketListWidgetState();
+  TicketListWidgetState createState() => TicketListWidgetState();
 }
 
-class _TicketListWidgetState extends State<TicketListWidget> {
+class TicketListWidgetState extends State<TicketListWidget> {
   List<dynamic> tickets = [];
   bool isLoading = true;
   bool isLoadingMore = false;
@@ -24,6 +24,7 @@ class _TicketListWidgetState extends State<TicketListWidget> {
   String? errorMessage;
 
   late ScrollController _scrollController;
+  final GlobalKey<TicketListWidgetState> ticketListKey = GlobalKey<TicketListWidgetState>();
 
   @override
   void initState() {
@@ -38,7 +39,9 @@ class _TicketListWidgetState extends State<TicketListWidget> {
     _scrollController.dispose();
     super.dispose();
   }
-
+  void refreshTickets() {
+    ticketListKey.currentState?.loadTickets(); // 🔁 Trigger ticket reload
+  }
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       if (!isLoadingMore && hasMore) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../API/Controllers/auth_controller.dart';
 import '../Configuration/style.dart';
@@ -47,6 +48,10 @@ class LoginScreen extends StatelessWidget {
             TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+                FilteringTextInputFormatter.digitsOnly, // Allow digits only
+              ],
               decoration: InputDecoration(
                 labelText: 'Mobile Number',
                 hintText: 'Enter your mobile number',

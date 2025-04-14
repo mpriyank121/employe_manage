@@ -13,7 +13,7 @@ class PrimaryButtonConfig {
   static const double borderRadius = 8.0;
   static const double widthFactor = 0.9;
   static const double heightFactor = 0.07;
-  static const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 10, vertical: 5);
+  static const EdgeInsets padding = EdgeInsets.symmetric(horizontal: 5, vertical: 5);
   static const Duration animationDuration = Duration(milliseconds: 300);
 }
 

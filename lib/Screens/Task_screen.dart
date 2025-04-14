@@ -45,7 +45,6 @@ class TaskScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const SizedBox(height: 10),
 
               // 🔹 Date Range Picker
               Row(
@@ -64,7 +63,6 @@ class TaskScreen extends StatelessWidget {
                             : "Select Date Range",
                         style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),
 
-
                       ),
                     ),
                   ),
@@ -76,7 +74,6 @@ class TaskScreen extends StatelessWidget {
                   )
                 ],
               ),
-              const SizedBox(height: 10),
 
               // 🔹 Task List
               Expanded(
@@ -90,10 +87,11 @@ class TaskScreen extends StatelessWidget {
 
               // 🔹 BOD & EOD Buttons
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center, // Center alignment
+
                 children: [
                   PrimaryButton(
-                    widthFactor: 0.42,
+                    widthFactor: 0.45,
                     heightFactor: 0.05,
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => Bodbuttondialog()));
@@ -101,7 +99,7 @@ class TaskScreen extends StatelessWidget {
                     text: "ADD BOD",
                   ),
                   PrimaryButton(
-                    widthFactor: 0.42,
+                    widthFactor: 0.45,
                     heightFactor: 0.05,
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => Eodbuttondialog()));

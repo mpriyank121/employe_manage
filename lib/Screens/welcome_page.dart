@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Controllers/checkIn_Controller.dart';
 import '../API/Controllers/employee_attendence_controller.dart';
+import '../API/Controllers/leave_controller.dart';
 import '../API/Controllers/welcome_page_controller.dart';
 import '../API/Services/attendance_service.dart';
 import '../API/Services/user_service.dart';
@@ -30,7 +31,9 @@ class _WelcomePageState extends State<WelcomePage> {
   final CheckInController checkInController = Get.put(CheckInController());
   final UserService userService = UserService();
   final AttendanceController controller = Get.find<AttendanceController>();
+  final LeaveController leaveController = Get.put(LeaveController());
   final WelcomeController welcomeController = Get.put(WelcomeController());
+
 
   var isTodayAttendanceComplete = false.obs;
 
@@ -55,6 +58,8 @@ class _WelcomePageState extends State<WelcomePage> {
     super.initState();
     _fetchUserData();
     _loadInitialAttendance();
+    Get.put(LeaveController());
+
   }
 
   Future<void> _fetchUserData() async {
@@ -123,7 +128,7 @@ print('to:::$todayAttendance');
       appBar: CustomAppBar(
         title: widget.title,
         leading: IconButton(
-          icon: SvgPicture.asset('assets/images/bc 3.svg'),
+          icon: Image.asset('assets/images/app_logo.png'),
           onPressed: () {},
         ),
 
@@ -192,7 +197,7 @@ print('to:::$todayAttendance');
                     elapsedSeconds: checkInController.elapsedSeconds.value,
                     isCheckedIn: checkInController.isCheckedIn.value,
                     checkInTime: checkInController.checkInTime.value ?? DateTime.now(),
-                    workedTime: isToday ? checkInController.workedTime.value : "",
+                    workedTime: isToday && !checkInController.isCheckedIn.value ? checkInController.workedTime.value : "",
                     checkOutTime: checkInController.checkOutTime.value,
                     selectedFirstIn: selectedFirstIn.value,
                     selectedLastOut: selectedLastOut.value,
@@ -203,12 +208,21 @@ print('to:::$todayAttendance');
                     selectedDate: selectedDate.value,
                   )),
                   BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
-                  AppSpacing.medium(context),
+                  AppSpacing.small(context),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Leave Application', style: fontStyles.headingStyle),
+                      Text(
+                        'Leave Application',
+                        style: fontStyles.headingStyle,
+                      ),
                       TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero, // 👈 Removes default padding
+                          minimumSize: Size(0, 0),  // 👈 Prevents height constraints
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 👈 Shrinks touch target
+                        ),
                         onPressed: () {
                           Get.to(leavepage(title: "leave detail"));
                         },
@@ -219,13 +233,12 @@ print('to:::$todayAttendance');
                             fontSize: 14,
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.w400,
-                            height: 1.60,
-                            letterSpacing: 0.20,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
+
                   LeaveTabView(
                     heightFactor: 0.3,
                     selectedMonth: selectedMonth,
@@ -238,8 +251,7 @@ print('to:::$todayAttendance');
         ],
       ),
       bottomNavigationBar: Container(
-        height: screenHeight * 0.13,
-        padding: EdgeInsets.all(10),
+        height: screenHeight * 0.1,
         child: Obx(() => SlideCheckIn(
           showCam : showCam.value,
           text: selectedFirstIn.value == 'N/A'?'Slide To CheckIn':selectedLastOut.value!='N/A'?'Completed':'Slide To CheckOut',

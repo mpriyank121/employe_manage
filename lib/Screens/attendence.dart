@@ -96,8 +96,8 @@ class _AttendancePageState extends State<AttendancePage> {
                             borderColor: Color(0xFFC13C0B),
                           ),
                           LeaveCard(
-                            title: "Leave",
-                            count: controller.countData.value['leave_count']?.toString() ?? '0',
+                            title: "Half Day",
+                            count: controller.countData.value['halfday_count']?.toString() ?? '0',
                             backgroundColor: Color(0x1933B2E9),
                             borderColor: Color(0xFF33B2E9),
                           ),

@@ -34,20 +34,41 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isFromDate) async {
-    DateTime initialDate = DateTime.now();
+    final DateTime now = DateTime.now();
+
+    final DateTime initialDate = isFromDate
+        ? (fromDate ?? now)
+        : (toDate ?? fromDate ?? now);
+
+    final DateTime firstDate = isFromDate
+        ? DateTime(2000)
+        : (fromDate ?? DateTime(2000));
+
+    final DateTime lastDate = isFromDate
+        ? (toDate ?? DateTime(2101)) // ⬅️ Prevent selecting fromDate after toDate
+        : DateTime(2101);
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
+
     if (picked != null) {
       setState(() {
         if (isFromDate) {
           fromDate = picked;
+          // Reset toDate if it's before the new fromDate
+          if (toDate != null && toDate!.isBefore(fromDate!)) {
+            toDate = null;
+          }
         } else {
           toDate = picked;
+          // Reset fromDate if it's after the new toDate
+          if (fromDate != null && fromDate!.isAfter(toDate!)) {
+            fromDate = null;
+          }
         }
       });
     }
@@ -140,7 +161,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                           print("🛑 Selected Leave Type ID: $value");
                         },
                         decoration: InputDecoration(
-                          hintText: "Select Leave Type",
+                          hintText: " Select Leave Type",
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
@@ -159,7 +180,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                           children: [
                             Text(
                               fromDate == null
-                                  ? "Select Date"
+                                  ? " Select Date"
                                   : DateFormat("MMMM dd, yyyy").format(fromDate!),
                               style: TextStyle(color: Colors.black54),
                             ),
@@ -179,7 +200,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                           children: [
                             Text(
                               toDate == null
-                                  ? "Select Date"
+                                  ? " Select Date"
                                   : DateFormat("MMMM dd, yyyy").format(toDate!),
                               style: TextStyle(color: Colors.black54),
                             ),
@@ -195,7 +216,7 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                       child: TextFormField(
                         controller: aboutController,
                         decoration: InputDecoration(
-                          hintText: "Enter Reason",
+                          hintText: " Enter Reason",
                           border: InputBorder.none,
                         ),
                         maxLines: 7,

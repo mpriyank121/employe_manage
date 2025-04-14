@@ -65,10 +65,6 @@ class _CustomQuillEditorState extends State<CustomQuillEditor> {
                 config: QuillSimpleToolbarConfig(
                   embedButtons: FlutterQuillEmbeds.toolbarButtons(
 
-                    videoButtonOptions: QuillToolbarVideoButtonOptions(
-
-
-                    )
                   ),
                   showBoldButton: true,
                   showItalicButton: true,

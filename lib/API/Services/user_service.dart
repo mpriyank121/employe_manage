@@ -49,7 +49,7 @@ class UserService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse("https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//emp_info.php"),
+        Uri.parse("$baseUrl/emp_info.php"),
       );
 
       request.fields.addAll({
@@ -105,7 +105,7 @@ class UserService {
       String? phone = prefs.getString('phone');
 
       var response = await http.post(
-        Uri.parse("https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//emp_info.php"),
+        Uri.parse("$baseUrl/emp_info.php"),
         body: {
           'phone': EncryptionHelper.encryptString(phone!),
           'type': EncryptionHelper.encryptString('user_info'),

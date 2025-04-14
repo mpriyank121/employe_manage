@@ -81,7 +81,7 @@ class LeaveService {
       }
     } catch (e) {
       print("❌ Error fetching leave data: $e");
-      return {'Error': []};
+      return {'': []};
     }
   }
 

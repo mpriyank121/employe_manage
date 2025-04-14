@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../Services/attendance_service.dart';
 import '../Services/user_service.dart';
+import 'leave_controller.dart';
 
 class WelcomeController extends GetxController {
   var userName = "Loading...".obs;
@@ -25,10 +26,13 @@ class WelcomeController extends GetxController {
   final UserService userService = UserService();
   final AttendanceController attendanceController = Get.find<AttendanceController>();
   final CheckInController checkInController = Get.find<CheckInController>();
+  final LeaveController leaveController = Get.find<LeaveController>();
+
 
   Future<void> reloadWelcomeData() async {
     await _fetchUserData();
     await _loadInitialAttendance();
+
   }
 
   Future<void> _fetchUserData() async {
@@ -62,6 +66,8 @@ class WelcomeController extends GetxController {
     }
 
     _updateAttendance(DateTime.now(), todayAttendance ?? {});
+    await leaveController.fetchLeaveData(selectedYear, selectedMonth, false);
+
   }
 
   void _updateAttendance(DateTime date, Map<String, dynamic> attendance) {

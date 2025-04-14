@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:employe_manage/API/encryption/Encryption_helper.dart';
+import 'package:employe_manage/Configuration/app_constants.dart';
 import 'package:http/http.dart' as http;
 
 class VersionService {
@@ -12,7 +13,7 @@ class VersionService {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('https://apis-stg.bookchor.com/webservices/bookchor.com/dashboard_apis//checkAppVersion.php'),
+      Uri.parse('$baseUrl/checkAppVersion.php'),
     );
 
     request.fields.addAll({

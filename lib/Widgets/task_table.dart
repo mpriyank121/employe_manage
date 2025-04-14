@@ -202,7 +202,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
           child: RefreshIndicator(
             onRefresh: () => fetchTasks(isRefreshing: true),
             child: _hasError
-                ? Center(child: Text("❌ Error fetching tasks. Try again."))
+                ? Center(child: Text("No tasks found"))
                 : _tasks.isEmpty && !_isLoading
                 ? Center(child: Text("📭 No tasks found for selected dates."))
                 : ListView.builder(

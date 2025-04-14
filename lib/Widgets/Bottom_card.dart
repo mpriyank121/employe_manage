@@ -20,7 +20,7 @@ class BottomCard extends StatelessWidget {
 
     return Container(
       height: screenHeight*0.08,
-      padding: EdgeInsets.only(top:6), // Add top padding
+      padding: EdgeInsets.only(top:10), // Add top padding
       decoration: BoxDecoration(
         color: BottomCardConfig.backgroundColor,
 
