@@ -19,7 +19,6 @@ class CheckInController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadSessionData();
   }
 
   @override
@@ -32,12 +31,18 @@ class CheckInController extends GetxController {
     _timer?.cancel();
     _liveTimer?.cancel();
   }
+
   void setFirstInAndStartTimer(String firstInTime) {
     try {
-      final parsedTime = DateFormat('hh:mm a').parse(firstInTime); // Adjust format as necessary
-      final checkIn = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, parsedTime.hour, parsedTime.minute);
+      final parsedTime = DateFormat('hh:mm a').parse(firstInTime);
+      final checkIn = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        parsedTime.hour,
+        parsedTime.minute,
+      );
 
-      // Only update the checkInTime if it's different
       if (checkInTime.value == null || checkInTime.value != checkIn) {
         checkInTime.value = checkIn;
 
@@ -45,7 +50,7 @@ class CheckInController extends GetxController {
         final diff = now.difference(checkIn);
         elapsedSeconds.value = diff.inSeconds;
 
-        startTimer(); // Start the timer only if checkInTime is new or has changed
+        startTimer();
         isCheckedIn.value = true;
       }
     } catch (e) {
@@ -53,15 +58,13 @@ class CheckInController extends GetxController {
     }
   }
 
-
   void startTimer() {
-    if (!isCheckedIn.value) return; // ⛔ Don't start if already checked out
-    _timer?.cancel();  // Ensure that any previously running timer is stopped
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+     if (!isCheckedIn.value) return;
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
       elapsedSeconds.value += 1;
     });
   }
-
 
   void stopTimer() {
     _timer?.cancel();
@@ -69,8 +72,10 @@ class CheckInController extends GetxController {
   }
 
   void startLiveElapsedTimeFromServer() {
-    _liveTimer?.cancel();
+    // ✅ Only run this if user is still checked in
+    if (!isCheckedIn.value) return;
 
+    _liveTimer?.cancel();
     _liveTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       try {
         DateTime serverCheckInTime = DateTime.parse(firstIn.value);
@@ -82,27 +87,9 @@ class CheckInController extends GetxController {
     });
   }
 
-  Future<void> loadSessionData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    String? storedCheckIn = prefs.getString('checkIn_$todayDate');
-    String? storedCheckOut = prefs.getString('checkOut_$todayDate');
-
-    if (storedCheckIn != null) {
-      checkInTime.value = DateTime.parse(storedCheckIn);
-      isCheckedIn.value = storedCheckOut == null;
-
-      if (storedCheckOut != null) {
-        checkOutTime.value = DateTime.parse(storedCheckOut);
-        calculateWorkedTime();
-      } else {
-        resumeTimer();
-      }
-    }
-  }
 
   Future<void> checkIn() async {
-    if (isCheckedIn.value) return; // 🛡 Prevent double check-in
+    if (isCheckedIn.value) return;
 
     final prefs = await SharedPreferences.getInstance();
     String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -112,6 +99,7 @@ class CheckInController extends GetxController {
     await prefs.setString('checkIn_$todayDate', checkInTime.value!.toIso8601String());
 
     await prefs.remove('checkOut_$todayDate');
+    await prefs.remove('workedTime_$todayDate');
     checkOutTime.value = null;
     workedTime.value = "";
 
@@ -127,19 +115,22 @@ class CheckInController extends GetxController {
     checkOutTime.value = DateTime.now();
     await prefs.setString('checkOut_$todayDate', checkOutTime.value!.toIso8601String());
 
+    // ✅ Calculate and save final worked time
     calculateWorkedTime();
+    await prefs.setString('workedTime_$todayDate', workedTime.value);
+
     isCheckedIn.value = false;
     elapsedSeconds.value = 0;
     stopAllTimers();
   }
-
   void resumeTimer() {
-    if (checkInTime.value != null) {
+    if (checkInTime.value != null && checkOutTime.value == null) {
       Duration elapsed = DateTime.now().difference(checkInTime.value!);
       elapsedSeconds.value = elapsed.inSeconds;
       startTimer();
     }
   }
+
 
   void calculateWorkedTime() {
     if (checkInTime.value != null && checkOutTime.value != null) {

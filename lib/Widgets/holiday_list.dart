@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:employe_manage/API/models/holiday_model.dart';
 import 'CustomListTile.dart';
 import 'Custom_date_icon.dart';
+import 'No_data_found.dart';
 
 class HolidayList extends StatelessWidget {
   final List<Holiday> holidays;
@@ -30,7 +31,10 @@ class HolidayList extends StatelessWidget {
       return const Center(child: Text("📢 Phone number not found"));
     } else if (holidays.isEmpty) {
       print("📭 Holiday list is empty");
-      return const Center(child: Text("📢 No holidays available"));
+      return const NoDataWidget(
+        message: "No Holidays available",
+        imagePath: "assets/images/Error_image.png", // your image path
+      );
     }
 
     return ListView.builder(

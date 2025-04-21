@@ -53,24 +53,32 @@ class WelcomeController extends GetxController {
   }
 
   Future<void> _loadInitialAttendance() async {
-    int selectedYear = DateTime.now().year;
     int selectedMonth = DateTime.now().month;
+    int selectedYear = DateTime.now().year;
+    var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
+    print("📦 All Attendance Data: $attendanceData");
 
-    var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear, selectedMonth);
     String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
     var todayAttendance = await attendanceController.getAttendanceByDate(formattedDate, attendanceData);
-
-    if (todayAttendance != null && todayAttendance['first_in'] != null) {
+    if (todayAttendance != null &&
+        todayAttendance['first_in'] != null &&
+        todayAttendance['last_out'] == null) {
+      checkInController.isCheckedIn.value = true;
       checkInController.setFirstInAndStartTimer(todayAttendance['first_in']!);
     }
 
-    _updateAttendance(DateTime.now(), todayAttendance ?? {});
-    await leaveController.fetchLeaveData(selectedYear, selectedMonth, false);
+    print('First in raw value: ${todayAttendance['first_in']}');
 
+    if (todayAttendance == null || todayAttendance.isEmpty) {
+      checkInController.isCheckedIn.value = false;
+    }
+    print('to:::$todayAttendance');
+    print("🖼️ Final Images -> CheckIn: ${todayAttendance['checkIn_image']} | CheckOut: ${todayAttendance['checkOut_image']}");
+
+    updateAttendance(DateTime.now(), todayAttendance);
   }
 
-  void _updateAttendance(DateTime date, Map<String, dynamic> attendance) {
+  void updateAttendance(DateTime date, Map<String, dynamic> attendance) {
     selectedDate.value = date;
     selectedFirstIn.value = attendance['first_in'] ?? "N/A";
     selectedLastOut.value = attendance['last_out'] ?? "N/A";
@@ -78,8 +86,14 @@ class WelcomeController extends GetxController {
     checkOutImage.value = attendance['checkOut_image'];
     checkInLocation.value = attendance['checkInLocation'];
     checkOutLocation.value = attendance['checkOutLocation'];
-
     isTodayAttendanceComplete.value =
-        selectedFirstIn.value != "N/A" && selectedLastOut.value != "N/A";
+        attendance['first_in'] != null &&
+            attendance['first_in'] != "N/A" &&
+            attendance['last_out'] != null &&
+            attendance['last_out'] != "N/A";
+
+    print("✅ isTodayAttendanceComplete: ${isTodayAttendanceComplete.value}");
+
   }
+
 }

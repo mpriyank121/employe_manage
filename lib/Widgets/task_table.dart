@@ -4,6 +4,9 @@ import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import '../API/Services/Task_service.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_html/flutter_html.dart';
+import '../Configuration/app_spacing.dart';
+import 'No_data_found.dart';
 
 class TaskListWidget extends StatefulWidget {
   final String employeeId;
@@ -38,6 +41,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
     _scrollController.addListener(_scrollListener);
   }
   void _showDescriptionBottomSheet(Map<String, dynamic> task) {
+    print("eoood: ${task['eodDesc'] ?? '<p>No EOD description</p>'}");
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -65,18 +69,28 @@ class _TaskListWidgetState extends State<TaskListWidget> {
                   ),
                 ),
                 const Text("BOD Task", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text(task['bod'] ?? 'No BOD task'),
+                Html(
+                  data: task['bod'] ?? '<p>No BOD task</p>',
+                ),
                 const SizedBox(height: 12),
                 const Text("BOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(task['bodDesc'] ?? 'No BOD description'),
+                Html(
+                  data: task['bodDesc'] ?? '<p>No BOD description</p>',
+
+                ),
 
                 const Divider(height: 30),
 
                 const Text("EOD Task", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text(task['eod'] ?? 'No EOD task'),
+                Html(
+                  data: task['eod'] ?? '<p>No BOD task</p>',
+                ),
                 const SizedBox(height: 12),
                 const Text("EOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(task['eodDesc'] ?? 'No EOD description'),
+                Html(
+                  data: task['eodDesc'] ?? '<p>No EOD description</p>',
+
+                ),
                 const SizedBox(height: 20),
               ],
             ),
@@ -198,13 +212,21 @@ class _TaskListWidgetState extends State<TaskListWidget> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
+        AppSpacing.small(context),
+
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => fetchTasks(isRefreshing: true),
             child: _hasError
-                ? Center(child: Text("No tasks found"))
+                ? NoDataWidget(
+    message: "No tasks found",
+    imagePath: "assets/images/Error_image.png", // your image path
+    )
                 : _tasks.isEmpty && !_isLoading
-                ? Center(child: Text("📭 No tasks found for selected dates."))
+                ? NoDataWidget(
+    message: "No tasks found for selected date",
+    imagePath: "assets/images/Error_image.png", // your image path
+    )
                 : ListView.builder(
               controller: _scrollController,
               itemCount: _tasks.length + (_isLoading ? 1 : 0),
@@ -227,10 +249,10 @@ class _TaskListWidgetState extends State<TaskListWidget> {
                       _buildTaskDetail("EOD Task", task['eod']),
                       _buildTaskDetail("Hours", task['hours']),
                       _buildTaskDetail("Rating", task['rating']),
-                      ReasonViewButton(
-                        onPressed: () => _showDescriptionBottomSheet(task),
-                        text: "View EOD/BOD",
-                      ),
+                      // ReasonViewButton(
+                      //   onPressed: () => _showDescriptionBottomSheet(task),
+                      //   text: "View EOD/BOD",
+                      // ),
 
 
                     ],

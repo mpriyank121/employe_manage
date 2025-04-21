@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../../Configuration/app_constants.dart';
 import '../encryption/Encryption_helper.dart';
 
-Future<List<dynamic>> fetchTickets({required String empId, int limit = 10, int page = 1}) async {
+Future<List<dynamic>> fetchTickets({required String empId, int limit = 100, int page=1,  required int superUser
+}) async {
+
   try {
+    print('📥 super_user from prefs: $superUser'); // should be '0' or '2'
     var url = Uri.parse('$baseUrl//ticket.php');
     var request = http.MultipartRequest('POST', url);
 
@@ -14,7 +16,7 @@ Future<List<dynamic>> fetchTickets({required String empId, int limit = 10, int p
       'limit': (limit.toString()),
       'page': (page.toString()),
       'emp_id': EncryptionHelper.encryptString(empId),
-      'super_user': EncryptionHelper.encryptString('0'),
+      'super_user': EncryptionHelper.encryptString(superUser.toString()),
     });
 
     var response = await request.send();
@@ -23,7 +25,10 @@ Future<List<dynamic>> fetchTickets({required String empId, int limit = 10, int p
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(responseBody);
-      
+print('aasas:$responseBody');
+print('jsdj$superUser');
+print(('pageee:$page'));
+
 
       if (jsonResponse['success'] == "success") {
         return jsonResponse['list'] ?? []; // ✅ Fetch from "list" key

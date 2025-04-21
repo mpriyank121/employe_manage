@@ -48,7 +48,7 @@ class _CustomListTileState extends State<CustomListTile>
         curve: Curves.easeInOut,
         child: Container(
           width: screenWidth * (widget.widthFactor ?? 0.9),
-          margin: const EdgeInsets.all(7),
+          margin: const EdgeInsets.only(left: 12,right: 12,bottom: 10),
           decoration: ShapeDecoration(
             color: TileConfig.backgroundColor,
             shape: RoundedRectangleBorder(

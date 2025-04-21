@@ -1,4 +1,5 @@
 import 'package:employe_manage/Screens/attendence.dart';
+import 'package:employe_manage/Screens/policy_page.dart';
 import 'package:employe_manage/Screens/ticket_listing.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +28,7 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final List<Map<String, dynamic>> categoryItems = [
     {'title': 'Attendance', 'icon': 'assets/images/clock.png', 'route': () => AttendancePage(title: 'Attendence')},
-    //{'title': 'Remuneration', 'icon': 'assets/images/wired-flat-290-coin 1.png', 'route': null},
+   {'title': 'Policy', 'icon': 'assets/images/wired-flat-290-coin 1.png', 'route':() => PolicyScreen()},
     {'title': 'Assets', 'icon': 'assets/images/wired-flat-146-trolley 1.png', 'route': () => Assetspage(title: 'assets',empId : '')},
     {'title': 'Holidays', 'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png', 'route': () => holidaypage(title: 'Holidays')},
     {'title': 'Leave', 'icon': 'assets/images/wired-flat-1725-exit-sign 1.png', 'route': () => leavepage(title: 'Leave')},
@@ -36,7 +37,7 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   Widget build(BuildContext context) {
     double iconSize = 50.0;
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
         title: 'Categories',
         showBackButton: false,
@@ -73,7 +74,7 @@ class _CategoryPageState extends State<CategoryPage> {
         ],
       ),
 
-    );
+    ));
   }
 }
 

@@ -171,8 +171,11 @@ class _AttendanceCalendarState extends State<AttendanceCalendar> {
                 firstDay: DateTime(2000, 1, 1),
                 lastDay: DateTime(2025, 12, 31),
                 focusedDay: _focusedDay,
+                selectedDayPredicate: (_) => false,
+
+
+                availableGestures: AvailableGestures.none,
                 enabledDayPredicate: (day) => !day.isAfter(DateTime.now()),
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
                     _selectedDay = selectedDay;

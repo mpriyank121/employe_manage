@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:employe_manage/Screens/ticket_listing.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/Ticket_form_custom_container.dart';
@@ -10,7 +11,9 @@ import '../API/Services/apply_ticket_service.dart';
 import '../API/Services/get_department_service.dart';
 import '../API/Services/ticket_category_service.dart';
 import '../Configuration/style.dart';
+import '../Widgets/Custom_multi_select_dialog.dart';
 import '../Widgets/Custom_quill_editor.dart';
+import '../Widgets/Leave_container.dart';
 
 class TicketForm extends StatefulWidget {
   @override
@@ -36,6 +39,7 @@ class _TicketFormState extends State<TicketForm> {
     'Medium': '2',
     'Low': '3',
   };
+
 // Default selected priority
   String selectedPriority = 'High';
   String selectedTicket = 'Order Related';
@@ -76,6 +80,7 @@ class _TicketFormState extends State<TicketForm> {
       isLoadingCategories = false;
     });
   }
+
   Future<void> loadEmpId() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -96,7 +101,8 @@ class _TicketFormState extends State<TicketForm> {
       isLoadingEmployees = true;
     });
 
-    List<Map<String, String>> employeeData = await getEmployeesByDepartment(selectedDepartments);
+    List<Map<String, String>> employeeData = await getEmployeesByDepartment(
+        selectedDepartments);
     setState(() {
       employees = employeeData;
       isLoadingEmployees = false;
@@ -116,7 +122,9 @@ class _TicketFormState extends State<TicketForm> {
       isLoadingSubCategories = true;
     });
 
-    List<Map<String, String>> fetchedSubCategories = await getSubCategoriesByCategory(selectedCategory);
+    List<Map<String,
+        String>> fetchedSubCategories = await getSubCategoriesByCategory(
+        selectedCategory);
 
     setState(() {
       subcategories = fetchedSubCategories;
@@ -130,7 +138,7 @@ class _TicketFormState extends State<TicketForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: fontStyles.headingStyle),
-        CustomContainer(child: field),
+        LeaveContainer(child: field),
       ],
     );
   }
@@ -138,250 +146,284 @@ class _TicketFormState extends State<TicketForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(title: "Create Ticket",
-          centerTitle: false,
-          trailing: PrimaryButton(
-              heightFactor: 0.04,
-              onPressed: (){
-    Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => TicketScreen()));
-    },
-        widthFactor: 0.3,
-        text: 'Show Listing'),
-      ),
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: 70.0),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return SafeArea(
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: "Create Ticket",
+          centerTitle: true,
+        ),
+        body:Container(
+          margin: const EdgeInsets.only(left: 12,right: 12),
 
-                  children: [
-                    Text('Title', style: fontStyles.headingStyle,),
-                    CustomContainer(
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: ' Enter Title', // 👈 Optional hint inside the field
+          child:Stack(
 
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (value) => setState(() => title = value),
-                        validator: (value) => value!.isEmpty ? 'Enter a title' : null,
-                      ),
-                    ),
-                    Text('Priority', style: fontStyles.headingStyle,),
-                    CustomContainer(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                        value: selectedPriority,
-                        items: priorityMap.keys.map((String priorityLabel) {
-                          return DropdownMenuItem(
-                            value: priorityLabel,
-                            child: Text(priorityLabel),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedPriority = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    Text('Departments', style: fontStyles.headingStyle,),
-                    isLoadingDepartments
-                        ? const Center(child: CircularProgressIndicator())
-                        :
-                    CustomContainer(
-                      child: MultiSelectDialogField(
-                        items: departments
-                            .map((dept) => MultiSelectItem(dept['id']!, dept['department']!))
-                            .toList(),
-                        title: const Text('Departments'),
-                        selectedItemsTextStyle: const TextStyle(color: Colors.blue),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                        buttonText: const Text('Departments'),
-                        onConfirm: (values) async {
-                          setState(() {
-                            selectedDepartments = List<String>.from(values);
-                            employees = [];
-                          });
-                          await fetchEmployees();
-                        },
-                        initialValue: selectedDepartments,
-                      ),
-                    ),
+          children: [
+            // Scrollable form content
+            AppSpacing.small(context),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 80.0),
+              // Leave space for button
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppSpacing.small(context),
 
-                    const SizedBox(height: 10),
-
-                    isLoadingEmployees
-                        ? const Center(child: CircularProgressIndicator())
-                        : employees.isEmpty
-                        ? const SizedBox()
-                        : CustomContainer(
-                      child: MultiSelectDialogField(
-                        items: employees.map((emp) => MultiSelectItem(emp['empid']!, emp['name']!)).toList(),
-                        title: const Text('Employees'),
-                        selectedItemsTextStyle: const TextStyle(color: Colors.blue),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                        buttonText: const Text('Employees'),
-                        onConfirm: (values) {
-                          setState(() {
-                            selectedEmployees = values.map((e) => e.toString()).toList();
-                          });
-
-                          print("Selected Employees: $selectedEmployees"); // ✅ Debugging Output
-                        },
-                        initialValue: selectedEmployees,
-                      ),
-                    ),
-
-                    isLoadingCategories
-                        ? const Center(child: CircularProgressIndicator())
-                        :Text('Ticket Categories', style: fontStyles.headingStyle,),
-                    CustomContainer(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-
-                          border: InputBorder.none,
-                        ),
-                        items: categories.map((category) {
-                          return DropdownMenuItem<String>(
-                            value: category['id']!,
-                            child: Text(category['category_name']!),
-                          );
-                        }).toList(),
-                        onChanged: (value) async {
-                          setState(() {
-                            selectedCategory = [value!];
-                            subcategories = [];
-                            selectedSubCategory = [];
-                          });
-                          await fetchSubCategories();
-                        },
-                      ),
-                    ),
-
-                    if (selectedCategory.isNotEmpty && selectedCategory.first == '1')
-                      CustomContainer(
+                      Text('Title', style: fontStyles.headingStyle),
+                      AppSpacing.small(context),
+                      LeaveContainer(
                         child: TextFormField(
+
                           decoration: const InputDecoration(
-                            hintText: 'Order ID',
+
+                            hintText: 'Enter Title',
+
                             border: InputBorder.none,
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              orderId = value;
-                            });
-                          },
-                          initialValue: orderId,
+                          onChanged: (value) => setState(() => title = value),
+                          validator: (value) =>
+                          value!.isEmpty
+                              ? 'Enter a title'
+                              : null,
                         ),
                       ),
-
-                    if (selectedCategory.isNotEmpty && selectedCategory.first == '3')
-                      CustomContainer(
-                        child: TextFormField(
-                          controller: _dateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Select Date',
-                            suffixIcon: Icon(Icons.calendar_today),
-                            border: InputBorder.none,
-                          ),
-                          readOnly: true,
-                          onTap: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
+                      AppSpacing.small(context),
+                      Text('Priority', style: fontStyles.headingStyle),
+                      AppSpacing.small(context),
+                      LeaveContainer(
+                        child: DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(border: InputBorder
+                              .none),
+                          value: selectedPriority,
+                          items: priorityMap.keys.map((priorityLabel) {
+                            return DropdownMenuItem(
+                              value: priorityLabel,
+                              child: Text(priorityLabel),
                             );
-
-                            if (pickedDate != null) {
-                              setState(() {
-                                attendanceDate = "${pickedDate.toLocal()}".split(' ')[0];
-                                _dateController.text = attendanceDate!;
-                              });
-                            }
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() => selectedPriority = value!);
                           },
                         ),
                       ),
+                      AppSpacing.small(context),
 
-                    isLoadingSubCategories
-                        ? const Center(child: CircularProgressIndicator())
-                        : subcategories.isEmpty
-                        ? const SizedBox()
-                        : CustomContainer(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          hintText: 'Ticket Subcategories',
-                          border: InputBorder.none,
+                      Text('Departments', style: fontStyles.headingStyle),
+                      AppSpacing.small(context),
+                      isLoadingDepartments
+                          ? const Center(child: CircularProgressIndicator())
+                          :  CustomMultiSelectDialogField(
+                          items: departments.map((dept) => {
+                            'value': dept['id']!,
+                            'label': dept['department']!,
+                          }).toList(),
+                          initialValue: selectedDepartments,
+                          title: "Departments",
+                          buttonText: "Departments",
+                          onConfirm: (values) async {
+                            setState(() {
+                              selectedDepartments = values;
+                              employees = [];
+                            });
+                            await fetchEmployees();
+                          },
                         ),
-                        value: selectedSubCategory.isEmpty ? null : selectedSubCategory.first,
-                        items: subcategories.map((subcat) {
-                          return DropdownMenuItem<String>(
-                            value: subcat['id']!,
-                            child: Text(subcat['category_name']!),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedSubCategory = [value!];
-                          });
-                        },
-                      ),
-                    ),
 
-                    SizedBox(height: 10),
-                    CustomQuillEditor(
-                      controller: _quillController,
-                      taskTitleController: _taskTitleController,
-                      showTaskFields: false,
-                      showDescriptionField: false,
-                    ),
-                    SizedBox(height: 80),
-                  ],
+
+
+                      AppSpacing.small(context),
+
+                      if (isLoadingEmployees)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        if (employees.isNotEmpty)
+                          CustomMultiSelectDialogField(
+                              items: employees
+                                  .map((emp) => {
+                                'value': emp['empid']!,
+                                'label': emp['name']!,
+                              })
+                                  .toList(),
+                              initialValue: selectedEmployees,
+                              title: "Employees",
+                              buttonText: "Employees",
+                              onConfirm: (values) {
+                                setState(() {
+                                  selectedEmployees = values.map((e) => e.toString()).toList();
+                                });
+                              },
+                            ),
+                      AppSpacing.small(context),
+
+                      if (!isLoadingCategories)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Ticket Categories',
+                                style: fontStyles.headingStyle),
+                            AppSpacing.small(context),
+
+                            LeaveContainer(
+                              child: DropdownButtonFormField<String>(
+                                decoration: const InputDecoration(
+                                  hintText: "Ticket Categories",
+                                    border: InputBorder.none),
+                                items: categories.map((category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category['id']!,
+                                    child: Text(category['category_name']!),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  setState(() {
+                                    selectedCategory = [value!];
+                                    subcategories = [];
+                                    selectedSubCategory = [];
+                                  });
+                                  await fetchSubCategories();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      AppSpacing.small(context),
+
+
+                      if (selectedCategory.isNotEmpty &&
+                          selectedCategory.first == '1')
+                        LeaveContainer(
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              hintText: 'Order ID',
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) =>
+                                setState(() => orderId = value),
+                            initialValue: orderId,
+                          ),
+                        ),
+                      AppSpacing.small(context),
+
+                      if (selectedCategory.isNotEmpty &&
+                          selectedCategory.first == '3')
+                        AppSpacing.small(context),
+                        LeaveContainer(
+                          child: TextFormField(
+                            controller: _dateController,
+
+                            decoration: const InputDecoration(
+                              hintText: 'Select Date',
+                              suffixIcon: Icon(Icons.calendar_today),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+
+                            ),
+
+                            readOnly: true,
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (pickedDate != null) {
+                                setState(() {
+                                  attendanceDate =
+                                  "${pickedDate.toLocal()}".split(' ')[0];
+                                  _dateController.text = attendanceDate!;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      AppSpacing.small(context),
+
+                      if (isLoadingSubCategories)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        if (subcategories.isNotEmpty)
+                          AppSpacing.small(context),
+                          LeaveContainer(
+
+                            child: DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(
+                                hintText: 'Ticket Subcategories',
+                                border: InputBorder.none,
+                              ),
+                              value: selectedSubCategory.isEmpty
+                                  ? null
+                                  : selectedSubCategory.first,
+                              items: subcategories.map((subcat) {
+                                return DropdownMenuItem<String>(
+                                  value: subcat['id']!,
+                                  child: Text(subcat['category_name']!),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSubCategory = [value!];
+                                });
+                              },
+                            ),
+                          ),
+
+                      AppSpacing.small(context),
+
+                      CustomQuillEditor(
+                        controller: _quillController,
+                        taskTitleController: _taskTitleController,
+                        showTaskFields: false,
+                        showDescriptionField: false,
+                      ),
+
+                      AppSpacing.small(context), // Extra space at bottom
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 10,
-            left: 16,
-            right: 16,
-            child:  PrimaryButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  String description = _quillController.document.toPlainText().trim();
+            AppSpacing.small(context),
 
-                  await applyTicket(
-                    empId: empId,
-                    departments: selectedDepartments,
-                    employeeOptions: selectedEmployees, // ✅ Correct Key Format
-                    priority: priorityMap[selectedPriority] ?? '',
-                    ticketTitle: title,
-                    description: description,
-                    ticketCat: selectedCategory.isNotEmpty ? selectedCategory.first : '',
-                    ticketSubCat: selectedSubCategory.isNotEmpty ? selectedSubCategory.first : '',
-                    orderId: orderId.isNotEmpty ? orderId : '',  // ✅ Fixed: Uses the correct `orderId`
-                    attendanceDate: attendanceDate ?? '',       // ✅ Fixed: Uses `attendanceDate` safely
-                    startDate: '',
-                  );
-                }
-                Navigator.pop(context, true); // ✅ send result back
-              },
-              text: "Submit",
+            // Fixed submit button
+            Positioned(
+              bottom: 0,
+              left: 16,
+              right: 16,
+              child: PrimaryButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    String description = _quillController.document.toPlainText()
+                        .trim();
 
+                    await applyTicket(
+                      empId: empId,
+                      departments: selectedDepartments,
+                      employeeOptions: selectedEmployees,
+                      priority: priorityMap[selectedPriority] ?? '',
+                      ticketTitle: title,
+                      description: description,
+                      ticketCat: selectedCategory.isNotEmpty ? selectedCategory
+                          .first : '',
+                      ticketSubCat: selectedSubCategory.isNotEmpty
+                          ? selectedSubCategory.first
+                          : '',
+                      orderId: orderId.isNotEmpty ? orderId : '',
+                      attendanceDate: attendanceDate ?? '',
+                      startDate: '',
+                    );
+
+                    Navigator.pop(context, true);
+                  }
+                },
+                text: "Submit",
+              ),
             ),
+          ],
+        ),)
 
-          ),
-        ],
       ),
     );
   }

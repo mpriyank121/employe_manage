@@ -35,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     });
     if (index == 0) {
       Get.find<WelcomeController>().reloadWelcomeData();
+
     } else if (index == 2) {
       Get.find<TaskController>().refreshTaskData();
     } else if (index == 3) {

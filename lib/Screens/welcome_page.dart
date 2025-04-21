@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../API/Controllers/checkIn_Controller.dart';
 import '../API/Controllers/employee_attendence_controller.dart';
 import '../API/Controllers/leave_controller.dart';
+import '../API/Controllers/update_controller.dart';
 import '../API/Controllers/welcome_page_controller.dart';
 import '../API/Services/attendance_service.dart';
 import '../API/Services/user_service.dart';
@@ -19,6 +20,8 @@ import '../Widgets/slide_checkin.dart';
 import '../Widgets/welcome_card.dart';
 import 'package:intl/intl.dart';
 
+import '../util/version_check.dart';
+
 class WelcomePage extends StatefulWidget {
   final String title;
   const WelcomePage({super.key, required this.title});
@@ -28,254 +31,171 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  final CheckInController checkInController = Get.put(CheckInController());
-  final UserService userService = UserService();
-  final AttendanceController controller = Get.find<AttendanceController>();
-  final LeaveController leaveController = Get.put(LeaveController());
   final WelcomeController welcomeController = Get.put(WelcomeController());
+  final CheckInController checkInController = Get.find<CheckInController>();
+  final LeaveController leaveController = Get.find<LeaveController>();
+  final AttendanceController attendanceController =Get.find<AttendanceController>();
+  final updateController = Get.find<UpdateController>();
+  bool _hasCheckedVersion = false;
 
 
-  var isTodayAttendanceComplete = false.obs;
 
-
-  var userName = "Loading...".obs;
-  var jobRole = "Loading...".obs;
-  var employeeType = "Loading...".obs;
-  var totalWorkedTime = "".obs;
-  var selectedFirstIn = "N/A".obs;
-  var selectedLastOut = "N/A".obs;
-  var checkInLocation = RxnString();
-  var checkOutLocation = RxnString();
-  var checkInImage = RxnString();
-  var checkOutImage = RxnString();
-  var selectedDate = DateTime.now().obs;
-  int selectedMonth = DateTime.now().month;
-  int selectedYear = DateTime.now().year;
-  var showCam = false.obs;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
-    _loadInitialAttendance();
-    Get.put(LeaveController());
-
-  }
-
-  Future<void> _fetchUserData() async {
-    var userData = await userService.fetchUserData();
-    if (userData != null) {
-      userName.value = userData['name'] ?? "Unknown";
-      jobRole.value = userData['designation'] ?? "Unknown";
-      employeeType.value = userData['emp_type'] ?? "Unknown";
-      showCam.value = userData['show_cam'] ?? false;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('emp_type', employeeType.value);
-      await prefs.setString('username', userName.value);
-      await prefs.setString('jobRole', jobRole.value);
-      await _loadInitialAttendance();
-      print('Attendance data :$_loadInitialAttendance()');
-
-    }
-  }
-  Future<void> _loadInitialAttendance() async {
-    var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
-    print("📦 All Attendance Data: $attendanceData");
-
-    String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    var todayAttendance = await controller.getAttendanceByDate(formattedDate, attendanceData);
-    if (todayAttendance != null && todayAttendance['first_in'] != null) {
-      checkInController.setFirstInAndStartTimer(todayAttendance['first_in']!);
-    }
-    print('First in raw value: ${todayAttendance['first_in']}');
-
-    if (todayAttendance == null || todayAttendance.isEmpty) {
-
-    }
-print('to:::$todayAttendance');
-    print("🖼️ Final Images -> CheckIn: ${todayAttendance['checkIn_image']} | CheckOut: ${todayAttendance['checkOut_image']}");
-
-    _updateAttendance(DateTime.now(), todayAttendance);
-  }
-
-
-  void _updateAttendance(DateTime newSelectedDate, Map<String, dynamic> attendance) {
-    setState(() {
-      selectedDate.value = newSelectedDate;
-      selectedFirstIn.value = attendance['first_in'] ?? "N/A";
-      selectedLastOut.value = attendance['last_out'] ?? "N/A";
-      checkInImage.value = attendance['checkIn_image'];
-      checkOutImage.value = attendance['checkOut_image'];
-      checkInLocation.value=attendance['checkInLocation'];
-      checkOutLocation.value=attendance['checkOutLocation'];
-      selectedYear = newSelectedDate.year;
-      selectedMonth = newSelectedDate.month;
-      isTodayAttendanceComplete.value =
-          attendance['first_in'] != null &&
-              attendance['first_in'] != "N/A" &&
-              attendance['last_out'] != null &&
-              attendance['last_out'] != "N/A";
-    });
+    welcomeController.reloadWelcomeData();
+    attendanceController.fetchAttendance();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasCheckedVersion) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        checkAppVersion();
+      });
+      _hasCheckedVersion = true;
+    }
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    bool isToday = selectedDate.value.isAtSameMomentAs(DateTime.now());
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
         title: widget.title,
         leading: IconButton(
-          icon: Image.asset('assets/images/app_logo.png'),
+          icon: SvgPicture.asset('assets/images/bc 3.svg'),
           onPressed: () {},
         ),
-
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
-                vertical: screenHeight * 0.03,
+      body: Obx(() {
+        final isToday = welcomeController.selectedDate.value.isAtSameMomentAs(DateTime.now());
+
+        return Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                ),
+                child: Column(
+                  children: [
+                    AppSpacing.small(context),
+                    DatePickerDropdown(
+                      onDateSelected: (date, firstIn, lastOut, checkInImages, checkOutImages,
+                          checkInLocation, checkOutLocation) async {
+                        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+                        var attendanceData = await AttendanceService.fetchAttendanceData(
+                            date.year, date.month);
+                        var attendance = await welcomeController.attendanceController
+                            .getAttendanceByDate(formattedDate, attendanceData);
+
+
+
+                        if (attendance == null) {
+                          attendance = {
+                            'first_in': "N/A",
+                            'last_out': "N/A",
+                            'checkIn_image': null,
+                            'checkOut_image': null,
+                            'checkInLocation': "N/A",
+                            'checkOutLocation': "N/A",
+                          };
+                        }
+
+                        welcomeController.updateAttendance(date, {
+                          'first_in': attendance['first_in'] ?? "N/A",
+                          'last_out': attendance['last_out'] ?? "N/A",
+                          'checkIn_image': checkInImages,
+                          'checkOut_image': checkOutImages,
+                          'checkInLocation': checkInLocation,
+                          'checkOutLocation': checkOutLocation,
+                        });
+                      },
+                    ),
+                    AppSpacing.small(context),
+                    WelcomeCard(
+                      userName: welcomeController.userName.value,
+                      jobRole: welcomeController.jobRole.value,
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      elapsedSeconds: checkInController.elapsedSeconds.value,
+                      isCheckedIn: checkInController.isCheckedIn.value,
+                      checkInTime: checkInController.checkInTime.value ?? DateTime.now(),
+                      workedTime: checkInController.workedTime.value,
+                      checkOutTime: checkInController.checkOutTime.value,
+                      selectedFirstIn: welcomeController.selectedFirstIn.value,
+                      selectedLastOut: welcomeController.selectedLastOut.value,
+                      checkInImage: welcomeController.checkInImage.value,
+                      checkOutImage: welcomeController.checkOutImage.value,
+                      checkInLocation: welcomeController.checkInLocation.value,
+                      checkOutLocation: welcomeController.checkOutLocation.value,
+                      selectedDate: welcomeController.selectedDate.value,
+                    ),
+
+                    BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Leave Application', style: fontStyles.headingStyle),
+                        TextButton(
+                          onPressed: () => Get.to(() => leavepage(title: "leave detail")),
+                          style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                          child: Text('See All',
+                              style: TextStyle(
+                                  color: Color(0xFFF25922),
+                                  fontSize: 14,
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w400)),
+                        ),
+                      ],
+                    ),
+                    LeaveTabView(
+                      heightFactor: 0.3,
+                      selectedMonth: welcomeController.selectedDate.value.month,
+                      selectedYear: welcomeController.selectedDate.value.year,
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  DatePickerDropdown(
-                  onDateSelected: (date, firstIn, lastOut, checkInImages, checkOutImages,
-                      checkInLocation,
-                      checkOutLocation,) async {
-            print("🔹 Selected Date: $date");
-            print("🔹 Initial Values -> First In: $firstIn, Last Out: $lastOut, Check-In Image: $checkInImage, Check-Out Image: $checkOutImage");
-            setState(() {
-              checkInImage.value = checkInImages;
-              checkOutImage.value = checkOutImages;
+            ),
+          ],
+        );
+      }),
+      bottomNavigationBar: Obx(() {
+        final isToday = welcomeController.selectedDate.value.year == DateTime.now().year &&
+            welcomeController.selectedDate.value.month == DateTime.now().month &&
+            welcomeController.selectedDate.value.day == DateTime.now().day;
 
-            });
-            var attendanceData = await AttendanceService.fetchAttendanceData(selectedYear,selectedMonth);
-            print("✅ Attendance Data Fetched: ${attendanceData.length} records");
+        return Container(
+          height: screenHeight * 0.1,
+          child: SlideCheckIn(
+            showCam: welcomeController.showCam.value,
+            text: welcomeController.selectedFirstIn.value == 'N/A'
+                ? 'Slide To CheckIn'
+                : welcomeController.selectedLastOut.value != 'N/A'
+                ? 'Completed'
+                : 'Slide To CheckOut',
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            isEnabled: isToday &&
+                (welcomeController.selectedFirstIn.value == null ||
+                    welcomeController.selectedFirstIn.value == "N/A" ||
+                    (welcomeController.selectedFirstIn.value != "N/A" && welcomeController.selectedLastOut.value == "N/A") ||
+                    (welcomeController.selectedFirstIn.value == null && welcomeController.selectedLastOut.value == null)),
 
-            // ✅ Convert DateTime to String before passing
-            String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-            print("📆 Formatted Date: $formattedDate");
-
-            var attendance = await controller.getAttendanceByDate(formattedDate, attendanceData);
-            print("🔎 Fetched Attendance for Date: $formattedDate -> $attendance");
-
-            // ✅ Check if attendance is null or missing expected keys
-            if (attendance == null) {
-            print("⚠️ No attendance record found for $formattedDate");
-            attendance = {
-            'first_in': "N/A",
-            'last_out': "N/A",
-            'checkIn_image': null,
-            'checkOut_image': null,
-              'checkInLocation': "N/A",     // ✅ added
-              'checkOutLocation': "N/A",
-
-            };
-            }
-            _updateAttendance(date, {
-            'first_in': attendance['first_in'] ?? "N/A",
-            'last_out': attendance['last_out'] ?? "N/A",
-              'checkOutLocation': attendance['checkOutLocation'],
-              'checkInLocation': attendance['checkInLocation'],
-             'checkIn_image': checkInImages,
-             'checkOut_image': checkOutImages,
-            });
+            isCheckedIn: checkInController.isCheckedIn.value,
+            onCheckIn: () async {
+              await checkInController.checkIn();
+              welcomeController.reloadWelcomeData();
             },
-            ),
-
-              AppSpacing.medium(context),
-                  Obx(() => WelcomeCard(
-                    userName: userName.value,
-                    jobRole: jobRole.value,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    elapsedSeconds: checkInController.elapsedSeconds.value,
-                    isCheckedIn: checkInController.isCheckedIn.value,
-                    checkInTime: checkInController.checkInTime.value ?? DateTime.now(),
-                    workedTime: isToday && !checkInController.isCheckedIn.value ? checkInController.workedTime.value : "",
-                    checkOutTime: checkInController.checkOutTime.value,
-                    selectedFirstIn: selectedFirstIn.value,
-                    selectedLastOut: selectedLastOut.value,
-                    checkInImage: checkInImage.value,
-                    checkOutLocation: checkOutLocation.value,
-                    checkInLocation: checkInLocation.value,
-                    checkOutImage: checkOutImage.value,
-                    selectedDate: selectedDate.value,
-                  )),
-                  BottomCard(screenWidth: screenWidth, screenHeight: screenHeight),
-                  AppSpacing.small(context),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Leave Application',
-                        style: fontStyles.headingStyle,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero, // 👈 Removes default padding
-                          minimumSize: Size(0, 0),  // 👈 Prevents height constraints
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 👈 Shrinks touch target
-                        ),
-                        onPressed: () {
-                          Get.to(leavepage(title: "leave detail"));
-                        },
-                        child: Text(
-                          'See All',
-                          style: TextStyle(
-                            color: Color(0xFFF25922),
-                            fontSize: 14,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  LeaveTabView(
-                    heightFactor: 0.3,
-                    selectedMonth: selectedMonth,
-                    selectedYear: selectedYear,
-                  ),
-                ],
-              ),
-            ),
+            onCheckOut: () async {
+              await checkInController.checkOut();
+              welcomeController.reloadWelcomeData();
+            },
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: screenHeight * 0.1,
-        child: Obx(() => SlideCheckIn(
-          showCam : showCam.value,
-          text: selectedFirstIn.value == 'N/A'?'Slide To CheckIn':selectedLastOut.value!='N/A'?'Completed':'Slide To CheckOut',
-          screenWidth: screenWidth,
-          screenHeight: screenHeight,
-          isEnabled: selectedDate.value.day == DateTime.now().day &&
-              selectedDate.value.month == DateTime.now().month &&
-              selectedDate.value.year == DateTime.now().year &&
-              !isTodayAttendanceComplete.value,
 
-          // 👈 Modify this line
-          isCheckedIn: checkInController.isCheckedIn.value,
-          onCheckIn: ()async {
-           await checkInController.checkIn();         // ✅ Mark check-in
-            _loadInitialAttendance();
-            // 🔁 Refresh attendance
-          },
-          onCheckOut: ()async {
-           await checkInController.checkOut();        // ✅ Mark check-out
-            _loadInitialAttendance(); // 🔁 Refresh attendance
-          },
-
-        )),
-      ),
-    );
+        );
+      }),
+    )) ;
   }
 }

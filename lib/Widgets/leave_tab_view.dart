@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../API/Controllers/leave_controller.dart';
 import 'CustomListTile.dart';
 import 'Custom_dialog.dart';
+import 'No_data_found.dart';
 import 'Status_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:employe_manage/API/models/leave_model.dart';
@@ -67,7 +68,10 @@ class _LeaveTabViewState extends State<LeaveTabView> {
         }
 
         if (leaveController.leaveData.isEmpty) {
-          return const Center(child: Text("No leave data available"));
+          return const Center(child: const NoDataWidget(
+            message: "No Leaves found",
+            imagePath: "assets/images/Error_image.png", // your image path
+          ));
         }
 
         return DefaultTabController(
@@ -85,7 +89,11 @@ class _LeaveTabViewState extends State<LeaveTabView> {
                 child: TabBarView(
                   children: leaveController.leaveData.entries.map((entry) {
                     return entry.value.isEmpty
-                        ? const Center(child: Text("No leaves for this month"))
+                        ? const NoDataWidget(
+                      imageHeight: 150,
+                      message: "No Leaves found",
+                      imagePath: "assets/images/Error_image.png", // your image path
+                    )
                         : ListView.builder(
                       itemCount: entry.value.length,
                       itemBuilder: (context, index) {

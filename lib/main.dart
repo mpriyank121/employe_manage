@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'API/Controllers/checkIn_Controller.dart';
 import 'API/Controllers/employee_attendence_controller.dart';
+import 'API/Controllers/leave_controller.dart';
 import 'API/Controllers/task_controller.dart';
+import 'API/Controllers/update_controller.dart';
 import 'API/Controllers/user_data_controller.dart';
 import 'API/Services/version_service.dart';
 import 'Screens/LoginPage.dart';
@@ -17,28 +20,18 @@ import 'Widgets/manadatory_update_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final result = await VersionService.checkAppVersion('1.0.0');
-  if (result != null) {
-    final isUpdateAvailable = result['check'].toString() == " 1";
-    final isMandatory = result['mandatory'].toString() == " 1";
-    final message = result['message'] ?? 'A new update is available.';
-
-    Future.delayed(Duration.zero, () {
-      if (isMandatory) {
-        showMandatoryUpdateDialog(message); // 👈 No skip
-      } else if (isUpdateAvailable) {
-        showOptionalUpdateDialog(message);  // 👈 With skip
-      }
-    });
-  }
+  Get.put(UpdateController()); // 🔑 Register before version check
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-
   Get.put(AttendanceController());
   Get.put(UserController());
   Get.put(TaskController());
+  Get.put(CheckInController());
+  Get.put(LeaveController()); // <--- Add this
+// Register the controller globally
+
 
   runApp(const MyApp());
 }

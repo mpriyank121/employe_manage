@@ -2,6 +2,7 @@ import 'package:employe_manage/Widgets/CustomListTile.dart';
 import 'package:employe_manage/Widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import '../API/Services/assets_service.dart';
+import '../Widgets/No_data_found.dart';
 
 class Assetspage extends StatefulWidget {
   final String empId; // ✅ Pass Dynamic empId
@@ -25,56 +26,61 @@ class _AssetspageState extends State<Assetspage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child:Scaffold(
       appBar: CustomAppBar(title: "Assets",),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: assetFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No assets found"));
-          }
+      body:Padding(padding:EdgeInsets.only(top: 10),
+      child:FutureBuilder<List<Map<String, dynamic>>>(
+          future: assetFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const NoDataWidget(
+                message: "No Assets found",
+                imagePath: "assets/images/Error_image.png", // your image path
+              );
+            }
 
-          var assets = snapshot.data!;
+            var assets = snapshot.data!;
 
-          return ListView.builder(
-            itemCount: assets.length,
-            itemBuilder: (context, index) {
-              var asset = assets[index];
+            return ListView.builder(
+              itemCount: assets.length,
+              itemBuilder: (context, index) {
+                var asset = assets[index];
 
-              return
-                CustomListTile(
-                  leading:GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => Dialog(
-                          child: InteractiveViewer(
-                            child: Image.network(asset['Image']),
+                return
+                  CustomListTile(
+                    leading:GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => Dialog(
+                            child: InteractiveViewer(
+                              child: Image.network(asset['Image']),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Image.network(
-                      asset['Image'],
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
+                        );
+                      },
+                      child: Image.network(
+                        asset['Image'],
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
 
-                  title: Text(asset['asset_name'] ?? 'No Asset Name'),
-                  subtitle: Text('Assigned By: ${asset['assigned_by'] ?? 'Unknown'}'),
-                  trailing: Text('#${asset['unique_serial_no']}'),
-                );
+                    title: Text(asset['asset_name'] ?? 'No Asset Name'),
+                    subtitle: Text('Assigned By: ${asset['assigned_by'] ?? 'Unknown'}'),
+                    trailing: Text('#${asset['unique_serial_no']}'),
+                  );
 
-            },
-          );
-        },
-      ),
-    );
+              },
+            );
+          },
+          ),
+      )
+    ) )  ;
   }
 }

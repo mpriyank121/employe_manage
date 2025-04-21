@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Services/attendance_service.dart';
 import '../Services/user_service.dart';
 import '../models/attendence_model.dart';
@@ -71,7 +72,7 @@ class AttendanceController extends GetxController {
     for (var record in attendanceData) {
       if (record['date'] == selectedDate) {
         print('rrr$record');
-        return {
+         return {
           'first_in': record['first_in'],
           'last_out': record['last_out'] == "N/A" ? null : record['last_out'],
           'checkIn_image':record['checkinImage'],

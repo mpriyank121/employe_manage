@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../API/Controllers/holiday_controller.dart';
@@ -26,10 +27,11 @@ class _holidaypageState extends State<holidaypage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(title: "Holiday List"),
       body: Column(
         children: [
+          AppSpacing.small(context),
           /// ✅ Year Selector
           YearMonthSelector(
             initialYear: DateTime.now().year,
@@ -39,7 +41,7 @@ class _holidaypageState extends State<holidaypage> {
               controller.updateYear(year); // Only filters locally
             },
           ),
-
+          AppSpacing.small(context),
           /// ✅ Holiday List
           Expanded(
             child: Obx(() => HolidayList(
@@ -50,6 +52,6 @@ class _holidaypageState extends State<holidaypage> {
           ),
         ],
       ),
-    );
+    )) ;
   }
 }

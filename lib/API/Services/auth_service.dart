@@ -50,13 +50,22 @@ class AuthService {
       }, encryptOtp: false);
 
       var jsonResponse = await _apiClient.postRequest("/login.php", encryptedData);
+      print("📨 verifyotp() response: $jsonResponse"); // 🔍 Added debug statement
+
 
       if (jsonResponse != null && jsonResponse['status'] == true) {
         print("✅ OTP Verified Successfully");
         SharedPreferences prefs = await SharedPreferences.getInstance();
         if (jsonResponse.containsKey('emp_id')) {
           await prefs.setString('emp_id', jsonResponse['emp_id']);
+
         }
+        if (jsonResponse.containsKey('super_user')) {
+          int superUser = int.parse(jsonResponse['super_user'].toString());
+          await prefs.setInt('super_user', superUser); // Save as integer
+          print("👑 Super user stored: $superUser");
+        }
+
         return true;
       } else {
         print("❌ Invalid OTP Response: ${jsonResponse}");

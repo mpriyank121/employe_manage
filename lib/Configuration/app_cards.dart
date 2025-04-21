@@ -46,7 +46,7 @@ class LeaveCardConfig {
   }
 
   static double defaultWidth(BuildContext context) {
-    return MediaQuery.of(context).size.width * 0.3; // Default to 40% of screen width
+    return MediaQuery.of(context).size.width * 0.29; // Default to 40% of screen width
   }
 
   static double defaultHeight(BuildContext context) {
@@ -64,7 +64,8 @@ class OtpTextFieldConfig {
   static const Color borderColor = Colors.transparent;
 }
 class LeaveContainerConfig {
-  static const EdgeInsetsGeometry defaultPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 1);
+
+  static const EdgeInsets defaultPadding = EdgeInsets.only(left: 12,right: 12);
   static const double defaultBorderRadius = 8.0;
   static const Color defaultColor = Colors.white; // Equivalent to Colors.grey[200]
   static const Color backgroundColor = Color(0xFFF6F6F6);

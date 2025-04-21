@@ -1,3 +1,4 @@
+import 'package:delta_to_html/delta_to_html.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../API/Controllers/task_controller.dart';
@@ -7,6 +8,7 @@ import 'Custom_quill_editor.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 
 class Bodbuttondialog extends StatefulWidget {
   @override
@@ -18,7 +20,7 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
   final QuillController _quillController = QuillController.basic();
   bool _isLoading = false;
   String? _bodResponse;
-  String? _bodId; // 🔽 Store bodId fetched from TaskService
+  String? _bodId; // Store bodId fetched from TaskService
 
   @override
   void initState() {
@@ -44,11 +46,14 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
       if (todayBOD != null) {
         _bodId = todayBOD['bod_id'].toString();
-
+        _bodResponse = todayBOD['bodDesc'];
+        if (_bodResponse != null && _bodResponse!.isNotEmpty) {
+          // Convert HTML to Delta using the HtmlToDelta converter
+          final delta = HtmlToDelta().convert(_bodResponse!, transformTableAsEmbed: false);
+          _quillController.document = Document.fromDelta(delta); // Set the Delta to the QuillController
+        }// Set bodResponse with bodDesc
         _taskTitleController.text = todayBOD['bod'] ?? '';
-        _quillController.document = Document()..insert(0, todayBOD['bodDesc'] ?? '');
-
-        }
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -62,30 +67,36 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
 
     setState(() => _isLoading = true);
     try {
+      final List<dynamic> deltaJson = _quillController.document.toDelta().toJson();
+      final String html = DeltaToHTML.encodeJson(deltaJson);
       final response = await ApiBodService.sendData(
         taskTitle: _taskTitleController.text.trim(),
-        description: _quillController.document.toPlainText().trim(),
-        bodId: _bodId, // 🔽 If available, this triggers update
+        description: html,
+        bodId: _bodId, // If available, this triggers update
       );
 
       if (response != null) {
         Get.snackbar("Success", _bodId != null ? "BOD Updated!" : "BOD Submitted!",
-            snackPosition: SnackPosition.BOTTOM,);
+            snackPosition: SnackPosition.BOTTOM);
       }
 
       Navigator.pop(context);
     } catch (e) {
-      } finally {
+      Get.snackbar("Error", "Failed to send BOD: $e", snackPosition: SnackPosition.BOTTOM);
+    } finally {
       setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(title: 'What are you doing today'),
       resizeToAvoidBottomInset: true,
-      body: LayoutBuilder(
+      body:Container(
+        margin: EdgeInsets.only(left: 12,right: 12),
+
+        child: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(8.0),
@@ -94,43 +105,28 @@ class _BodbuttondialogState extends State<Bodbuttondialog> {
               child: IntrinsicHeight(
                 child: Column(
                   children: [
-                    if (_bodResponse != null)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _bodResponse!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, color: Colors.blue),
-                        ),
-                      ),
                     Expanded(
                       child: CustomQuillEditor(
                         controller: _quillController,
                         taskTitleController: _taskTitleController,
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                    )
                   ],
                 ),
               ),
             ),
           );
         },
-      ),
+      ),),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(10),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : PrimaryButton(
           onPressed: handleApiCall,
-
           text: _bodId != null ? "Update BOD" : "Submit BOD",
         ),
       ),
-    );
+    )) ;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:employe_manage/Configuration/style.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/Widgets/primary_button.dart';
@@ -128,23 +129,26 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(
         title: "Request Leave",
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 12.0,right: 12.0),
         child: Column(
           children: [
+            AppSpacing.small(context),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    AppSpacing.small(context),
                     Text('Leave Type', style: fontStyles.headingStyle),
+                    AppSpacing.small(context),
                     LeaveContainer(
-                      height: screenHeight * 0.07,
+                      height: screenHeight * 0.06,
                       child: DropdownButtonFormField<String>(
                         value: selectedLeaveType,
                         items: leaveTypes.map((type) {
@@ -165,19 +169,20 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    AppSpacing.small(context),
                     Text('From', style: fontStyles.headingStyle),
+                    AppSpacing.small(context),
                     GestureDetector(
                       onTap: () => _selectDate(context, true),
                       child: LeaveContainer(
-                        height: screenHeight * 0.07,
+                        height: screenHeight * 0.06,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+
                             Text(
                               fromDate == null
                                   ? " Select Date"
@@ -189,12 +194,13 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    AppSpacing.small(context),
                     Text('To', style: fontStyles.headingStyle),
+                    AppSpacing.small(context),
                     GestureDetector(
                       onTap: () => _selectDate(context, false),
                       child: LeaveContainer(
-                        height: screenHeight * 0.07,
+                        height: screenHeight * 0.06,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -209,8 +215,9 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    AppSpacing.small(context),
                     Text('Reason', style: fontStyles.headingStyle),
+                    AppSpacing.small(context),
                     LeaveContainer(
                       height: screenHeight * 0.2,
                       child: TextFormField(
@@ -239,6 +246,6 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

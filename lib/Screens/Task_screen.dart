@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +33,7 @@ class TaskScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
           showBackButton: false,
           title: "My Tasks"),
@@ -42,11 +43,10 @@ class TaskScreen extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 8.0,right: 8.0),
           child: Column(
             children: [
-
-              // 🔹 Date Range Picker
+              AppSpacing.small(context),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -74,6 +74,7 @@ class TaskScreen extends StatelessWidget {
                   )
                 ],
               ),
+              AppSpacing.small(context),
 
               // 🔹 Task List
               Expanded(
@@ -84,11 +85,9 @@ class TaskScreen extends StatelessWidget {
                   endDate: controller.endDate.value,
                 ),
               ),
-
               // 🔹 BOD & EOD Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center alignment
-
                 children: [
                   PrimaryButton(
                     widthFactor: 0.45,
@@ -112,6 +111,6 @@ class TaskScreen extends StatelessWidget {
           ),
         );
       }),
-    );
+    ));
   }
 }

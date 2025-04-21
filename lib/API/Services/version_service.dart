@@ -5,11 +5,7 @@ import 'package:http/http.dart' as http;
 
 class VersionService {
   static Future<Map<String, dynamic>?> checkAppVersion(String version) async {
-    final encryptedType = EncryptionHelper.encryptString('checkAppVersion');
-    final encryptedVersion = EncryptionHelper.encryptString(version);
 
-    print('[DEBUG] Encrypted type: $encryptedType');
-    print('[DEBUG] Encrypted version: $encryptedVersion');
 
     var request = http.MultipartRequest(
       'POST',
@@ -17,12 +13,8 @@ class VersionService {
     );
 
     request.fields.addAll({
-      'type': encryptedType,
-      'version': encryptedVersion,
+      'type': EncryptionHelper.encryptString('checkAppVersion'),
     });
-print("$encryptedVersion");
-    print('[DEBUG] Sending request to: ${request.url}');
-    print('[DEBUG] Request fields: ${request.fields}');
 
     try {
       http.StreamedResponse response = await request.send();

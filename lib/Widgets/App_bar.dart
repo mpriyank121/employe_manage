@@ -23,6 +23,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(left: 12,right: 12),
+
       decoration: AppBorders.bottomBorder,
       child: AppBar(
 

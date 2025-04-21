@@ -1,3 +1,4 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:employe_manage/Widgets/attendance_calender.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,7 @@ class _AttendancePageState extends State<AttendancePage> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
         title: 'Attendance',
         showBackButton: true,
@@ -67,10 +68,11 @@ class _AttendancePageState extends State<AttendancePage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.only(left: 12.0,right: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                AppSpacing.small(context),
                 // ✅ Leave Cards Section
                 Obx(() {
                   if (controller.isLoading.value) {
@@ -80,7 +82,6 @@ class _AttendancePageState extends State<AttendancePage> {
                     );
                   }
                   return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Obx(() => Row(
@@ -107,7 +108,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   );
                 }),
 
-                const SizedBox(height: 10),
+                AppSpacing.small(context),
 
                 // 📅 Calendar Section
                 Container(
@@ -122,8 +123,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
 
                 ),
-
-                const SizedBox(height: 20),
+                AppSpacing.small(context),
 
                 // 📢 "Holidays This Month" Title
                 Center(
@@ -162,7 +162,7 @@ class _AttendancePageState extends State<AttendancePage> {
           ),
         ),
       ),
-    );
+    )) ;
   }
 
 }

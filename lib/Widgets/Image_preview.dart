@@ -56,7 +56,7 @@ class ImagePreviewWidget extends StatelessWidget {
                           '$checkInLocation',
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          maxLines: 2,
                         ),
                       if (checkOutLocation != null && checkOutLocation!.trim().isNotEmpty)
                         Text(

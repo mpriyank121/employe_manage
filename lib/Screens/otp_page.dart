@@ -16,7 +16,7 @@ class OtpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -52,6 +52,6 @@ class OtpPage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }

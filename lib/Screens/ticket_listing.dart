@@ -3,7 +3,6 @@ import 'package:employe_manage/Widgets/App_bar.dart';
 import 'package:employe_manage/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Widgets/Ticket_List_Widget.dart';
 
 class TicketScreen extends StatefulWidget {
@@ -23,6 +22,7 @@ class TicketScreenState extends State<TicketScreen> {
   void initState() {
     super.initState();
     _loadEmpId();
+
   }
 
   Future<void> _loadEmpId() async {
@@ -35,10 +35,16 @@ class TicketScreenState extends State<TicketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
         centerTitle: false,
         title: "Ticket List",
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         trailing: PrimaryButton(
           heightFactor: 0.04,
           onPressed: () async {
@@ -59,9 +65,10 @@ class TicketScreenState extends State<TicketScreen> {
           ? Center(child: CircularProgressIndicator())
           : empId == null
           ? Center(child: Text(""))
-          : TicketListWidget(
+          :Padding(padding: EdgeInsets.only(top: 10),
+      child: TicketListWidget(
           key: ticketListKey,
-          empId: empId!),
-    );
+          empId: empId!),)
+    )) ;
   }
 }

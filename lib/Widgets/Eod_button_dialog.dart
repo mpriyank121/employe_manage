@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
 import 'package:get/get.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
@@ -47,8 +48,14 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
       if (todayEOD != null) {
         _eodId = todayEOD['eod_id'].toString();
-        _taskTitleController.text = todayEOD['eod'] ?? ''; // Show 'eod' in title field
-        _quillController.document = Document()..insert(0, todayEOD['eodDesc'] ?? ''); // Show 'eodDesc' in editor
+        _eodResponse = todayEOD['bodDesc'];
+        if (_eodResponse != null && _eodResponse!.isNotEmpty) {
+          // Convert HTML to Delta using the HtmlToDelta converter
+          final delta = HtmlToDelta().convert(_eodResponse!, transformTableAsEmbed: false);
+          _quillController.document = Document.fromDelta(delta); // Set the Delta to the QuillController
+        }
+        _taskTitleController.text = todayEOD['eod'] ?? '';
+        // Show 'eod' in title field
 
       }
     } finally {
@@ -90,45 +97,34 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(title: 'What have you done today'),
       resizeToAvoidBottomInset: true,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(8.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    if (_eodResponse != null)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _eodResponse!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, color: Colors.blue),
+      body:Container(
+        margin: EdgeInsets.only(left: 12,right: 12),
+
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(8.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: CustomQuillEditor(
+                          controller: _quillController,
+                          taskTitleController: _taskTitleController,
                         ),
                       ),
-                    Expanded(
-                      child: CustomQuillEditor(
-                        controller: _quillController,
-                        taskTitleController: _taskTitleController,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(10),
         child: _isLoading
@@ -138,6 +134,6 @@ class _EodbuttondialogState extends State<Eodbuttondialog> {
           text: _eodId != null ? "Update EOD" : "Submit EOD",
         ),
       ),
-    );
+    )) ;
   }
 }

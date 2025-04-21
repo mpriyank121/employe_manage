@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../API/Controllers/auth_controller.dart';
+import '../API/Controllers/update_controller.dart';
 import '../Configuration/style.dart';
+import '../util/version_check.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/primary_button.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,13 +12,23 @@ import 'package:flutter_svg/svg.dart';
 class LoginScreen extends StatelessWidget {
   final AuthController _authController = Get.put(AuthController());
   final TextEditingController _phoneController = TextEditingController();
+  final updateController = Get.find<UpdateController>();
+  bool _hasCheckedVersion = false;
+
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasCheckedVersion) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        checkAppVersion();
+      });
+      _hasCheckedVersion = true;
+    }
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(
         title: 'Bookchor',
         leading: IconButton(
@@ -86,6 +98,6 @@ class LoginScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    )) ;
   }
 }

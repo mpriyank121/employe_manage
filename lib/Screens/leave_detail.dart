@@ -33,7 +33,7 @@ class _leavepageState extends State<leavepage> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(title: 'Leave Details'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -80,6 +80,6 @@ class _leavepageState extends State<leavepage> {
           ],
         ),
       ),
-    );
+    )) ;
   }
 }

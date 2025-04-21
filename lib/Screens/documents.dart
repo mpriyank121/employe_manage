@@ -9,17 +9,17 @@ class documentpage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       appBar: CustomAppBar(title: 'Documents'),
       body: ListView.builder(
         itemCount: DocumentList.documentItems.length,
         itemBuilder: (context, index) {
           return CustomListTile(item: DocumentList.documentItems[index],
-          trailing: SvgPicture.asset("assets/images/solar_download-linear.svg",),
+            trailing: SvgPicture.asset("assets/images/solar_download-linear.svg",),
             leading: SvgPicture.asset("assets/images/ion_document-text-outline.svg"),
           );
         },
       ),
-    );
+    )) ;
   }
 }

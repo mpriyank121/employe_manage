@@ -10,6 +10,8 @@ import '../API/Services/employee_status_service.dart';
 import '../API/Services/image_picker_service.dart';
 import 'camera_preview_screen.dart';
 import 'location_error_dialog.dart';
+import 'package:permission_handler/permission_handler.dart'; // Add this to pubspec.yaml
+
 
 
 class SlideCheckIn extends StatefulWidget {
@@ -119,14 +121,12 @@ class _SlideCheckInState extends State<SlideCheckIn> {
     if (_isCheckInDisabled) return;
 
     // 🚀 Run location and radius check in parallel
-    final positionFuture = _checkInService.getCurrentLocation();
-    final radiusFuture = _checkInService.checkEmployeeRadius();
-
-    final position = await positionFuture;
+    final position = await _checkInService.getCurrentLocation();
     if (position == null) {
       showLocationErrorDialog(context);
       return;
     }
+    final radiusFuture = _checkInService.checkEmployeeRadius();
 
     final response = await radiusFuture;
     if (response == null) return;
@@ -152,6 +152,38 @@ class _SlideCheckInState extends State<SlideCheckIn> {
 
     File? image;
     if (widget.showCam && _cameras != null) {
+      PermissionStatus permission = await Permission.camera.status;
+
+      if (!permission.isGranted) {
+        // Request permission
+        permission = await Permission.camera.request();
+      }
+
+      if (!permission.isGranted) {
+        // If still not granted, show a dialog
+        showDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: Text("Camera Permission Denied"),
+            content: Text("You need to enable camera access to continue."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("OK"),
+              ),
+              TextButton(
+                onPressed: () {
+                  openAppSettings(); // Open settings if they want to enable it
+                },
+                child: Text("Open Settings"),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
       final frontCamera = _cameras!.firstWhere(
             (cam) => cam.lensDirection == CameraLensDirection.front,
         orElse: () => _cameras!.first,
@@ -224,6 +256,38 @@ Future<void> _handleCheckOut() async {
   // 📷 Handle optional image capture
   File? image;
   if (widget.showCam && _cameras != null) {
+    PermissionStatus permission = await Permission.camera.status;
+
+    if (!permission.isGranted) {
+      // Request permission
+      permission = await Permission.camera.request();
+    }
+
+    if (!permission.isGranted) {
+      // If still not granted, show a dialog
+      showDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Text("Camera Permission Denied"),
+          content: Text("You need to enable camera access to continue."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
+            ),
+            TextButton(
+              onPressed: () {
+                openAppSettings(); // Open settings if they want to enable it
+              },
+              child: Text("Open Settings"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
     final frontCamera = _cameras!.firstWhere(
       (cam) => cam.lensDirection == CameraLensDirection.front,
       orElse: () => _cameras!.first,
@@ -267,6 +331,10 @@ Future<void> _handleCheckOut() async {
 
   @override
   Widget build(BuildContext context) {
+
+    print("🟩 SlideCheckIn isEnabled: ${widget.isEnabled}");
+    print("🟨 SlideCheckIn firstIn: ${widget.firstIn}, lastOut: ${widget.lastOut}");
+
     return Column(
       children: [
         Stack(

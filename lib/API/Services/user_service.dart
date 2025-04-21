@@ -33,7 +33,12 @@ class UserService {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseBody);
+        print("✅ User Data Fetched:");
+        jsonResponse['data'].forEach((key, value) {
+          print("🔹 $key: $value");
+        });
         return jsonResponse['status'] == true ? jsonResponse['data'] : null;
+
       } else {
         print("🔴 Server Error: ${response.reasonPhrase}");
         return null;
