@@ -291,84 +291,93 @@ class _TicketFormState extends State<TicketForm> {
                       AppSpacing.small(context),
 
 
-                      if (selectedCategory.isNotEmpty &&
-                          selectedCategory.first == '1')
-                        LeaveContainer(
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: 'Order ID',
-                              border: InputBorder.none,
+                      Column(
+                        children: [
+                          if (selectedCategory.isNotEmpty && selectedCategory.first == '1')
+                            LeaveContainer(
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  hintText: 'Order ID',
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value) => setState(() => orderId = value),
+                                initialValue: orderId,
+                              ),
                             ),
-                            onChanged: (value) =>
-                                setState(() => orderId = value),
-                            initialValue: orderId,
-                          ),
-                        ),
+                          // Add other widgets below if needed
+                        ],
+                      ),
                       AppSpacing.small(context),
 
-                      if (selectedCategory.isNotEmpty &&
-                          selectedCategory.first == '3')
-                        AppSpacing.small(context),
-                        LeaveContainer(
-                          child: TextFormField(
-                            controller: _dateController,
-
-                            decoration: const InputDecoration(
-                              hintText: 'Select Date',
-                              suffixIcon: Icon(Icons.calendar_today),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-
+                      Column(
+                        children: [
+                          if (selectedCategory.isNotEmpty && selectedCategory.first == '3') ...[
+                            AppSpacing.small(context),
+                            LeaveContainer(
+                              child: TextFormField(
+                                controller: _dateController,
+                                decoration: const InputDecoration(
+                                  hintText: 'Select Date',
+                                  suffixIcon: Icon(Icons.calendar_today),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                                ),
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      attendanceDate = "${pickedDate.toLocal()}".split(' ')[0];
+                                      _dateController.text = attendanceDate!;
+                                    });
+                                  }
+                                },
+                              ),
                             ),
+                          ],
+                          // Other widgets below
+                        ],
+                      ),
 
-                            readOnly: true,
-                            onTap: () async {
-                              DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (pickedDate != null) {
-                                setState(() {
-                                  attendanceDate =
-                                  "${pickedDate.toLocal()}".split(' ')[0];
-                                  _dateController.text = attendanceDate!;
-                                });
-                              }
-                            },
-                          ),
-                        ),
                       AppSpacing.small(context),
 
                       if (isLoadingSubCategories)
                         const Center(child: CircularProgressIndicator())
                       else
-                        if (subcategories.isNotEmpty)
-                          AppSpacing.small(context),
-                          LeaveContainer(
-
-                            child: DropdownButtonFormField<String>(
-                              decoration: const InputDecoration(
-                                hintText: 'Ticket Subcategories',
-                                border: InputBorder.none,
+                        Column(
+                          children: [
+                            if (subcategories.isNotEmpty) ...[
+                              LeaveContainer(
+                                child: DropdownButtonFormField<String>(
+                                  decoration: const InputDecoration(
+                                    hintText: 'Ticket Subcategories',
+                                    border: InputBorder.none,
+                                  ),
+                                  value: selectedSubCategory.isEmpty
+                                      ? null
+                                      : selectedSubCategory.first,
+                                  items: subcategories.map((subcat) {
+                                    return DropdownMenuItem<String>(
+                                      value: subcat['id']!,
+                                      child: Text(subcat['category_name']!),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedSubCategory = [value!];
+                                    });
+                                  },
+                                ),
                               ),
-                              value: selectedSubCategory.isEmpty
-                                  ? null
-                                  : selectedSubCategory.first,
-                              items: subcategories.map((subcat) {
-                                return DropdownMenuItem<String>(
-                                  value: subcat['id']!,
-                                  child: Text(subcat['category_name']!),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedSubCategory = [value!];
-                                });
-                              },
-                            ),
-                          ),
+                            ],
+                            // Add other widgets here as needed
+                          ],
+                        ),
 
                       AppSpacing.small(context),
 

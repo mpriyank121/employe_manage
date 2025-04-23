@@ -41,54 +41,53 @@ class _CustomListTileState extends State<CustomListTile>
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return GestureDetector(
-      onTap: _toggleExpand,
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        child: Container(
-          width: screenWidth * (widget.widthFactor ?? 0.9),
-          margin: const EdgeInsets.only(left: 12,right: 12,bottom: 10),
-          decoration: ShapeDecoration(
-            color: TileConfig.backgroundColor,
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 1, color: TileConfig.borderColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Container(
+        width: screenWidth * (widget.widthFactor ?? 0.9),
+        margin: const EdgeInsets.only(left: 12, right: 12, bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: ShapeDecoration(
+          color: TileConfig.backgroundColor,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(width: 1, color: TileConfig.borderColor),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: ListTile(
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            leading: widget.leading,
-            title: widget.title ??
-                (widget.item['title'] != null &&
-                    widget.item['title']!.isNotEmpty
-                    ? Text(
-                  widget.item['title']!,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                )
-                    : null),
-            subtitle: widget.subtitle ??
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    widget.item['subtitle'] ?? "No Date Available",
-                    style: const TextStyle(color: Colors.grey),
-                    overflow: TextOverflow.fade,
-                    maxLines: _isExpanded ? null : 1, // Expand or trim text
-                  ),
-                ),
-            trailing: IntrinsicHeight(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.title != null || widget.leading != null || widget.trailing != null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (widget.trailing != null) widget.trailing!,
-
+                  if (widget.leading != null) ...[
+                    widget.leading!,
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: widget.title ??
+                        Text(
+                          widget.item['title'] ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                  ),
+                  if (widget.trailing != null) ...[
+                    const SizedBox(width: 8),
+                    widget.trailing!,
+                  ],
                 ],
               ),
-            ),
-          ),
+
+            if (widget.subtitle != null) ...[
+              if (widget.title != null || widget.leading != null || widget.trailing != null)
+                const SizedBox(height: 8),
+              widget.subtitle!,
+            ],
+          ],
         ),
       ),
     );

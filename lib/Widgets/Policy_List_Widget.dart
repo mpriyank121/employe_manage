@@ -1,9 +1,15 @@
+import 'package:employe_manage/Configuration/app_spacing.dart';
+import 'package:employe_manage/Widgets/Action_button.dart';
 import 'package:employe_manage/Widgets/pdf_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../API/Controllers/policy_list_controller.dart';
 import '../API/Services/policy_list_service.dart';
 import 'No_data_found.dart';
 import '../Widgets/CustomListTile.dart';
+import 'Reason_view_button.dart';
 
 class PolicyListWidget extends StatefulWidget {
   final String empId;
@@ -89,16 +95,19 @@ class _PolicyListWidgetState extends State<PolicyListWidget> {
       }
     }
   }
-
   Future<void> _loadMorePolicies() async {
     if (!isLoadingMore && hasMore) {
       setState(() => isLoadingMore = true);
       await loadPolicies(page: currentPage + 1);
     }
   }
+  bool _isExpanded(int index) => _expandedIndex == index;
+
+  int? _expandedIndex;
 
   @override
   Widget build(BuildContext context) {
+
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -113,63 +122,192 @@ class _PolicyListWidgetState extends State<PolicyListWidget> {
     if (policies.isEmpty) {
       return const Center(child: Text("No policies found"));
     }
+    final PolicyController controller = Get.put(PolicyController());
 
     return ListView.builder(
-      controller: _scrollController,
-      itemCount: policies.length + (isLoadingMore ? 1 : 0),
+      itemCount: policies.length,
       itemBuilder: (context, index) {
-        if (index == policies.length) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
+        final policy = policies[index];
+        final policyId = int.parse(policy['id'].toString());
 
-        var policy = policies[index];
+        return Obx(() {
+          final isExpanded = controller.isExpanded(index);
+          final actionStatus = controller.policyActions[policyId] ?? policy['status'] ?? 'Unknown';
 
-        return CustomListTile(
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPolicyDetail("Policy Name", policy['policy_name']),
-              _buildPolicyDetail("Address", policy['address']),
-              _buildPolicyDetail("Created At", policy['created_at']),
-              _buildPolicyDetail("Status", policy['status']),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PDFViewerScreen(
-                        url: policy['policy_details'],
-                        title: "Policy",
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                ),
-                child: const Text("View PDF", style: TextStyle(color: Colors.white)),
+          return GestureDetector(
+            onTap: () => controller.toggleExpanded(index),  // Toggle expansion on tap
+            child: CustomListTile(
+              title:Padding(padding: EdgeInsets.only(top: 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Text(
+                '${index + 1}.',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-            ],
-          ),
-        );
+              AppSpacing.medium(context),
+              Expanded(
+                child: Text(
+                  (policy['policy_name'] ?? 'Unnamed Policy').replaceAll('\n', ''),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                ),
+              ),
+              ],
+            ),),
+              trailing:_buildStatusIcon(actionStatus),
+              subtitle: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isExpanded) ...[
+                      AppSpacing.small(context),
+                      _buildPolicyDetail("Address", Text(policy['address'])),
+                      AppSpacing.small(context),
+                      _buildPolicyDetail("Accepted on", Text(policy['created_at'])),
+                      AppSpacing.small(context),
+                      _buildPolicyDetail(
+                        "Read at",
+                        ReasonViewButton(
+                          widthFactor: 0.3,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PDFViewerScreen(
+                                  url: policy['policy_details'],
+                                  title:policy['policy_name'].replaceAll('\n', ''),
+                                ),
+                              ),
+                            );
+                          },
+                          text: "Read",
+                        ),
+                      ),
+                      AppSpacing.small(context),
+                      if (actionStatus != 'Agree') ...[
+                        Column(children: [Divider(
+                          color: Color(0xFFE6E6E6),      // Divider color
+                          thickness: 2.0,          // Divider thickness
+                        ),Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                          children: [
+                            ActionButton(
+                              widthFactor: 0.42,
+                              label: 'Agree',
+                              bgColor: Colors.green.shade100,
+                              textColor: Colors.green.shade800,
+                              onPressed: () async {
+                                final success = await handlePolicyAction(policyId, '1');
+                                if (success) {
+                                  controller.setPolicyAction(policyId, 'Agree');
+                                  controller.toggleExpanded(index);
+
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final superUser = prefs.getInt('super_user') ?? 0;
+
+                                  await controller.updatePolicyFromApi(
+                                    empId: widget.empId,
+                                    limit: 100,
+                                    page: 1,
+                                    superUser: superUser,
+                                  );
+
+                                  setState(() {
+                                    policies = controller.policyList;
+                                  });
+                                }
+                              },
+
+                            ),
+                            ActionButton(
+                              widthFactor: 0.42,
+                              label: 'Disagree',
+                              bgColor: Colors.red.shade100,
+                              textColor: Colors.red.shade800,
+                              onPressed: () async {
+                                final success = await handlePolicyAction(policyId, '2');
+                                if (success) {
+                                  controller.setPolicyAction(policyId, 'Disagree');
+                                  controller.toggleExpanded(index);
+
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final superUser = prefs.getInt('super_user') ?? 0;
+
+                                  await controller.updatePolicyFromApi(
+                                    empId: widget.empId,
+                                    limit: 100,
+                                    page: 1,
+                                    superUser: superUser,
+                                  );
+                                  setState(() {
+                                    policies = controller.policyList;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),],)
+
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
+          );
+        });
       },
     );
+
   }
 
-  Widget _buildPolicyDetail(String title, String? value) {
-    return Text.rich(
-      TextSpan(
+  Widget _buildPolicyDetail(String title, Widget valueWidget) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextSpan(text: "$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
-          TextSpan(text: value ?? "N/A"),
+          Text(
+            "$title: ",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: valueWidget,
+          ),
         ],
       ),
     );
   }
+  Widget _buildStatusIcon(String status) {
+    if (status == 'Agree') {
+      return Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.1),
+          border: Border.all(color: Colors.green),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.check, color: Colors.green, size: 20),
+      );
+    } else if (status == 'Disagree') {
+      return Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          border: Border.all(color: Colors.red),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.close, color: Colors.red, size: 20),
+      );
+    } else {
+      return const SizedBox(); // No icon for other statuses
+    }
+  }
+
 }

@@ -28,7 +28,7 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final List<Map<String, dynamic>> categoryItems = [
     {'title': 'Attendance', 'icon': 'assets/images/clock.png', 'route': () => AttendancePage(title: 'Attendence')},
-   {'title': 'Policy', 'icon': 'assets/images/wired-flat-290-coin 1.png', 'route':() => PolicyScreen()},
+    {'title': 'Policy', 'icon': 'assets/images/policy.png', 'route':() => PolicyScreen()},
     {'title': 'Assets', 'icon': 'assets/images/wired-flat-146-trolley 1.png', 'route': () => Assetspage(title: 'assets',empId : '')},
     {'title': 'Holidays', 'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png', 'route': () => holidaypage(title: 'Holidays')},
     {'title': 'Leave', 'icon': 'assets/images/wired-flat-1725-exit-sign 1.png', 'route': () => leavepage(title: 'Leave')},

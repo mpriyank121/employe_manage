@@ -1,13 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
 import '../../Configuration/app_constants.dart';
 import '../encryption/Encryption_helper.dart'; // For Date Formatting
 
 
 class TaskService {
-  static Future<List<dynamic>> fetchTaskList(String empId, {int limit = 10, int offset = 0,
+  static Future<List<dynamic>> fetchTaskList(String empId, {int limit = 10, int offset = 1,
     DateTime? startDate,
     DateTime? endDate,}) async {
     try {
@@ -20,11 +20,14 @@ class TaskService {
       String formattedStartDate = startDate != null ? DateFormat('yyyy-MM-dd').format(startDate) : '';
       String formattedEndDate = endDate != null ? DateFormat('yyyy-MM-dd').format(endDate) : '';
 
+      debugPrint("Request is limit $limit");
+      debugPrint("Request is page$offset");
+
       request.fields.addAll({
         'type': EncryptionHelper.encryptString('get_task_data'),
         'emp_id': EncryptionHelper.encryptString(empId), // ✅ Dynamic Employee ID
         'limit': (limit.toString()),
-        'offset': (offset.toString()),
+        'page': (offset.toString()),
 
         if (formattedStartDate.isNotEmpty) 'start_date': EncryptionHelper.encryptString(formattedStartDate),
         if (formattedEndDate.isNotEmpty) 'end_date': EncryptionHelper.encryptString(formattedEndDate),
@@ -37,7 +40,7 @@ class TaskService {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var data = json.decode(responseBody);
-                print("boddata$data");
+                print("taskdata whic is $data");
 
 
         if (data["message"] == "Success" && data["found"] == true) {

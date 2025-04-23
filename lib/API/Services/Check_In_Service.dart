@@ -66,12 +66,6 @@ class CheckInService {
         return null;
       }
 
-      // Try last known location first for speed
-      Position? lastKnown = await Geolocator.getLastKnownPosition();
-      if (lastKnown != null) {
-        print("📍 Using last known position: $lastKnown");
-        return lastKnown;
-      }
 
       // Then try getting current position with timeout
       Position position = await Geolocator.getCurrentPosition(

@@ -23,7 +23,7 @@ class AuthController extends GetxController {
       await prefs.setString('phone', phone);
       Get.to(() => OtpPage(phone: phone));
     } else {
-      Get.snackbar("Error", "Failed to send OTP. Try again.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", "User doesn't", snackPosition: SnackPosition.BOTTOM);
     }
   }
 

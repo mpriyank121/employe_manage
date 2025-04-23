@@ -139,6 +139,7 @@ class TicketListWidgetState extends State<TicketListWidget> {
         var ticket = tickets[index];
 
         return CustomListTile(
+
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

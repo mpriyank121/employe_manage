@@ -14,6 +14,7 @@ class VersionService {
 
     request.fields.addAll({
       'type': EncryptionHelper.encryptString('checkAppVersion'),
+      'version': EncryptionHelper.encryptString(version),
     });
 
     try {

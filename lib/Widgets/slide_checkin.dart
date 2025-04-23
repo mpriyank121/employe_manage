@@ -226,8 +226,6 @@ class _SlideCheckInState extends State<SlideCheckIn> {
     setState(() => _isChecking = false);
   }
 
-  /// ✅ Handles Check-Out Action
-  /// ✅ Handles Check-Out Action
 Future<void> _handleCheckOut() async {
   // 🚀 Get current location once and use it everywhere
   final position = await _checkInService.getCurrentLocation();
@@ -390,7 +388,7 @@ Future<void> _handleCheckOut() async {
                 top: widget.screenHeight * 0.028,
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
-                    if (!widget.isEnabled) return;
+                    if (!widget.isEnabled  || _isChecking) return;
                     setState(() {
                       _position += details.delta.dx;
                       if (_position < 0) _position = 0;
@@ -400,7 +398,7 @@ Future<void> _handleCheckOut() async {
                     });
                   },
                   onHorizontalDragEnd: (details) async {
-                    if (!widget.isEnabled) return;
+                    if (!widget.isEnabled || _isChecking) return;
 
                     if (_position >= widget.screenWidth * 0.7) {
                       setState(() {
@@ -409,17 +407,18 @@ Future<void> _handleCheckOut() async {
                       });
 
                       try {
-                        if (widget.text == 'Slide To CheckIn') {
-                          await _handleCheckIn(); // ✅ Triggers camera, location, then onCheckIn
-                        } else if (widget.text == 'Slide To CheckOut') {
-                          await _handleCheckOut(); // ✅ Triggers camera, location, then onCheckOut
-                        }
+                        setState(() => _isChecking = true); // show spinner in button
 
+                        if (widget.text == 'Slide To CheckIn') {
+                          await _handleCheckIn();
+                        } else if (widget.text == 'Slide To CheckOut') {
+                          await _handleCheckOut();
+                        }
                         // No action needed for 'Completed' as it should be disabled
                       } finally {
-                        setState(() {
-                          _position = 0;
-                        });
+                        setState(() => _isChecking = false);
+                        _position = 0;
+
                       }
                     } else {
                       setState(() {

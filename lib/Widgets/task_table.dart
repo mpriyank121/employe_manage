@@ -30,7 +30,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
   bool _hasError = false;
   bool _hasMore = true;
   int _page = 1;
-  final int _limit = 15;
+  final int _limit = 200;
   final ScrollController _scrollController = ScrollController();
   double _averageRating = 0.0;
 
@@ -40,6 +40,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
     fetchTasks();
     _scrollController.addListener(_scrollListener);
   }
+
   void _showDescriptionBottomSheet(Map<String, dynamic> task) {
     print("eoood: ${task['eodDesc'] ?? '<p>No EOD description</p>'}");
     showModalBottomSheet(
@@ -76,20 +77,16 @@ class _TaskListWidgetState extends State<TaskListWidget> {
                 const Text("BOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
                 Html(
                   data: task['bodDesc'] ?? '<p>No BOD description</p>',
-
                 ),
-
                 const Divider(height: 30),
-
                 const Text("EOD Task", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Html(
-                  data: task['eod'] ?? '<p>No BOD task</p>',
+                  data: task['eod'] ?? '<p>No EOD task</p>',
                 ),
                 const SizedBox(height: 12),
                 const Text("EOD Description", style: TextStyle(fontWeight: FontWeight.bold)),
                 Html(
                   data: task['eodDesc'] ?? '<p>No EOD description</p>',
-
                 ),
                 const SizedBox(height: 20),
               ],
@@ -121,6 +118,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
     _averageRating = count > 0 ? totalRating / count : 0.0;
   }
+
   Future<void> fetchTasks({bool isRefreshing = false}) async {
     if (_isLoading || (!_hasMore && !isRefreshing)) return;
 
@@ -138,7 +136,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
       List<dynamic> tasks = await TaskService.fetchTaskList(
         widget.employeeId,
         limit: _limit,
-        offset: (_page - 1) * _limit,
+        offset: _page ,
         startDate: widget.startDate,
         endDate: widget.endDate,
       );
@@ -173,7 +171,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
       setState(() {
         _tasks.addAll(filteredTasks);
-        if (filteredTasks.length < _limit) _hasMore = false;
+        _hasMore = filteredTasks.length >= _limit;
         _page++;
         _calculateAverageRating();
       });
@@ -186,10 +184,10 @@ class _TaskListWidgetState extends State<TaskListWidget> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-      if (!_isLoading && _hasMore) {
-        fetchTasks();
-      }
+    // Check if we're near the bottom of the list
+    if (_scrollController.position.extentAfter < 200 && !_isLoading && _hasMore) {
+      print("📜 Loading more tasks. Current page: ${_page-1}, Next page: $_page");
+      fetchTasks();
     }
   }
 
@@ -202,63 +200,79 @@ class _TaskListWidgetState extends State<TaskListWidget> {
         Container(
           alignment: Alignment.center,
           width: screenWidth * 0.9,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           decoration: BoxDecoration(
             color: Colors.grey[200],
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            " Average Rating: ${_averageRating.toStringAsFixed(2)}",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            "Average Rating: ${_averageRating.toStringAsFixed(2)}",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
         AppSpacing.small(context),
-
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => fetchTasks(isRefreshing: true),
             child: _hasError
                 ? NoDataWidget(
-    message: "No tasks found",
-    imagePath: "assets/images/Error_image.png", // your image path
-    )
+              message: "Error loading tasks",
+              imagePath: "assets/images/Error_image.png",
+            )
                 : _tasks.isEmpty && !_isLoading
                 ? NoDataWidget(
-    message: "No tasks found for selected date",
-    imagePath: "assets/images/Error_image.png", // your image path
-    )
-                : ListView.builder(
-              controller: _scrollController,
-              itemCount: _tasks.length + (_isLoading ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _tasks.length) {
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
+              message: "No tasks found for selected date",
+              imagePath: "assets/images/Error_image.png",
+            )
+                : Stack(
+              children: [
+                ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _tasks.length + 1, // +1 for loading indicator
+                  itemBuilder: (context, index) {
+                    if (index == _tasks.length) {
+                      // This will be our footer loading indicator
+                      return _hasMore
+                          ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                          : index > 0
+                          ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Center(
+                          child: Text(
+                            "No more tasks to load",
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ),
+                      )
+                          : const SizedBox.shrink();
+                    }
 
-                var task = _tasks[index];
+                    var task = _tasks[index];
 
-                return CustomListTile(
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTaskDetail("Date", task['date']),
-                      _buildTaskDetail("BOD Task", task['bod']),
-                      _buildTaskDetail("EOD Task", task['eod']),
-                      _buildTaskDetail("Hours", task['hours']),
-                      _buildTaskDetail("Rating", task['rating']),
-                      // ReasonViewButton(
-                      //   onPressed: () => _showDescriptionBottomSheet(task),
-                      //   text: "View EOD/BOD",
-                      // ),
-
-
-                    ],
-                  ),
-                );
-              },
+                    return CustomListTile(
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTaskDetail("Date", task['date']),
+                          _buildTaskDetail("BOD Task", task['bod']),
+                          _buildTaskDetail("EOD Task", task['eod']),
+                          _buildTaskDetail("Hours", task['hours']),
+                          _buildTaskDetail("Rating", task['rating']),
+                          // ReasonViewButton(
+                          //   onPressed: () => _showDescriptionBottomSheet(task),
+                          //   text: "View EOD/BOD",
+                          // ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                if (_isLoading && _tasks.isEmpty)
+                  const Center(child: CircularProgressIndicator()),
+              ],
             ),
           ),
         ),
@@ -270,7 +284,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: "$title: ", style: TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: "$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
           TextSpan(text: value ?? "N/A"),
         ],
       ),
@@ -279,6 +293,7 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }

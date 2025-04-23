@@ -14,9 +14,7 @@ import 'API/Services/version_service.dart';
 import 'Screens/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
-
 import 'Widgets/Custom_Splash_Screen.dart';
-import 'Widgets/manadatory_update_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
