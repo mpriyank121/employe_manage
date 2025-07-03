@@ -1,26 +1,21 @@
+import 'package:employe_manage/Screens/otp_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../API/Controllers/auth_controller.dart';
-import '../API/Controllers/update_controller.dart';
 import '../Configuration/style.dart';
-import '../util/version_check.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/primary_button.dart';
 import 'package:flutter_svg/svg.dart';
 
 class LoginScreen extends StatelessWidget {
-  final AuthController _authController = Get.put(AuthController());
   final TextEditingController _phoneController = TextEditingController();
-  final updateController = Get.find<UpdateController>();
   bool _hasCheckedVersion = false;
-
 
   @override
   Widget build(BuildContext context) {
     if (!_hasCheckedVersion) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        checkAppVersion();
+
       });
       _hasCheckedVersion = true;
     }
@@ -80,21 +75,19 @@ class LoginScreen extends StatelessWidget {
 
             Spacer(),
 
-            /// ✅ Continue Button with Loading Indicator
-            Obx(() => PrimaryButton(
-              text: _authController.isLoading.value ? 'Sending OTP...' : 'Continue',
-              icon: _authController.isLoading.value
-                  ? CircularProgressIndicator(color: Colors.white) // ✅ Show loading inside button
-                  : SvgPicture.asset('assets/images/Arrow_Circle_Right.svg'),
-              onPressed: _authController.isLoading.value
-                  ? null
-                  : () {
-                String phoneNumber = _phoneController.text.trim();
-                if (phoneNumber.length == 10) {
-                  _authController.sendOtp(phoneNumber);
-                }
-              },
-            )),
+            /// ✅ Continue Button (disabled, no backend)
+            PrimaryButton(
+              text: 'Continue',
+              icon: SvgPicture.asset('assets/images/Arrow_Circle_Right.svg'),
+              onPressed:
+              (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OtpPage(phone: '')),
+                );
+              }
+              , // Disabled
+            ),
           ],
         ),
       ),

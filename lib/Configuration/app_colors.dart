@@ -8,3 +8,4 @@ class AppColors {
   static const Color textSecondary = Colors.grey;
   static const Color backgroundLight = Colors.white;
 }
+

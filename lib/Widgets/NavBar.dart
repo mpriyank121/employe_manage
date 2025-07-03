@@ -1,4 +1,4 @@
-import 'package:employe_manage/API/Controllers/task_controller.dart';
+
 import 'package:employe_manage/Screens/Task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,8 +7,6 @@ import 'package:employe_manage/Screens/settings.dart';
 import 'package:employe_manage/Screens/welcome_page.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import '../API/Controllers/user_data_controller.dart';
-import '../API/Controllers/welcome_page_controller.dart';
 import '../Configuration/app_colors.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,7 +23,6 @@ class _MainScreenState extends State<MainScreen> {
     CategoryPage(title: "Categories"),
     TaskScreen(),
     settingpage(title: "Settings"),
-
   ];
 
   // Function to handle tab switching
@@ -34,12 +31,11 @@ class _MainScreenState extends State<MainScreen> {
       _selectedIndex = index;
     });
     if (index == 0) {
-      Get.find<WelcomeController>().reloadWelcomeData();
-
+      //Get.find<WelcomeController>().reloadWelcomeData();
     } else if (index == 2) {
-      Get.find<TaskController>().refreshTaskData();
+      //Get.find<TaskController>().refreshTaskData();
     } else if (index == 3) {
-      Get.find<UserController>().loadUserData();
+      //Get.find<UserController>().loadUserData();
     }
   }
 
@@ -77,7 +73,8 @@ class _MainScreenState extends State<MainScreen> {
                 duration: Duration(milliseconds: 200),
                 child: SvgPicture.asset(
                   "assets/images/solar_home-2-linear.svg",
-                  color: _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
+                  color:
+                  _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
                 ),
               ),
               label: 'Home',
@@ -88,7 +85,8 @@ class _MainScreenState extends State<MainScreen> {
                 duration: Duration(milliseconds: 200),
                 child: SvgPicture.asset(
                   "assets/images/category-1-svgrepo-com 1.svg",
-                  color: _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
+                  color:
+                  _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
                 ),
               ),
               label: 'Categories',
@@ -99,7 +97,8 @@ class _MainScreenState extends State<MainScreen> {
                 duration: Duration(milliseconds: 200),
                 child: SvgPicture.asset(
                   "assets/images/task-square.svg",
-                  color: _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
+                  color:
+                  _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
                 ),
               ),
               label: 'Tasks',
@@ -110,7 +109,8 @@ class _MainScreenState extends State<MainScreen> {
                 duration: Duration(milliseconds: 200),
                 child: SvgPicture.asset(
                   "assets/images/settings-02.svg",
-                  color: _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
+                  color:
+                  _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
                 ),
               ),
               label: 'Settings',
@@ -120,5 +120,4 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
 }

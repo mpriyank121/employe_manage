@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../API/Controllers/auth_controller.dart';
 import '../Configuration/style.dart';
 import '../Widgets/otp_text_feild.dart';
 import '../Widgets/primary_button.dart';
 import '../Widgets/Resend_Button.dart';
 
 class OtpPage extends StatelessWidget {
-  final String phone; // ✅ Accept phone as a parameter
-  final AuthController _authController = Get.find<AuthController>();
+  final String phone; // Accept phone as a parameter
 
   OtpPage({Key? key, required this.phone}) : super(key: key);
 
@@ -24,30 +22,25 @@ class OtpPage extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: screenHeight * 0.02),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Enter the verification code sent to', style: fontStyles.headingStyle, textAlign: TextAlign.center),
-            SizedBox(height: screenHeight * 0.01),
-            Text(phone, style: fontStyles.headingStyle, textAlign: TextAlign.center), // ✅ Display phone number
-            SizedBox(height: screenHeight * 0.01),
-            Text('Enter your OTP to continue', style: fontStyles.subTextStyle, textAlign: TextAlign.center),
-            SizedBox(height: screenHeight * 0.03),
-
-            /// ✅ OTP Input Field
-            OtpTextField(onOtpComplete: (otp) => _authController.verifyOtp(phone, otp)),
-
-            SizedBox(height: screenHeight * 0.03),
-
-            /// ✅ Resend OTP Button
-            ResendButton(onResend: () => _authController.sendOtp(phone)),
-
-            /// ✅ Verify Button
-            Spacer(),
+            SizedBox(height: screenHeight * 0.05),
+            Text('Enter OTP', style: fontStyles.headingStyle),
+            SizedBox(height: screenHeight * 0.02),
+            OtpTextField(),
+            SizedBox(height: screenHeight * 0.02),
             PrimaryButton(
-                text: _authController.isLoading.value ? 'Verifying...' : 'Verify OTP',
-                onPressed: () {}
+              text: 'Verify',
+              icon: Icon(Icons.check, color: Colors.white),
+              onPressed: (){
+                Get.offAllNamed('/home');
+              }, // Disabled
+            ),
+            SizedBox(height: screenHeight * 0.02),
+            ResendButton(
+               onResend: () {  }, // Disabled
             ),
           ],
         ),

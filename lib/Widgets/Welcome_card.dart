@@ -42,7 +42,6 @@ class WelcomeCard extends StatelessWidget {
     this.selectedDate,
   }) : super(key: key);
 
-
   /// ✅ Convert time string (hh:mm a) to DateTime object
   DateTime? parseTime(String time) {
     try {
@@ -71,7 +70,6 @@ class WelcomeCard extends StatelessWidget {
     int secs = seconds % 60;
     return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +142,7 @@ class WelcomeCard extends StatelessWidget {
                         );
                       }
                     } else {
-                      if (selectedFirstIn != null && selectedLastOut != null)
-                      {
+                      if (selectedLastOut != null) {
                         return Text(
                           calculateWorkedTime(),
                           style: WelcomeCardConfig.nameText,
@@ -173,24 +170,25 @@ class WelcomeCard extends StatelessWidget {
                 ),
               ],
             ),
-
             if (isCheckedIn && isToday)
               Text("Today", style: WelcomeCardConfig.welcomeText),
             if (hasValidDateData)
               Column(
                 children: [
-
                   Text(jobRole, style: WelcomeCardConfig.roleText),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if (selectedFirstIn != "N/A" && selectedFirstIn.isNotEmpty)
-                        Text("Check-in: $selectedFirstIn", style: WelcomeCardConfig.welcomeText),
-                      if (selectedLastOut != "N/A" && selectedLastOut.isNotEmpty)
-                        Text("Check-out: $selectedLastOut", style: WelcomeCardConfig.welcomeText),
+                      if (selectedFirstIn != "N/A" &&
+                          selectedFirstIn.isNotEmpty)
+                        Text("Check-in: $selectedFirstIn",
+                            style: WelcomeCardConfig.welcomeText),
+                      if (selectedLastOut != "N/A" &&
+                          selectedLastOut.isNotEmpty)
+                        Text("Check-out: $selectedLastOut",
+                            style: WelcomeCardConfig.welcomeText),
                     ],
                   ),
-
                 ],
               ),
           ],

@@ -3,10 +3,9 @@ import 'package:employe_manage/Widgets/attendance_calender.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:employe_manage/Widgets/App_bar.dart';
-import '../API/Controllers/employee_attendence_controller.dart';
-import '../API/Controllers/holiday_controller.dart';
+
+import '../Configuration/Leave_Card_colors.dart';
 import '../Widgets/Leave_card.dart';
-import '../Widgets/holiday_list.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key, required this.title});
@@ -18,43 +17,9 @@ class AttendancePage extends StatefulWidget {
 }
 
 class _AttendancePageState extends State<AttendancePage> {
-  final AttendanceController controller = Get.put(AttendanceController());
-  final HolidayController controllers = Get.put(HolidayController());
-
-
   int selectedYear = DateTime.now().year;
   int selectedMonth = DateTime.now().month;
-  @override
-  void initState() {
-    super.initState();
-    controller.fetchAttendance();
-    controllers.fetchHolidaysByMonth(DateTime.now().month); // Initialize current month view
-  }
-  void onMonthChanged(int year, int month) {
-    setState(() {
-      selectedYear = year;
-      selectedMonth = month;
-    });
 
-    controller.fetchAttendanceByMonth(year, month);
-
-    // ✅ Update selected year and fetch holidays again
-    controllers.selectedYear.value = year;
-    controllers.fetchHolidaysByMonth(month);
-  }
-
-
-  void changeYear(int step) {
-    setState(() {
-      selectedYear += step;
-    });
-  }
-
-  void onYearChanged(int newYear) {
-    setState(() {
-      selectedYear = newYear;
-    });
-  }
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -73,96 +38,77 @@ class _AttendancePageState extends State<AttendancePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppSpacing.small(context),
-                // ✅ Leave Cards Section
-                Obx(() {
-                  if (controller.isLoading.value) {
-                    return SizedBox(
-                      height: 100,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  return SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6.0),
-                      child: Obx(() => Row(
-                        children: [
-                          LeaveCard(
-                            title: "Present",
-                            count: controller.countData.value['present_count']?.toString() ?? '0',
-                          ),
-                          LeaveCard(
-                            title: "Absent",
-                            count: controller.countData.value['absent_count']?.toString() ?? '0',
-                            backgroundColor: Color(0x19C13C0B),
-                            borderColor: Color(0xFFC13C0B),
-                          ),
-                          LeaveCard(
-                            title: "Half Day",
-                            count: controller.countData.value['halfday_count']?.toString() ?? '0',
-                            backgroundColor: Color(0x1933B2E9),
-                            borderColor: Color(0xFF33B2E9),
-                          ),
-                        ],
-                      )),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child:  Row(
+                  children: [
+                    LeaveCard(
+                      title: "Present",
+                      count:   '0',
+                      backgroundColor: blendWithWhite(LeaveColors.present),
+                      borderColor: LeaveColors.present,
                     ),
-                  );
-                }),
-
-                AppSpacing.small(context),
-
-                // 📅 Calendar Section
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[100],
-                  ),
-                  child: AttendanceCalendar(
-                    onMonthChanged: onMonthChanged,
-                    popOnDateTap: false, // <-- this controls the behavior inside the calendar
-
-                  ),
-
+                    LeaveCard(
+                      title: "Absent",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.absent),
+                      borderColor: LeaveColors.absent,
+                    ),
+                    LeaveCard(
+                      title: "Half Day",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.halfDay),
+                      borderColor: LeaveColors.halfDay,
+                    ),
+                    LeaveCard(
+                      title: "Sick Leave",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.sickLeave),
+                      borderColor: LeaveColors.sickLeave,
+                    ),
+                    LeaveCard(
+                      title: "Casual Leave",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.casualLeave),
+                      borderColor: LeaveColors.casualLeave,
+                    ),
+                    LeaveCard(
+                      title: "Earned Leave",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.earnedLeave),
+                      borderColor: LeaveColors.earnedLeave,
+                    ),
+                    LeaveCard(
+                      title: "Off",
+                      count: '0',
+                      backgroundColor: blendWithWhite(LeaveColors.off),
+                      borderColor: LeaveColors.off,
+                    ),
+                    LeaveCard(
+                      title: "Holiday",
+                      count:  '0',
+                      backgroundColor: blendWithWhite(LeaveColors.holiday),
+                      borderColor: LeaveColors.holiday,
+                    ),
+                  ]
+                  ,
                 ),
-                AppSpacing.small(context),
+              ),
+            ),
 
-                // 📢 "Holidays This Month" Title
-                Center(
-                  child: Container(
-                    width: screenWidth * 0.7,
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      "Holidays This Month",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // 🎉 Holiday List
-                SizedBox(
-                  height: screenHeight * 0.3,
-                  child: Obx(() => HolidayList(
-                    holidays: controllers.monthHolidays,
-                    isLoading: controllers.isLoading.value,
-                    phoneNumber: controllers.phoneNumber.value,
-                  )),
+                // Calendar (static, not interactive)
+                AttendanceCalendar(
+                  onDateSelected: null,
+                  onMonthChanged: null,
+                  popOnDateTap: false,
                 ),
               ],
             ),
           ),
         ),
       ),
-    )) ;
+    ));
   }
-
 }

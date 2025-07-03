@@ -32,7 +32,7 @@ class _CategoryPageState extends State<CategoryPage> {
     {'title': 'Assets', 'icon': 'assets/images/wired-flat-146-trolley 1.png', 'route': () => Assetspage(title: 'assets',empId : '')},
     {'title': 'Holidays', 'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png', 'route': () => holidaypage(title: 'Holidays')},
     {'title': 'Leave', 'icon': 'assets/images/wired-flat-1725-exit-sign 1.png', 'route': () => leavepage(title: 'Leave')},
-    {'title': 'Ticket Listing', 'icon': 'assets/images/wired-flat-56-document 1.png', 'route': ()=>TicketScreen()},
+    //{'title': 'Ticket Listing', 'icon': 'assets/images/wired-flat-56-document 1.png', 'route': ()=>TicketScreen()},
   ];
   @override
   Widget build(BuildContext context) {

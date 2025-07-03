@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../API/Controllers/employee_attendence_controller.dart';
 import '../Configuration/app_cards.dart';
 
 class BottomCard extends StatelessWidget {
@@ -15,11 +14,11 @@ class BottomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Ensure Controller is Registered Before Using
-    final AttendanceController controller = Get.find<AttendanceController>();
 
     return Container(
       height: screenHeight*0.08,
+      width: screenWidth*0.9,
+
       padding: EdgeInsets.only(top:10), // Add top padding
       decoration: BoxDecoration(
         color: BottomCardConfig.backgroundColor,
@@ -46,11 +45,11 @@ class BottomCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text('Worked Days', textAlign: TextAlign.center, style: BottomCardConfig.commonTextStyle),
-                Obx(() => Text(
-                  '${controller.present.value} Days',
+               Text(
+                  'Days',
                   textAlign: TextAlign.center,
                   style: BottomCardConfig.commonTextStyle,
-                )),
+                ),
               ],
             ),
           ),
@@ -67,12 +66,12 @@ class BottomCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Weekoff', textAlign: TextAlign.center, style: BottomCardConfig.commonTextStyle),
-                Obx(() => Text(
-                  '${controller.week_off.value} Days',
+                Text('Week off', textAlign: TextAlign.center, style: BottomCardConfig.commonTextStyle),
+                 Text(
+                  ' Days',
                   textAlign: TextAlign.center,
                   style: BottomCardConfig.commonTextStyle,
-                )),
+                )
               ],
             ),
           ),
@@ -90,11 +89,11 @@ class BottomCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text('Half Days', textAlign: TextAlign.center, style: BottomCardConfig.commonTextStyle),
-                Obx(() => Text(
-                  '${controller.halfday.value} Days',
+              Text(
+                  'Days',
                   textAlign: TextAlign.center,
                   style: BottomCardConfig.commonTextStyle,
-                )),
+                ),
               ],
             ),
           ),

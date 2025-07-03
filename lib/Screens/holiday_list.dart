@@ -1,7 +1,6 @@
 import 'package:employe_manage/Configuration/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../API/Controllers/holiday_controller.dart';
 import '../Widgets/App_bar.dart';
 import '../Widgets/year_selector.dart';
 import 'package:employe_manage/Widgets/holiday_list.dart';
@@ -16,15 +15,6 @@ class holidaypage extends StatefulWidget {
 }
 
 class _holidaypageState extends State<holidaypage> {
-  final HolidayController controller = Get.put(HolidayController());
-
-  @override
-  void initState() {
-    super.initState();
-    // 🔁 Optionally fetch or filter on load
-    controller.updateYear(DateTime.now().year);
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(child: Scaffold(
@@ -37,18 +27,16 @@ class _holidaypageState extends State<holidaypage> {
             initialYear: DateTime.now().year,
             initialMonth: DateTime.now().month,
             showMonth: false,
-            onDateChanged: (year, _) {
-              controller.updateYear(year); // Only filters locally
-            },
+            onDateChanged: (year, _) {}, // No-op
           ),
           AppSpacing.small(context),
-          /// ✅ Holiday List
+          /// ✅ Holiday List (empty)
           Expanded(
-            child: Obx(() => HolidayList(
-              holidays: controller.filteredHolidays,
-              isLoading: controller.isLoading.value,
-              phoneNumber: controller.phoneNumber.value,
-            )),
+            child: HolidayList(
+              holidays: [],
+              isLoading: false,
+              phoneNumber: '',
+            ),
           ),
         ],
       ),
