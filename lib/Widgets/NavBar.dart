@@ -1,13 +1,13 @@
 
-import 'package:employe_manage/Screens/Task_screen.dart';
+import 'package:employe_manage/Employee/Tasks/Task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:employe_manage/Screens/Categories.dart';
-import 'package:employe_manage/Screens/settings.dart';
-import 'package:employe_manage/Screens/welcome_page.dart';
+import 'package:employe_manage/Employee/Categories/Categories.dart';
+import 'package:employe_manage/Employee/Settings/settings.dart';
+import 'package:employe_manage/Employee/Home/welcome_page.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import '../Configuration/app_colors.dart';
+import '../Employee/Configuration/app_colors.dart';
 
 class MainScreen extends StatefulWidget {
   @override

@@ -1,10 +1,10 @@
-import 'package:employe_manage/Screens/otp_page.dart';
+import 'package:employe_manage/Employee/Login/otp_page.dart';
 import 'package:employe_manage/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Screens/LoginPage.dart';
+import 'Employee/Login/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'Widgets/Custom_Splash_Screen.dart';
