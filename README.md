@@ -1,4 +1,4 @@
-# employe_manage
+# com.example.coreHrx_employeeapp
 
 A new Flutter project.
 

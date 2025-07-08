@@ -1,0 +1,107 @@
+import 'package:coreHrx_employeeapp/Employee/Attendance/Widgets/attendance_calender.dart';
+import 'package:flutter/material.dart';
+
+import 'package:coreHrx_employeeapp/Widgets/App_bar.dart';
+import '../Configuration/Leave_Card_colors.dart';
+import '../Configuration/app_spacing.dart';
+import '../Leave/Widgets/Leave_card.dart';
+
+class AttendancePage extends StatelessWidget {
+  final String title;
+
+  const AttendancePage({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Attendance',
+          showBackButton: true,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSpacing.small(context),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: Row(
+                        children: [
+                          LeaveCard(
+                            title: "Present",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.present),
+                            borderColor: LeaveColors.present,
+                          ),
+                          LeaveCard(
+                            title: "Absent",
+                            count: '2',
+                            backgroundColor: blendWithWhite(LeaveColors.absent),
+                            borderColor: LeaveColors.absent,
+                          ),
+                          LeaveCard(
+                            title: "Half Day",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.halfDay),
+                            borderColor: LeaveColors.halfDay,
+                          ),
+                          LeaveCard(
+                            title: "Sick Leave",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.sickLeave),
+                            borderColor: LeaveColors.sickLeave,
+                          ),
+                          LeaveCard(
+                            title: "Casual Leave",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.casualLeave),
+                            borderColor: LeaveColors.casualLeave,
+                          ),
+                          LeaveCard(
+                            title: "Earned Leave",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.earnedLeave),
+                            borderColor: LeaveColors.earnedLeave,
+                          ),
+                          LeaveCard(
+                            title: "Off",
+                            count: '0',
+                            backgroundColor: blendWithWhite(LeaveColors.off),
+                            borderColor: LeaveColors.off,
+                          ),
+                          LeaveCard(
+                            title: "Holiday",
+                            count: '0',
+                            backgroundColor:
+                                blendWithWhite(LeaveColors.holiday),
+                            borderColor: LeaveColors.holiday,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  AttendanceCalendar(
+                    onDateSelected: null,
+                    onMonthChanged: null,
+                    popOnDateTap: false,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

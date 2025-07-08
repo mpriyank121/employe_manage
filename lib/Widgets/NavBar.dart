@@ -1,123 +1,81 @@
-
-import 'package:employe_manage/Screens/Task_screen.dart';
+import 'package:coreHrx_employeeapp/Employee/Categories/Categories.dart';
+import 'package:coreHrx_employeeapp/Employee/Attendance/attendence.dart';
+import 'package:coreHrx_employeeapp/Employee/Tasks/Task_screen.dart';
+import 'package:coreHrx_employeeapp/Widgets/nav_bar_controller/main_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:employe_manage/Screens/Categories.dart';
-import 'package:employe_manage/Screens/settings.dart';
-import 'package:employe_manage/Screens/welcome_page.dart';
+import 'package:coreHrx_employeeapp/Employee/Categories/Categories.dart';
+import 'package:coreHrx_employeeapp/Employee/Settings/settings.dart';
+import 'package:coreHrx_employeeapp/Employee/Home/welcome_page.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import '../Configuration/app_colors.dart';
+import '../Employee/Configuration/app_colors.dart';
 
-class MainScreen extends StatefulWidget {
-  @override
-  _MainScreenState createState() => _MainScreenState();
-}
+class MainScreen extends StatelessWidget {
+  MainScreen({Key? key}) : super(key: key);
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; // Track current tab index
+  final MainScreenController controller = Get.put(MainScreenController());
 
-  // Define screens corresponding to each tab
   final List<Widget> _screens = [
     WelcomePage(title: "Home"),
     CategoryPage(title: "Categories"),
-    TaskScreen(),
+    AttendancePage(
+      title: "Attendance",
+    ),
     settingpage(title: "Settings"),
   ];
 
-  // Function to handle tab switching
-  Future<void> _onItemTapped(int index) async {
-    setState(() {
-      _selectedIndex = index;
-    });
-    if (index == 0) {
-      //Get.find<WelcomeController>().reloadWelcomeData();
-    } else if (index == 2) {
-      //Get.find<TaskController>().refreshTaskData();
-    } else if (index == 3) {
-      //Get.find<UserController>().loadUserData();
-    }
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
-          return false; // prevent closing the app
+        if (controller.selectedIndex.value != 0) {
+          controller.changeTab(0);
+          return false;
         }
-        return true; // allow closing if already on Home tab
+        return true;
       },
-      child: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedItemColor: AppColors.secondary,
-          unselectedItemColor: Colors.grey,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          iconSize: 24,
-          items: [
-            BottomNavigationBarItem(
-              icon: AnimatedScale(
-                scale: _selectedIndex == 0 ? 1.2 : 1.0,
-                duration: Duration(milliseconds: 200),
-                child: SvgPicture.asset(
-                  "assets/images/solar_home-2-linear.svg",
-                  color:
-                  _selectedIndex == 0 ? AppColors.secondary : Colors.grey,
-                ),
-              ),
-              label: 'Home',
+      child: Obx(() => Scaffold(
+            body: IndexedStack(
+              index: controller.selectedIndex.value,
+              children: _screens,
             ),
-            BottomNavigationBarItem(
-              icon: AnimatedScale(
-                scale: _selectedIndex == 1 ? 1.2 : 1.0,
-                duration: Duration(milliseconds: 200),
-                child: SvgPicture.asset(
-                  "assets/images/category-1-svgrepo-com 1.svg",
-                  color:
-                  _selectedIndex == 1 ? AppColors.secondary : Colors.grey,
-                ),
-              ),
-              label: 'Categories',
+            bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: controller.selectedIndex.value,
+              onTap: controller.changeTab,
+              selectedItemColor: AppColors.secondary,
+              unselectedItemColor: Colors.grey,
+              selectedFontSize: 12,
+              unselectedFontSize: 12,
+              iconSize: 24,
+              items: [
+                _buildNavItem(
+                    "Home", "assets/images/solar_home-2-linear.svg", 0),
+                _buildNavItem("Categories",
+                    "assets/images/category-1-svgrepo-com 1.svg", 1),
+                _buildNavItem("Attendance", "assets/images/task-square.svg", 2),
+                _buildNavItem("Settings", "assets/images/settings-02.svg", 3),
+              ],
             ),
-            BottomNavigationBarItem(
-              icon: AnimatedScale(
-                scale: _selectedIndex == 2 ? 1.2 : 1.0,
-                duration: Duration(milliseconds: 200),
-                child: SvgPicture.asset(
-                  "assets/images/task-square.svg",
-                  color:
-                  _selectedIndex == 2 ? AppColors.secondary : Colors.grey,
-                ),
-              ),
-              label: 'Tasks',
+          )),
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem(
+      String label, String assetPath, int index) {
+    return BottomNavigationBarItem(
+      icon: Obx(() => AnimatedScale(
+            scale: controller.selectedIndex.value == index ? 1.2 : 1.0,
+            duration: Duration(milliseconds: 200),
+            child: SvgPicture.asset(
+              assetPath,
+              color: controller.selectedIndex.value == index
+                  ? AppColors.secondary
+                  : Colors.grey,
             ),
-            BottomNavigationBarItem(
-              icon: AnimatedScale(
-                scale: _selectedIndex == 3 ? 1.2 : 1.0,
-                duration: Duration(milliseconds: 200),
-                child: SvgPicture.asset(
-                  "assets/images/settings-02.svg",
-                  color:
-                  _selectedIndex == 3 ? AppColors.secondary : Colors.grey,
-                ),
-              ),
-              label: 'Settings',
-            ),
-          ],
-        ),
-      ),
+          )),
+      label: label,
     );
   }
 }

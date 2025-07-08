@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.employe_manage">
+    package="com.example.coreHrx_employeeapp">
 
     <!-- Permissions -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -22,7 +22,7 @@
     </queries>
 
     <application
-        android:label="Spartans"
+        android:label="CoreHRx"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

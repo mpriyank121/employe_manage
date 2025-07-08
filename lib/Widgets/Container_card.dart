@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:employe_manage/Configuration/style.dart';
+
+import '../Employee/Configuration/style.dart';
 
 class ContainerCard extends StatelessWidget {
   final String title;

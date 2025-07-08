@@ -1,9 +1,10 @@
-import 'package:employe_manage/Screens/otp_page.dart';
-import 'package:employe_manage/Widgets/NavBar.dart';
+import 'package:coreHrx_employeeapp/Employee/Login/otp_page.dart';
+import 'package:coreHrx_employeeapp/Widgets/NavBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
-import 'Screens/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Employee/Login/LoginPage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'Widgets/Custom_Splash_Screen.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: Color(0xFFF25922),
         ),
@@ -36,13 +38,13 @@ class MyApp extends StatelessWidget {
         FlutterQuillLocalizations.delegate,
       ],
       debugShowCheckedModeBanner: false,
-      initialRoute: '/', // 🔁 Start from SplashScreen always
-      routes: {
-        '/': (context) =>  CustomSplashScreen(), // ✅ Now runs first
-        '/login': (context) => LoginScreen(),
-        '/otp': (context) =>  OtpPage(phone: 'phone'),
-        '/home': (context) => MainScreen(),
-      },
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => CustomSplashScreen()),
+        GetPage(name: '/login', page: () => LoginScreen()),
+        GetPage(name: '/otp', page: () => OtpPage(phone: 'phone')),
+        GetPage(name: '/home', page: () => MainScreen()),
+      ],
     );
   }
 }

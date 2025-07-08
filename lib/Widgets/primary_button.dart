@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../Configuration/app_buttons.dart';
-import '../Configuration/app_text_styles.dart';
+import '../Employee/Configuration/app_buttons.dart';
+import '../Employee/Configuration/app_text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -9,7 +9,7 @@ class PrimaryButton extends StatelessWidget {
   final double? heightFactor;
   final Color? buttonColor;
   final Color? textColor;
-  final Widget? icon; // ✅ Added icon parameter
+  final Widget? icon; 
 
   const PrimaryButton({
     Key? key,
@@ -19,7 +19,7 @@ class PrimaryButton extends StatelessWidget {
     this.heightFactor,
     this.buttonColor,
     this.textColor,
-    this.icon, // ✅ New parameter
+    this.icon,
   }) : super(key: key);
 
   @override
