@@ -61,31 +61,16 @@ class settingpage extends StatelessWidget {
                 style: fontStyles.subTextStyle,
               ),
             ),
-            Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.person_outline, size: 28),
-                  title: Text(
-                    'Edit Profile',
-                    style: fontStyles.headingStyle,
-                  ),
-                  trailing: Icon(Icons.chevron_right),
-                  onTap: () {
-                    Get.to(() => EditProfilePage());
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.groups_outlined, size: 28),
-                  title: Text(
-                    'Team',
-                    style: fontStyles.headingStyle,
-                  ),
-                  trailing: Icon(Icons.chevron_right),
-                  onTap: () {
-                    Get.to(() => TeamPage());
-                  },
-                ),
-              ],
+            ListTile(
+              leading: Icon(Icons.person_outline, size: 28),
+              title: Text(
+                'Edit Profile',
+                style: fontStyles.headingStyle,
+              ),
+              trailing: Icon(Icons.chevron_right),
+              onTap: () {
+                Get.to(() => EditProfilePage());
+              },
             ),
             PrimaryButton(
               textColor: const Color(0xFFCD0909),

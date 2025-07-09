@@ -1,10 +1,10 @@
 import 'package:coreHrx_employeeapp/Employee/Categories/Categories.dart';
 import 'package:coreHrx_employeeapp/Employee/Attendance/attendence.dart';
-import 'package:coreHrx_employeeapp/Employee/Tasks/Task_screen.dart';
+import 'package:coreHrx_employeeapp/Employee/Settings/team/team_page.dart';
 import 'package:coreHrx_employeeapp/Widgets/nav_bar_controller/main_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coreHrx_employeeapp/Employee/Categories/Categories.dart';
+
 import 'package:coreHrx_employeeapp/Employee/Settings/settings.dart';
 import 'package:coreHrx_employeeapp/Employee/Home/welcome_page.dart';
 import 'package:get/get.dart';
@@ -19,9 +19,8 @@ class MainScreen extends StatelessWidget {
   final List<Widget> _screens = [
     WelcomePage(title: "Home"),
     CategoryPage(title: "Categories"),
-    AttendancePage(
-      title: "Attendance",
-    ),
+    TeamPage(),
+    AttendancePage(title: "Attendance"),
     settingpage(title: "Settings"),
   ];
 
@@ -54,8 +53,9 @@ class MainScreen extends StatelessWidget {
                     "Home", "assets/images/solar_home-2-linear.svg", 0),
                 _buildNavItem("Categories",
                     "assets/images/category-1-svgrepo-com 1.svg", 1),
-                _buildNavItem("Attendance", "assets/images/task-square.svg", 2),
-                _buildNavItem("Settings", "assets/images/settings-02.svg", 3),
+                _buildNavItem("Team", "assets/images/team_icn.svg", 2),
+                _buildNavItem("Attendance", "assets/images/task-square.svg", 3),
+                _buildNavItem("Settings", "assets/images/settings-02.svg", 4),
               ],
             ),
           )),

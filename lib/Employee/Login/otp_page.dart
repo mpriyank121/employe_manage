@@ -17,7 +17,9 @@ class OtpPage extends StatelessWidget {
 
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () => Get.back(),
@@ -101,14 +103,14 @@ class OtpPage extends StatelessWidget {
                     },
                   ),
                   Spacer(),
-       PrimaryButton(
-                  text: 'Continue',
-                  icon:
-                      SvgPicture.asset('assets/images/Arrow_Circle_Right.svg'),
-                  onPressed: () {
-                  Get.offAllNamed('/home');
-                  },
-                ),
+                  PrimaryButton(
+                    text: 'Continue',
+                    icon: SvgPicture.asset(
+                        'assets/images/Arrow_Circle_Right.svg'),
+                    onPressed: () {
+                      Get.offAllNamed('/home');
+                    },
+                  ),
                 ],
               ),
             ),
@@ -118,4 +120,3 @@ class OtpPage extends StatelessWidget {
     );
   }
 }
-   

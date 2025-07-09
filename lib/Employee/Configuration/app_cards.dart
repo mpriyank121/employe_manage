@@ -11,7 +11,8 @@ class TileConfig {
 }
 
 class WelcomeCardConfig {
-  static const Color backgroundColor = AppColors.primary;
+  static const Color backgroundColor = Color.fromARGB(255, 250, 181, 78);
+
   static const double borderRadius = 8.0;
   static final TextStyle welcomeText =
       AppTextStyles.textStyle(color: AppColors.textPrimary);

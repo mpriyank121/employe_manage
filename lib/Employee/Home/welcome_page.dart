@@ -90,15 +90,99 @@ class WelcomePage extends StatelessWidget {
             ),
           ),
         ),
-        bottomNavigationBar: SizedBox(
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
           height: screenHeight * 0.1,
-          child: SlideCheckIn(
-            showCam: false,
-            text: 'Slide To CheckIn',
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-            isEnabled: true,
-            isCheckedIn: false,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Left button (touches left screen edge, curved right side)
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(
+                      right: 8), // Add small gap between buttons
+                  decoration: BoxDecoration(
+                    color: Color(0x1A4CAF50),
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(25),
+                        bottomRight: Radius.circular(25),
+                      ),
+                      onTap: () {
+                        // Check In logic
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Check In',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 16),
+              // Right button (touches right screen edge, curved left side)
+              Expanded(
+                child: Container(
+                  margin:
+                      EdgeInsets.only(left: 8), // Add small gap between buttons
+                  decoration: BoxDecoration(
+                    color: Color(0x1AFF9800),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomLeft: Radius.circular(25),
+                    ),
+                    border: Border.all(color: Colors.deepOrange),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        bottomLeft: Radius.circular(25),
+                      ),
+                      onTap: () {
+                        // Check Out logic
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Check Out',
+                          style: TextStyle(
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -151,7 +235,7 @@ class CategorySection extends StatelessWidget {
                 child: Column(
                   children: [
                     CircleAvatar(
-                        radius: 25, backgroundColor: item['color'] as Color),
+                        radius: 30, backgroundColor: item['color'] as Color),
                     const SizedBox(height: 8),
                     Text(
                       item['title'] as String,
@@ -171,22 +255,10 @@ class CategorySection extends StatelessWidget {
 class LeaveApplicationTabs extends StatelessWidget {
   LeaveApplicationTabs({Key? key}) : super(key: key);
 
-  final List<String> tabs = ['Approved', 'Pending', 'Declined'];
+  final List<String> tabs = ['Pending', 'Approved', 'Declined'];
   final WelcomePageController controller = Get.find();
 
   final Map<String, List<Map<String, String>>> leaveData = {
-    'Approved': [
-      {
-        'title': 'Sick Leave Request',
-        'date': '12 Jan - 14 Jan',
-        'status': 'Approved'
-      },
-      {
-        'title': 'Casual Leave Request',
-        'date': '12 Jan - 14 Jan',
-        'status': 'Approved'
-      },
-    ],
     'Pending': [
       {
         'title': 'Sick Leave Request',
@@ -197,6 +269,18 @@ class LeaveApplicationTabs extends StatelessWidget {
         'title': 'Casual Leave Request',
         'date': '12 Jan - 14 Jan',
         'status': 'Pending'
+      },
+    ],
+    'Approved': [
+      {
+        'title': 'Sick Leave Request',
+        'date': '12 Jan - 14 Jan',
+        'status': 'Approved'
+      },
+      {
+        'title': 'Casual Leave Request',
+        'date': '12 Jan - 14 Jan',
+        'status': 'Approved'
       },
     ],
     'Declined': [
@@ -260,7 +344,7 @@ class LeaveApplicationTabs extends StatelessWidget {
                 onTap: () => controller.changeTab(index),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
                     color: _getTabColor(index, background: true),
