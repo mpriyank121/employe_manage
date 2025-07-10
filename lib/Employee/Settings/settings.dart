@@ -1,5 +1,6 @@
 import 'package:coreHrx_employeeapp/Employee/Settings/edit_profile/edit_profile_page.dart';
 import 'package:coreHrx_employeeapp/Employee/Settings/team/team_page.dart';
+import 'package:coreHrx_employeeapp/report_attendance/report_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -69,7 +70,8 @@ class settingpage extends StatelessWidget {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                Get.to(() => EditProfilePage());
+                // Get.to(() => EditProfilePage());
+                Get.to(() => ReportPage());
               },
             ),
             PrimaryButton(

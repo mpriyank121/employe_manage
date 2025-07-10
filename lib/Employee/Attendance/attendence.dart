@@ -110,8 +110,10 @@ class AttendancePage extends StatelessWidget {
                   AttendanceStatusCard(
                     date: '03 Mon 2024',
                     status: 'Present (WFH)',
-                    clockIn: '09:00 AM',
-                    clockOut: '05:00 PM',
+                  ),
+                  AttendanceStatusCard(
+                    date: '03 Mon 2024',
+                    status: 'Leave',
                   ),
                   // _EditableRequestSection(),
                 ],
@@ -145,9 +147,11 @@ class AttendanceStatusCard extends StatelessWidget {
       case 'present':
         return Colors.green;
       case 'present (wfh)':
-        return Colors.teal;
+        return Colors.green;
       case 'absent':
-        return Colors.red;
+        return Colors.deepOrange;
+      case 'leave':
+        return Colors.blue;
       default:
         return Colors.grey;
     }
@@ -162,7 +166,7 @@ class AttendanceStatusCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         //  color: Colors.orange.withOpacity(0.05),
-        border: Border.all(color: statusColor.withOpacity(0.5)),
+        color: statusColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -172,6 +176,7 @@ class AttendanceStatusCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(date, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Spacer(),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -185,20 +190,25 @@ class AttendanceStatusCard extends StatelessWidget {
                   style: TextStyle(
                       color: statusColor, fontWeight: FontWeight.w600),
                 ),
-              )
+              ),
+              Icon(Icons.arrow_drop_down)
             ],
           ),
           if (clockIn != null && clockOut != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text('Clock In $clockIn'),
-                  const SizedBox(width: 16),
-                  Text('Clock Out $clockOut'),
-                ],
+              child: Container(
+                color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Text('Clock In $clockIn'),
+                    const SizedBox(width: 16),
+                    Text('Clock Out $clockOut'),
+                  ],
+                ),
               ),
             ),
           if (isEditable) _EditableRequestSection(),
@@ -215,7 +225,7 @@ class _EditableRequestSection extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.orange.shade300),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -259,15 +269,15 @@ class _EditableRequestSection extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   text: "Cancel",
-                  buttonColor:
-                      Colors.orange.withOpacity(0.1), // Custom color for cancel
+                  buttonColor: Colors.deepOrange
+                      .withOpacity(0.1), // Custom color for cancel
                   textColor: Colors.deepOrange,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: PrimaryButton(
-                  text: "Save",
+                  text: "Request",
                   onPressed: () {},
                 ),
               ),

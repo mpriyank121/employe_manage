@@ -42,9 +42,9 @@ class LeaveCardConfig {
   static final TextStyle titleStyle = AppTextStyles.textStyle(
       fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey);
   static final TextStyle countStyle =
-      AppTextStyles.textStyle(fontSize: 14, color: Colors.grey[700]!);
+      AppTextStyles.textStyle(fontSize: 12, color: Colors.grey[700]!);
   static EdgeInsets padding(BuildContext context) {
-    return const EdgeInsets.symmetric(vertical: 2, horizontal: 4);
+    return const EdgeInsets.symmetric(vertical: 2, horizontal: 2);
   }
 
   static EdgeInsets margin(BuildContext context) {
@@ -53,7 +53,7 @@ class LeaveCardConfig {
 
   static double defaultWidth(BuildContext context) {
     return MediaQuery.of(context).size.width *
-        0.29; // Default to 40% of screen width
+        0.3; // Default to 40% of screen width
   }
 
   static double defaultHeight(BuildContext context) {

@@ -17,7 +17,7 @@ class AppTextStyles {
     );
   }
 
-  static final TextStyle heading = textStyle(fontSize: 16, fontWeight: FontWeight.bold);
+  static final TextStyle heading = textStyle(fontSize: 15, fontWeight: FontWeight.bold);
   static final TextStyle subText = textStyle(color: AppColors.textSecondary);
   static final TextStyle buttonText = textStyle(color: Colors.white, fontWeight: FontWeight.bold);
 }

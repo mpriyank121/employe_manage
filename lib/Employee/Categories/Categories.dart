@@ -1,4 +1,3 @@
-import 'package:coreHrx_employeeapp/Employee/Assets/assets_cat.dart';
 import 'package:coreHrx_employeeapp/Employee/Attendance/attendence.dart';
 import 'package:coreHrx_employeeapp/Employee/Holidays/holiday_list.dart';
 import 'package:coreHrx_employeeapp/Employee/Leave/leave_detail.dart';
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       // ⬅ Changed to GetMaterialApp for GetX navigation
       title: 'Flutter Demo',
-      home: const CategoryPage(title: ''),
+      home: CategoryPage(title: ''),
     );
   }
 }
@@ -26,9 +25,9 @@ class CategoryPage extends StatelessWidget {
   final String title;
   final String empId;
 
-  const CategoryPage({super.key, required this.title, this.empId = ''});
+  CategoryPage({super.key, required this.title, this.empId = ''});
 
-  final List<Map<String, dynamic>> categoryItems = const [
+  final List<Map<String, dynamic>> categoryItems = [
     {
       'title': 'Attendance',
       'icon': 'assets/images/clock.png',
@@ -47,7 +46,7 @@ class CategoryPage extends StatelessWidget {
     {
       'title': 'Holidays',
       'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png',
-      'route': holidaypage(title: 'Holidays'),
+      'route': () => HolidayPage(title: 'Holidays'),
     },
     {
       'title': 'Leave',
@@ -85,7 +84,7 @@ class CategoryPage extends StatelessWidget {
                   final item = categoryItems[index];
                   return GestureDetector(
                     onTap: () {
-                      Get.to(() => item['route']);
+                      Get.to(item['route']());
                     },
                     child: ContainerCard(
                       title: item['title'],

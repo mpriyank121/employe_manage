@@ -3,7 +3,7 @@ import 'package:coreHrx_employeeapp/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:coreHrx_employeeapp/Widgets/App_bar.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:intl/intl.dart';
 import 'dart:io';
 
@@ -26,9 +26,10 @@ class EditProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProfilePictureSection(),
-            const SizedBox(height: 24),
             _buildFormSection(),
-            const SizedBox(height: 32),
+            SizedBox(
+              height: 20,
+            ),
             _buildActionButtons(),
           ],
         ),
@@ -47,7 +48,6 @@ class EditProfilePage extends StatelessWidget {
                     : const AssetImage('assets/default_profile.png')
                         as ImageProvider,
               )),
-          const SizedBox(height: 8),
           TextButton(
             onPressed: controller.pickImage,
             child: const Text(
@@ -116,7 +116,7 @@ class EditProfilePage extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 16,
+          fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -126,21 +126,31 @@ class EditProfilePage extends StatelessWidget {
   Widget _buildTextField(
     TextEditingController controller, {
     TextInputType? keyboardType,
+    String? hintText,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       ),
     );
   }
 
-  Widget _buildDateField(TextEditingController controller) {
+  Widget _buildDateField(TextEditingController controller, {String? hintText}) {
     return TextFormField(
       controller: controller,
       readOnly: true,
@@ -156,9 +166,18 @@ class EditProfilePage extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       ),
@@ -168,9 +187,12 @@ class EditProfilePage extends StatelessWidget {
   Widget _buildDropdown({
     required TextEditingController controller,
     required List<String> items,
+    String? hintText,
   }) {
     return DropdownButtonFormField<String>(
-      value: controller.text.isNotEmpty ? controller.text : items.first,
+      value: controller.text.isNotEmpty ? controller.text : null,
+      hint: Text(hintText ?? '',
+          style: const TextStyle(color: Colors.grey)), // 👈 grey hint
       items: items.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -181,9 +203,16 @@ class EditProfilePage extends StatelessWidget {
         controller.text = newValue!;
       },
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       ),
@@ -194,15 +223,27 @@ class EditProfilePage extends StatelessWidget {
     required String text,
     required VoidCallback onPressed,
   }) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 48),
-        shape: RoundedRectangleBorder(
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        height: 100,
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
+          color: Colors.grey.shade100,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.upload_file,
+              color: Colors.grey,
+            ),
+            Text(text),
+          ],
         ),
       ),
-      child: Text(text),
     );
   }
 

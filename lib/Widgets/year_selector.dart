@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../Employee/Configuration/app_colors.dart';
 
-
 class YearMonthSelector extends StatefulWidget {
   final int initialYear;
   final int initialMonth;
@@ -26,8 +25,18 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
   late int selectedMonth;
 
   final List<String> months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
   ];
 
   @override
@@ -65,41 +74,43 @@ class _YearMonthSelectorState extends State<YearMonthSelector> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return Container(
-      width: screenWidth * 0.85,
-      height: MediaQuery.of(context).size.height * 0.07,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.secondary),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            onPressed: () =>
-            widget.showMonth ? changeMonth(-1) : changeYear(-1),
-            icon: SvgPicture.asset('assets/images/chevron-u.svg'),
-          ),
-          Text(
-            widget.showMonth
-                ? "${months[selectedMonth - 1]} $selectedYear"
-                : "$selectedYear",
-            style: const TextStyle(
-              color: Color(0xFFF25922),
-              fontSize: 20,
-              fontFamily: 'Urbanist',
-              fontWeight: FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
+      child: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.07,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () =>
+                  widget.showMonth ? changeMonth(-1) : changeYear(-1),
+              icon: SvgPicture.asset('assets/images/chevron-u.svg'),
             ),
-          ),
-          IconButton(
-            onPressed: () =>
-            widget.showMonth ? changeMonth(1) : changeYear(1),
-            icon: SvgPicture.asset('assets/images/chevron-up.svg'),
-          ),
-        ],
+            Text(
+              widget.showMonth
+                  ? "${months[selectedMonth - 1]} $selectedYear"
+                  : "$selectedYear",
+              style: const TextStyle(
+                color: Color(0xFFF25922),
+                fontSize: 20,
+                fontFamily: 'Urbanist',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            IconButton(
+              onPressed: () =>
+                  widget.showMonth ? changeMonth(1) : changeYear(1),
+              icon: SvgPicture.asset('assets/images/chevron-up.svg'),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
