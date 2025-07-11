@@ -1,7 +1,9 @@
 import 'package:coreHrx_employeeapp/Employee/Attendance/attendence.dart';
+import 'package:coreHrx_employeeapp/Employee/Documents/documents.dart';
 import 'package:coreHrx_employeeapp/Employee/Holidays/holiday_list.dart';
 import 'package:coreHrx_employeeapp/Employee/Leave/leave_detail.dart';
 import 'package:coreHrx_employeeapp/Employee/Policy/policy_page.dart';
+import 'package:coreHrx_employeeapp/remuneration/remuneration.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,34 +28,32 @@ class CategoryPage extends StatelessWidget {
   final String empId;
 
   CategoryPage({super.key, required this.title, this.empId = ''});
-
   final List<Map<String, dynamic>> categoryItems = [
     {
       'title': 'Attendance',
       'icon': 'assets/images/clock.png',
-      'route': AttendancePage(title: 'Attendence'),
+      'route': () => AttendancePage(title: 'Attendance'), // ✅
     },
     {
       'title': 'Policy',
       'icon': 'assets/images/policy.png',
-      'route': PolicyScreen(),
+      'route': () => PolicyScreen(), // ✅
     },
-    // {
-    //   'title': 'Assets',
-    //   'icon': 'assets/images/wired-flat-146-trolley 1.png',
-    //   'route': Assetspage(title: 'assets', empId: ''),
-    // },
+    {
+      'title': 'Remuneration',
+      'icon': 'assets/images/wired-flat-146-trolley 1.png',
+      'route': () => RemunerationPage(), // ✅
+    },
     {
       'title': 'Holidays',
       'icon': 'assets/images/wired-flat-1103-confetti (1) 1.png',
-      'route': () => HolidayPage(title: 'Holidays'),
+      'route': () => HolidayPage(title: 'Holidays'), // ✅
     },
     {
       'title': 'Leave',
       'icon': 'assets/images/wired-flat-1725-exit-sign 1.png',
-      'route': leavepage(title: 'Leave'),
+      'route': () => leavepage(title: 'Leave'), // ✅
     },
-    // Add more categories here if needed
   ];
 
   @override
@@ -84,7 +84,10 @@ class CategoryPage extends StatelessWidget {
                   final item = categoryItems[index];
                   return GestureDetector(
                     onTap: () {
+
+                      debugPrint("${item['route']}");
                       Get.to(item['route']());
+                      
                     },
                     child: ContainerCard(
                       title: item['title'],
