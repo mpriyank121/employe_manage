@@ -70,8 +70,8 @@ class settingpage extends StatelessWidget {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                // Get.to(() => EditProfilePage());
-                Get.to(() => ReportPage());
+               Get.to(() => EditProfilePage());
+              
               },
             ),
             PrimaryButton(

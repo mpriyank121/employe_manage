@@ -1,15 +1,19 @@
 import 'package:coreHrx_employeeapp/Employee/Attendance/Widgets/attendance_calender.dart';
+import 'package:coreHrx_employeeapp/Employee/Attendance/controller/attendance_controller.dart';
 import 'package:coreHrx_employeeapp/Widgets/primary_button.dart';
+import 'package:coreHrx_employeeapp/report_attendance/report_page.dart';
 import 'package:flutter/material.dart';
 import 'package:coreHrx_employeeapp/Widgets/App_bar.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../Configuration/Leave_Card_colors.dart';
 import '../Configuration/app_spacing.dart';
 import '../Leave/Widgets/Leave_card.dart';
 
 class AttendancePage extends StatelessWidget {
   final String title;
-
-  const AttendancePage({super.key, required this.title});
+  final AttendanceController controller = Get.put(AttendanceController());
+  AttendancePage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +44,17 @@ class AttendancePage extends StatelessWidget {
                                 blendWithWhite(LeaveColors.present),
                             borderColor: LeaveColors.present,
                           ),
-                          LeaveCard(
-                            title: "Absent",
-                            count: '2',
-                            backgroundColor: blendWithWhite(LeaveColors.absent),
-                            borderColor: LeaveColors.absent,
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => ReportPage());
+                            },
+                            child: LeaveCard(
+                              title: "Absent",
+                              count: '2',
+                              backgroundColor:
+                                  blendWithWhite(LeaveColors.absent),
+                              borderColor: LeaveColors.absent,
+                            ),
                           ),
                           LeaveCard(
                             title: "Half Day",
@@ -145,7 +155,6 @@ class AttendanceStatusCard extends StatelessWidget {
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'present':
-        return Colors.green;
       case 'present (wfh)':
         return Colors.green;
       case 'absent':
@@ -159,40 +168,45 @@ class AttendanceStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AttendanceController>();
     final statusColor = getStatusColor(status);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        //  color: Colors.orange.withOpacity(0.05),
         color: statusColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(date, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  border: Border.all(color: statusColor),
-                  borderRadius: BorderRadius.circular(4),
+          GestureDetector(
+            onTap: isEditable ? () => controller.toggleSection(date) : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(date, style: const TextStyle(fontWeight: FontWeight.bold)),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    border: Border.all(color: statusColor),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                      color: statusColor, fontWeight: FontWeight.w600),
-                ),
-              ),
-              Icon(Icons.arrow_drop_down)
-            ],
+                const Icon(Icons.arrow_drop_down),
+              ],
+            ),
           ),
           if (clockIn != null && clockOut != null)
             Padding(
@@ -211,7 +225,10 @@ class AttendanceStatusCard extends StatelessWidget {
                 ),
               ),
             ),
-          if (isEditable) _EditableRequestSection(),
+          if (isEditable)
+            Obx(() => controller.isExpanded(date)
+                ? _EditableRequestSection()
+                : const SizedBox()),
         ],
       ),
     );
