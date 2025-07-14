@@ -52,7 +52,7 @@ class CategoryPage extends StatelessWidget {
     {
       'title': 'Leave',
       'icon': 'assets/images/wired-flat-1725-exit-sign 1.png',
-      'route': () => leavepage(title: 'Leave'), // ✅
+      'route': () => LeavePage(title: 'Leave'), // ✅
     },
   ];
 
