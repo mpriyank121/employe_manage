@@ -34,11 +34,11 @@ class CategoryPage extends StatelessWidget {
       'icon': 'assets/images/clock.png',
       'route': () => AttendancePage(title: 'Attendance'), // ✅
     },
-    {
-      'title': 'Policy',
-      'icon': 'assets/images/policy.png',
-      'route': () => PolicyScreen(), // ✅
-    },
+    // {
+    //   'title': 'Policy',
+    //   'icon': 'assets/images/policy.png',
+    //   'route': () => documentpage(title: "Document") // ✅
+    // },
     {
       'title': 'Remuneration',
       'icon': 'assets/images/wired-flat-146-trolley 1.png',
@@ -84,10 +84,8 @@ class CategoryPage extends StatelessWidget {
                   final item = categoryItems[index];
                   return GestureDetector(
                     onTap: () {
-
                       debugPrint("${item['route']}");
                       Get.to(item['route']());
-                      
                     },
                     child: ContainerCard(
                       title: item['title'],

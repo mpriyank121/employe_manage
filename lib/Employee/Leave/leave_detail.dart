@@ -1,6 +1,8 @@
 import 'package:coreHrx_employeeapp/Employee/Holidays/controller/holiday_controller.dart';
 import 'package:coreHrx_employeeapp/Employee/Holidays/widget/holiday_widget_list.dart';
+import 'package:coreHrx_employeeapp/Employee/Leave/Widgets/Request_leave_form.dart';
 import 'package:coreHrx_employeeapp/Employee/Leave/controller/leave_controller.dart';
+import 'package:coreHrx_employeeapp/Employee/request_leave/request_leave.dart';
 import 'package:coreHrx_employeeapp/Widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,7 @@ class LeavePage extends StatelessWidget {
                       controller.updateDate(year, month);
                     },
                   )),
+              totalLeaveSection(),
               SizedBox(height: screenHeight * 0.02),
               LeaveApplicationTabs(),
               Container(
@@ -57,6 +60,109 @@ class LeavePage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget totalLeaveSection() {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Casual Leave Card
+          InkWell(
+            onTap: () {
+              Get.to(() => RequestLeave());
+            },
+            child: Container(
+              width: MediaQuery.of(Get.context!).size.width *
+                  0.45, // Adjusted width
+              height: 75,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.green, width: 1.5),
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.green.shade50,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.person_outline, size: 24, color: Colors.green),
+                    SizedBox(width: 12),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Total Casual Leave",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "3/12",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Sick Leave Card
+          Container(
+            width:
+                MediaQuery.of(Get.context!).size.width * 0.45, // Adjusted width
+            height: 75,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue, width: 1.5),
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blue.shade50,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_month, size: 24, color: Colors.blue),
+                  SizedBox(width: 12),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Sick Leaves",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "4/20",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
